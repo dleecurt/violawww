@@ -1262,10 +1262,10 @@ void CB_HTML_etag(int element_number)
     }
 
     
-    /* Handle Wayback Toolbar comments - no special handling needed for end tags */
-    if (element_number == HTML_COMMENT) {
-        return;
-    }
+    /* COMMENT end tags go through normal processing: CB_HTML_stag pushes a
+     * frame for a literal <COMMENT> element (styled as HTML_fld), so it must
+     * be popped here; the top-of-stack check below ignores it otherwise.
+     * (<!-- --> comments never get here: SGML.c routes them to CB_HTML_data.) */
 
     /* Ignore tags entirely while inside Wayback Toolbar comments */
     if (inside_wayback_comment) {
