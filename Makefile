@@ -561,12 +561,20 @@ uninstall:
 # Sanitizer builds
 # ============================================================================
 
+# clang on macOS; on Linux use the normal compiler (GCC supports ASan/UBSan).
+# Override with: make san SAN_CC=clang
+ifeq ($(UNAME_S),Darwin)
+SAN_CC ?= clang
+else
+SAN_CC ?= $(CC)
+endif
+
 .PHONY: asan
 asan:
 	@echo "=== Building with AddressSanitizer (ASan) ==="
 	@$(MAKE) clean
 	@$(MAKE) \
-		CC=clang \
+		CC=$(SAN_CC) \
 		CFLAGS='$(CFLAGS) -O1 -g -fno-omit-frame-pointer -fsanitize=address' \
 		CFLAGS_LIBS='$(CFLAGS_LIBS) -O1 -g -fno-omit-frame-pointer -fsanitize=address' \
 		LDFLAGS='$(LDFLAGS) -fsanitize=address' all
@@ -577,7 +585,7 @@ ubsan:
 	@echo "=== Building with UndefinedBehaviorSanitizer (UBSan) ==="
 	@$(MAKE) clean
 	@$(MAKE) \
-		CC=clang \
+		CC=$(SAN_CC) \
 		CFLAGS='$(CFLAGS) -O1 -g -fno-omit-frame-pointer -fsanitize=undefined' \
 		CFLAGS_LIBS='$(CFLAGS_LIBS) -O1 -g -fno-omit-frame-pointer -fsanitize=undefined' \
 		LDFLAGS='$(LDFLAGS) -fsanitize=undefined' all
@@ -587,7 +595,7 @@ san:
 	@echo "=== Building with ASan + UBSan ==="
 	@$(MAKE) clean
 	@$(MAKE) \
-		CC=clang \
+		CC=$(SAN_CC) \
 		CFLAGS='$(CFLAGS) -O1 -g -fno-omit-frame-pointer -fsanitize=address,undefined' \
 		CFLAGS_LIBS='$(CFLAGS_LIBS) -O1 -g -fno-omit-frame-pointer -fsanitize=address,undefined' \
 		LDFLAGS='$(LDFLAGS) -fsanitize=address,undefined' all
@@ -752,7 +760,7 @@ check-unused:
 	@echo "=== Building with unused code warnings ==="
 	@$(MAKE) clean
 	@$(MAKE) \
-		CC=clang \
+		CC=$(SAN_CC) \
 		CFLAGS='$(CFLAGS) -Wunused -Wunused-parameter -Wunused-variable -Wunused-function -Wunused-macros' \
 		CFLAGS_LIBS='$(CFLAGS_LIBS) -Wunused -Wunused-parameter -Wunused-variable -Wunused-function' \
 		all 2>&1 | tee unused-warnings.log
