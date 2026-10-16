@@ -286,7 +286,9 @@ PUBLIC char* HTWaybackCheck PARAMS((const char* url)) {
     }
     if (TRACE) fprintf(stderr, "Wayback: Connected to %s:%d\n", WAYBACK_API_HOST, WAYBACK_API_PORT);
 
-    /* Build HTTP request for Wayback CDX API (get EARLIEST snapshot) */
+    /* Build HTTP request for Wayback CDX API: the MOST RECENT successful
+    ** capture.  limit=-1 returns the last result (newest), and
+    ** filter=statuscode:200 skips captured redirects and error pages. */
     request =
         (char*)malloc(strlen(url_encoded) + 512); /* Extra space for HTTP headers and path */
     if (!request) {
@@ -296,7 +298,7 @@ PUBLIC char* HTWaybackCheck PARAMS((const char* url)) {
     }
 
     sprintf(request,
-            "GET /cdx/search/cdx?url=%s&limit=1&sort=ascending HTTP/1.1\r\n"
+            "GET /cdx/search/cdx?url=%s&filter=statuscode:200&limit=-1 HTTP/1.1\r\n"
             "Host: %s\r\n"
             "User-Agent: ViolaWWW/4.0 (Wayback)\r\n"
             "Connection: close\r\n"
@@ -371,7 +373,7 @@ PUBLIC char* HTWaybackCheck PARAMS((const char* url)) {
     }
     if (TRACE) fprintf(stderr, "Wayback: Received %d bytes\n", total_read);
 
-    /* Parse CDX text response to get EARLIEST snapshot
+    /* Parse CDX text response to get the MOST RECENT snapshot
     ** CDX returns simple space-separated format (default, not JSON):
     ** urlkey timestamp original mimetype statuscode digest length
     ** Example:
@@ -482,7 +484,7 @@ PUBLIC char* HTWaybackCheck PARAMS((const char* url)) {
             
             if (TRACE) fprintf(stderr, "Wayback: Found snapshot: %s for %s\n", timestamp, original_url);
 
-            /* Construct Wayback URL with EARLIEST timestamp */
+            /* Construct Wayback URL with the most recent timestamp */
             wayback_url = (char*)malloc(strlen(original_url) + 128);
             if (!wayback_url) {
                 free(response_buffer);
@@ -508,7 +510,7 @@ PUBLIC char* HTWaybackCheck PARAMS((const char* url)) {
 
     free(response_buffer);
 
-    if (TRACE) fprintf(stderr, "Wayback: Generated URL: %s\n", wayback_url);
+    if (TRACE) fprintf(stderr, "Wayback: Generated URL: %s\n", wayback_url ? wayback_url : "(none)");
 
     return wayback_url;
 }
