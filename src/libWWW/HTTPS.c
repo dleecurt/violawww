@@ -507,6 +507,11 @@ retry:
             outofmem(__FILE__, "HTLoadHTTPS");
         }
         length = 0;
+        /* Fresh buffers on every pass through retry: drop pointers into
+         * the previous (freed) buffers.  If the read loop below hits EOF
+         * before finding a line, eol must not point into freed memory. */
+        eol = NULL;
+        start_of_data = NULL;
 
         http_progress_subtotal_bytes = 0;
         if (http_progress_reporter_level == 0) {
@@ -533,9 +538,10 @@ retry:
             }
             
             status = HTSSL_read(ssl_conn, binary_buffer + length, buffer_length - length - 1);
-            if (status < 0) {
+            if (status < 0 || (status == 0 && length == 0 && connection_from_pool && pooled_conn)) {
                 if (connection_from_pool && pooled_conn && length == 0) {
-                    /* First read failed on reused connection - retry with new one */
+                    /* First read failed (error, or the server already closed the
+                     * idle keep-alive connection) - retry with a new one */
                     if (TRACE) fprintf(stderr, "HTTPS: First read failed on pooled connection, retrying\n");
                     HTSSL_close(ssl_conn);
                     free(pooled_conn);

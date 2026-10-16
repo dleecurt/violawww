@@ -466,6 +466,11 @@ retry:
         if (!text_buffer)
             outofmem(__FILE__, "HTLoadHTTP");
         length = 0;
+        /* Fresh buffers on every pass through retry: drop pointers into
+         * the previous (freed) buffers.  If the read loop below hits EOF
+         * before finding a line, eol must not point into freed memory. */
+        eol = NULL;
+        start_of_data = NULL;
 
         http_progress_subtotal_bytes = 0;
         if (http_progress_reporter_level == 0) { /*PYW*/
