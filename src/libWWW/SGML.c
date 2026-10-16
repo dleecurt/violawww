@@ -320,7 +320,12 @@ PUBLIC HTTag* SGMLFindTag ARGS2(const SGML_dtd*, dtd, const char*, string) {
 /*	Could check that we are back to bottom of stack! @@  */
 
 PUBLIC void SGML_free ARGS1(HTStream*, context) {
+    int i;
     (*context->actions->free)(context->target);
+    for (i = 0; i < MAX_ATTRIBUTES; i++) { /* attribute values are malloc'd */
+        free(context->value[i]);
+        context->value[i] = NULL;
+    }
     HTChunkFree(context->string);
     free(context);
 }

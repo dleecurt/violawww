@@ -1241,9 +1241,11 @@ long meth_generic_HTTPCurrentDocAddrParsed(VObj* self, Packet* result, int argc,
     packet2->info.s = saveString("");
     packet3->info.s = saveString(path);
 lameLoopEsc:
+    free(path); /* HTParse() result */
 
     char* anchor = HTParse(addr, relative, PARSE_ANCHOR);
     packet4->info.s = (anchor ? saveString(anchor) : saveString(""));
+    free(anchor);
 
     Attr* attrp;
     result->type = PKT_ATR;
@@ -1452,8 +1454,14 @@ long meth_generic_HTTPGet(VObj* self, Packet* result, int argc, Packet argv[]) {
 
     FILE* fp = fopen(tfn, "w");
     if (fp) {
-        char *simpleAddress, *anchorSearch;
-        if (html_fetchDocument(self, src, &simpleAddress, &anchorSearch, fp)) {
+        char* simpleAddress = NULL;
+        char* anchorSearch = NULL;
+        int fetched = html_fetchDocument(self, src, &simpleAddress, &anchorSearch, fp);
+        /* html_fetchDocument() returns malloc'd strings ("" literal for no anchor) */
+        free(simpleAddress);
+        if (anchorSearch && *anchorSearch)
+            free(anchorSearch);
+        if (fetched) {
             fclose(fp);
             result->canFree = PK_CANFREE_STR;
             result->info.s = tfn;
@@ -1481,9 +1489,15 @@ long int helper_buildingHTML(Packet* result, VObj* obj, char* url, long width, i
     if (notSecureWithPromptf(obj, "build HTML document: %s", url ? url : "(null)"))
         return 0;
 
-    char *simpleAddress, *anchorSearch;
+    char* simpleAddress = NULL;
+    char* anchorSearch = NULL;
     VObj* newObj =
         html2_parseHTMLDocument(obj, url, &simpleAddress, &anchorSearch, width, method, dataToPost);
+    /* Both are ours: html2_parseHTMLDocument() only copies them.
+     * anchorSearch is either malloc'd or the literal "". */
+    free(simpleAddress);
+    if (anchorSearch && *anchorSearch)
+        free(anchorSearch);
     /*
             gettimeofday(&time2, (struct timezone*)NULL);
             printf("**** duration=%d secs to for %s\n",

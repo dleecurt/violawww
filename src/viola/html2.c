@@ -1394,7 +1394,7 @@ void CB_HTML_etag(int element_number)
                     if (pending_title) {
                         free(pending_title);
                     }
-                    pending_title = title_text ? saveString(title_text) : saveString(tempbuf);
+                    pending_title = title_text ? title_text : saveString(tempbuf); /* take ownership */
                     /* Don't free title_text here - it's saved in pending_title */
                     title_text = NULL; /* Prevent double free */
                 }

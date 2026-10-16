@@ -111,9 +111,23 @@ PRIVATE char* find_header(char* headers, const char* header_name) {
 **	read.
 **
 */
-PUBLIC int HTLoadHTTP ARGS4(const char*, arg,
-                            /*	const char *,		gate, */
-                            HTParentAnchor*, anAnchor, HTFormat, format_out, HTStream*, sink) {
+/* Redirect targets are malloc'd by HTParse() and become the new "arg";
+** the _impl function hands each one to *owned_location (freeing the
+** previous one) and this wrapper frees the last one on any return path.
+*/
+PRIVATE int HTLoadHTTP_impl(const char* arg, HTParentAnchor* anAnchor, HTFormat format_out,
+                        HTStream* sink, char** owned_location);
+
+PUBLIC int HTLoadHTTP ARGS4(const char*, arg, HTParentAnchor*, anAnchor, HTFormat, format_out,
+                        HTStream*, sink) {
+    char* owned_location = NULL;
+    int status = HTLoadHTTP_impl(arg, anAnchor, format_out, sink, &owned_location);
+    free(owned_location);
+    return status;
+}
+
+PRIVATE int HTLoadHTTP_impl(const char* arg, HTParentAnchor* anAnchor, HTFormat format_out,
+                        HTStream* sink, char** owned_location) {
     int s;                   /* Socket number for returned data */
     char* command;           /* The whole command */
     char* eol = 0;           /* End of line if found */
@@ -662,6 +676,8 @@ retry:
                                 NETCLOSE(s);
                                 
                                 redirect_count++;
+                                free(*owned_location); /* previous redirect target, now unused */
+                                *owned_location = location;
                                 arg = location;  /* Follow redirect */
                                 goto retry;
                             }
