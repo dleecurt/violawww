@@ -238,23 +238,39 @@ PUBLIC HTStream* HTSaveAndExecute ARGS3(HTPresentation*, pres, HTParentAnchor*,
 
     suffix = HTFileSuffix(pres->rep);
 
-    fnam = (char*)malloc(L_tmpnam + 16 + strlen(suffix));
-    tmpnam(fnam);
-    if (suffix)
-        strcat(fnam, suffix);
+    /* Create the file atomically with mkstemps() instead of tmpnam()+fopen(),
+     * which left a window for another user to plant a file or symlink at the
+     * predicted name.  The suffix is kept so external viewers see the type. */
+    {
+        const char* tmpdir = getenv("TMPDIR");
+        int suffix_len = suffix ? (int)strlen(suffix) : 0;
+        int fd;
 
-    me->fp = fopen(fnam, "w");
-    if (!me->fp) {
-        HTAlert("Can't open temporary file!");
-        free(fnam);
-        free(me);
-        return NULL;
+        if (!tmpdir || !*tmpdir)
+            tmpdir = "/tmp";
+        fnam = (char*)malloc(strlen(tmpdir) + sizeof("/violaXXXXXX") + suffix_len);
+        if (fnam == NULL)
+            outofmem(__FILE__, "SaveAndExecute");
+        sprintf(fnam, "%s/violaXXXXXX%s", tmpdir, suffix ? suffix : "");
+
+        fd = mkstemps(fnam, suffix_len);
+        me->fp = (fd >= 0) ? fdopen(fd, "w") : NULL;
+        if (!me->fp) {
+            if (fd >= 0) {
+                close(fd);
+                unlink(fnam);
+            }
+            HTAlert("Can't open temporary file!");
+            free(fnam);
+            free(me);
+            return NULL;
+        }
     }
 
     /*	Make command to process file
      */
     me->end_command = (char*)malloc((strlen(pres->command) + 10 + 3 * strlen(fnam)) * sizeof(char));
-    if (me == NULL)
+    if (me->end_command == NULL) /* was testing 'me' */
         outofmem(__FILE__, "SaveAndExecute");
 
     sprintf(me->end_command, pres->command, fnam, fnam, fnam);

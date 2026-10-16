@@ -53,6 +53,8 @@ int iskeyword(char*);
 #define io_getc() (*getc_ptr++)
 #define io_ungetc(c) (--getc_ptr)
 
+#undef input /* ast.h defines its own versions */
+#undef unput
 #define input io_getc
 #define unput io_ungetc
 

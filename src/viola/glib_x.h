@@ -331,6 +331,7 @@ int GLGIFDraw(Window, XImage*, int, int, int, int);
 /* cut buffer
  */
 void GLClearSelection(void);
+struct Packet; /* declare at file scope so the prototype matches the real type */
 int GLGetSelection(struct Packet*);
 int GLSetSelection(VObj*, char*);
 

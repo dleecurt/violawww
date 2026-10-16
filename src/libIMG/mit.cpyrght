@@ -21,6 +21,9 @@
  */
 
 #ifndef __SABER__
+#ifdef __GNUC__
+__attribute__((unused))
+#endif
 static char *MitCopyright=
   "Copyright 1989 Massachusetts Institute of Technology";
 #endif
