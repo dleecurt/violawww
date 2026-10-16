@@ -395,32 +395,9 @@ retry:
     strcat(command, crlf);
 
     if (extensions) {
-        int n;
-        int i;
-        HTAtom* present = WWW_PRESENT;
         char line[256];
 
-        if (!HTPresentations)
-            HTFormatInit();
-        n = HTList_count(HTPresentations);
-
-        for (i = 0; i < n; i++) {
-            HTPresentation* pres = HTList_objectAt(HTPresentations, i);
-            if (pres->rep_out == present) {
-                if (pres->quality != 1.0) {
-                    sprintf(line, "Accept: %s q=%.3f%c%c", HTAtom_name(pres->rep), pres->quality,
-                            CR, LF);
-                } else {
-                    sprintf(line, "Accept: %s%c%c", HTAtom_name(pres->rep), CR, LF);
-                }
-                StrAllocCat(command, line);
-            }
-        }
-
-        sprintf(line, "User-Agent:  %s/%s  libwww/%s (HTTPS)%s",
-                HTAppName ? HTAppName : "unknown", HTAppVersion ? HTAppVersion : "0.0",
-                HTLibraryVersion, crlf);
-        StrAllocCat(command, line);
+        HTAppendAcceptAndAgent(&command, crlf);
 
         /* Add Host: header */
         if (hostname && *hostname) {

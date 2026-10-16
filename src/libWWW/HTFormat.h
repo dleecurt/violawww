@@ -335,6 +335,9 @@ HTFormatInit: Set up default presentations and conversions
  */
 extern void HTFormatInit NOPARAMS;
 
+/* Append one Accept header and the User-Agent header to *command */
+extern void HTAppendAcceptAndAgent PARAMS((char** command, const char* crlf));
+
 /*
 
 Epilogue

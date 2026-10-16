@@ -672,3 +672,57 @@ PUBLIC HTStream* HTNetToText ARGS1(HTStream*, sink) {
     me->sink = sink;
     return me;
 }
+
+
+/*	Append Accept and User-Agent request headers
+**	--------------------------------------------
+**	Builds a single, RFC 9110-style Accept header from the registered
+**	presentations ("type;q=0.5", comma separated) and skips libwww's
+**	internal "www/..." pseudo-types, which are not real media types.
+**	The old code sent one "Accept: type q=0.300" line per format; that
+**	syntax is invalid and some modern servers reject such requests.
+**	The User-Agent uses single spaces and omits an unknown libwww version.
+*/
+PUBLIC void HTAppendAcceptAndAgent ARGS2(char**, command, const char*, crlf) {
+    extern char* HTAppName;
+    extern char* HTAppVersion;
+    HTAtom* present = WWW_PRESENT;
+    char* accept = NULL;
+    char item[160];
+    char line[256];
+    int n, i;
+
+    if (!HTPresentations)
+        HTFormatInit();
+    n = HTList_count(HTPresentations);
+
+    for (i = 0; i < n; i++) {
+        HTPresentation* pres = HTList_objectAt(HTPresentations, i);
+        const char* type;
+        if (pres->rep_out != present)
+            continue;
+        type = HTAtom_name(pres->rep);
+        if (!type || strncmp(type, "www/", 4) == 0 || strchr(type, '/') == NULL)
+            continue;
+        if (pres->quality >= 1.0f)
+            snprintf(item, sizeof(item), "%s%s", accept ? ", " : "", type);
+        else
+            snprintf(item, sizeof(item), "%s%s;q=%.1f", accept ? ", " : "", type,
+                     pres->quality > 0.0f ? pres->quality : 0.1f);
+        StrAllocCat(accept, item);
+    }
+    StrAllocCat(accept, accept ? ", */*;q=0.1" : "*/*");
+    StrAllocCat(*command, "Accept: ");
+    StrAllocCat(*command, accept);
+    StrAllocCat(*command, crlf);
+    free(accept);
+
+    if (HTLibraryVersion && strcmp(HTLibraryVersion, "unknown") != 0)
+        snprintf(line, sizeof(line), "User-Agent: %s/%s libwww/%s%s",
+                 HTAppName ? HTAppName : "ViolaWWW", HTAppVersion ? HTAppVersion : "0.0",
+                 HTLibraryVersion, crlf);
+    else
+        snprintf(line, sizeof(line), "User-Agent: %s/%s%s",
+                 HTAppName ? HTAppName : "ViolaWWW", HTAppVersion ? HTAppVersion : "0.0", crlf);
+    StrAllocCat(*command, line);
+}
