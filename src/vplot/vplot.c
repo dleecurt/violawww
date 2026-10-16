@@ -363,9 +363,12 @@ static int load_off_model(const char *filename) {
             model_verts[model_nverts].x = x;
             model_verts[model_nverts].y = y;
             model_verts[model_nverts].z = z;
-            if (x < minx) minx = x; if (x > maxx) maxx = x;
-            if (y < miny) miny = y; if (y > maxy) maxy = y;
-            if (z < minz) minz = z; if (z > maxz) maxz = z;
+            if (x < minx) minx = x;
+            if (x > maxx) maxx = x;
+            if (y < miny) miny = y;
+            if (y > maxy) maxy = y;
+            if (z < minz) minz = z;
+            if (z > maxz) maxz = z;
             model_nverts++;
         }
     }

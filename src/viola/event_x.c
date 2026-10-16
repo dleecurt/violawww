@@ -1628,10 +1628,10 @@ void dumpSchedule() {
     int i;
 
     gettimeofday(&time, (struct timezone*)NULL);
-    printf("%ld,%d now\n", (long)time.tv_sec, time.tv_usec);
+    printf("%ld,%ld now\n", (long)time.tv_sec, (long)time.tv_usec);
 
     for (tip = firstTimeInfo; tip; tip = tip->next) {
-        printf("%ld,%d: obj=%s \t", (long)tip->time.tv_sec, tip->time.tv_usec, GET_name(tip->obj));
+        printf("%ld,%ld: obj=%s \t", (long)tip->time.tv_sec, (long)tip->time.tv_usec, GET_name(tip->obj));
         for (i = 0; i < tip->argc; i++) {
             dumpPacket(&(tip->argv[i]));
         }

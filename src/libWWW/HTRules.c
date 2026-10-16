@@ -194,6 +194,9 @@ char* HTTranslate(char* required)
 
         switch (r->op) { /* Perform operation */
 
+        default: /* HT_DefProt/HT_Protect are only handled with ACCESS_AUTH */
+            break;
+
 #ifdef ACCESS_AUTH
         case HT_DefProt:
         case HT_Protect: {

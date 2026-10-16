@@ -143,10 +143,10 @@ Image* processImage(Display* disp, int scrn, Image* image, ImageOptions* options
     }
 
     if (options->xzoom || options->yzoom) {                    /* zoom image */
-        if (!options->colors && RGBP(image) &&                 /* if the image is to */
-                (!options->xzoom && (options->yzoom > 100)) || /* be blown up, */
-            (!options->yzoom && (options->xzoom > 100)) ||     /* compress before */
-            (options->xzoom + options->yzoom > 200)) {         /* doing it */
+        if (!options->colors && RGBP(image) &&                  /* if the image is to */
+            ((!options->xzoom && (options->yzoom > 100)) ||     /* be blown up, */
+             (!options->yzoom && (options->xzoom > 100)) ||     /* compress before */
+             (options->xzoom + options->yzoom > 200))) {        /* doing it */
             compress(image, verbose);
             compressed = 1;
         }

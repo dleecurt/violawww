@@ -46,8 +46,9 @@ static int doRead(ZFILE* zf, byte* buf, int len)
                      */
 
                 if (zf->nocache)
-                    return (int)fread(zf->dataptr->buf, 1, BUFSIZ, zf->stream);
-                    zf->data = zf->dataptr = (struct cache*)lmalloc(sizeof(struct cache));
+                    return bread + (int)fread(buf + bread, 1, len - bread, zf->stream);
+
+                zf->data = zf->dataptr = (struct cache*)lmalloc(sizeof(struct cache));
                 } else {
                     zf->dataptr->next = (struct cache*)lmalloc(sizeof(struct cache));
                     zf->dataptr = zf->dataptr->next;

@@ -3255,8 +3255,6 @@ long meth_generic_filter(VObj* self, Packet* result, int argc, Packet argv[]) {
             case '\"':
                 *cp++ = '\"';
                 continue;
-            case EOF:
-                continue;
             default:
                 *cp++ = '\\';
                 *cp++ = c;

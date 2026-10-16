@@ -334,8 +334,7 @@ long meth_client_input(VObj* self, Packet* result, int argc, Packet argv[]) {
             result->info.s = SaveString(buff);
             return 0;
         }
-        if (cbuff[0] >= 0)
-            buff[c] = cbuff[0];
+        buff[c] = cbuff[0];
 
         if (verbose)
             printf("[%c]%d \n", cbuff[0], (int)(cbuff[0]));

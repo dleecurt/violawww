@@ -735,9 +735,11 @@ char* deBracket(char* list) {
             }
         }
 
-        for (size_t i = strlen(list); i >= 0; i--) {
-            if (list[i] == '}') {
-                list[i] = '\0';
+        /* scan backwards for the closing brace (size_t is never < 0,
+         * so count down from the length and test i before using it) */
+        for (size_t i = strlen(list); i > 0; i--) {
+            if (list[i - 1] == '}') {
+                list[i - 1] = '\0';
                 break;
             }
         }

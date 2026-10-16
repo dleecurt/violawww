@@ -543,8 +543,7 @@ yypoint:
     case '\0':
         if (refresh_buf() != EOF)
             goto yypoint;
-    case EOF:
-        return EOF;
+        return EOF; /* c is a char and can never equal EOF itself */
     case '.':
     case ':':
     case ',':

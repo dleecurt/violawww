@@ -1311,7 +1311,7 @@ PUBLIC int HTLoadNews ARGS4(const char*, arg, HTParentAnchor*, anAnchor, HTForma
     /*	Now, let's get a stream setup up from the NewsHost:
      */
     if (TRACE) fprintf(stderr, "HTNews: Starting connection loop, command='%s'\n", 
-            command ? command : "(null)");
+            command);
     
     for (retries = 0; retries < 2; retries++) {
         if (TRACE) fprintf(stderr, "HTNews: Retry %d, socket s=%d\n", retries, s);

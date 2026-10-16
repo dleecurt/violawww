@@ -93,6 +93,17 @@ static int pbmReadInt(ZFILE* zf) {
     }
 }
 
+/* Read width and height; pbmReadInt() returns -1 on error, which must be
+ * checked before storing into the unsigned outputs. */
+static int pbmReadSize(ZFILE* zf, unsigned int* width, unsigned int* height) {
+    int w, h;
+    if ((w = pbmReadInt(zf)) < 0 || (h = pbmReadInt(zf)) < 0)
+        return -1;
+    *width = (unsigned int)w;
+    *height = (unsigned int)h;
+    return 0;
+}
+
 static int isPBM(ZFILE* zf, char* name, unsigned int* width, unsigned int* height, unsigned int* maxval, unsigned int verbose)
 {
     byte buf[4];
@@ -103,7 +114,7 @@ static int isPBM(ZFILE* zf, char* name, unsigned int* width, unsigned int* heigh
     if (zread(zf, buf, 2) != 2)
         return (NOTPBM);
     if (memToVal((byte*)buf, 2) == memToVal((byte*)"P1", 2)) {
-        if (((*width = pbmReadInt(zf)) < 0) || ((*height = pbmReadInt(zf)) < 0))
+        if (pbmReadSize(zf, width, height) < 0)
             return (NOTPBM);
         *maxval = 1;
         if (verbose)
@@ -111,7 +122,7 @@ static int isPBM(ZFILE* zf, char* name, unsigned int* width, unsigned int* heigh
         return (PBMNORMAL);
     }
     if (memToVal((byte*)buf, 2) == memToVal((byte*)"P4", 2)) {
-        if (((*width = pbmReadInt(zf)) < 0) || ((*height = pbmReadInt(zf)) < 0))
+        if (pbmReadSize(zf, width, height) < 0)
             return (NOTPBM);
         *maxval = 1;
         if (verbose)
@@ -129,7 +140,7 @@ static int isPBM(ZFILE* zf, char* name, unsigned int* width, unsigned int* heigh
         return (PBMCOMPACT);
     }
     if (memToVal(buf, 2) == memToVal((byte*)"P2", 2)) {
-        if (((*width = pbmReadInt(zf)) < 0) || ((*height = pbmReadInt(zf)) < 0))
+        if (pbmReadSize(zf, width, height) < 0)
             return (NOTPBM);
         *maxval = pbmReadInt(zf);
         if (verbose)
@@ -138,7 +149,7 @@ static int isPBM(ZFILE* zf, char* name, unsigned int* width, unsigned int* heigh
         return (PGMNORMAL);
     }
     if (memToVal(buf, 2) == memToVal((byte*)"P5", 2)) {
-        if (((*width = pbmReadInt(zf)) < 0) || ((*height = pbmReadInt(zf)) < 0))
+        if (pbmReadSize(zf, width, height) < 0)
             return (NOTPBM);
         *maxval = pbmReadInt(zf);
         if (verbose)
@@ -147,7 +158,7 @@ static int isPBM(ZFILE* zf, char* name, unsigned int* width, unsigned int* heigh
         return (PGMRAWBITS);
     }
     if (memToVal(buf, 2) == memToVal((byte*)"P3", 2)) {
-        if (((*width = pbmReadInt(zf)) < 0) || ((*height = pbmReadInt(zf)) < 0))
+        if (pbmReadSize(zf, width, height) < 0)
             return (NOTPBM);
         *maxval = pbmReadInt(zf);
         if (verbose)
@@ -156,7 +167,7 @@ static int isPBM(ZFILE* zf, char* name, unsigned int* width, unsigned int* heigh
         return (PPMNORMAL);
     }
     if (memToVal(buf, 2) == memToVal((byte*)"P6", 2)) {
-        if (((*width = pbmReadInt(zf)) < 0) || ((*height = pbmReadInt(zf)) < 0))
+        if (pbmReadSize(zf, width, height) < 0)
             return (NOTPBM);
         *maxval = pbmReadInt(zf);
         if (verbose)

@@ -583,9 +583,9 @@ void update_tf_color(TFStruct* tf)
  */
 int updateHilite(TFStruct* tf, int x1, int y1, int x2, int y2, int mode)
 {
-    int aux;
-    unsigned long newstart, newend;
-    unsigned long oldstart, oldend;
+    long aux; /* positions are signed: a negative start means "none" */
+    long newstart, newend;
+    long oldstart, oldend;
 
 #define Swap(x, y)                                                                                 \
     {                                                                                              \
