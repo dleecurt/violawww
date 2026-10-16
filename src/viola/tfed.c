@@ -736,7 +736,7 @@ int tfed_processMouseInput(VObj* self)
     int init_cx, init_cy;
     int cx, cy;
     XEvent e;
-    int stat;
+    int stat = 0;
     int initColor = 1;
 
     if (!tf)
@@ -4070,7 +4070,7 @@ int addCtrlChar(TFCBuildInfo* buildInfo)
         char *newStrp, *cp, c;
         TFChar *tfcp;
         int cci, flag;
-        short oldState, state;
+        short oldState, state = 0;
         char fontID = (char)GET__font(self);
         char* buffp = buff;
         /* Reserve space: max ~30 chars per iteration (\f(XX) + \b( + char + \o(...)) + final \0 */
@@ -5271,7 +5271,7 @@ int addCtrlChar(TFCBuildInfo* buildInfo)
     {
         TFChar* segheadtfcp = currentp->linep;
         TFChar* tfcp = currentp->linep;
-        int segendpx, segpx = tf->xUL;
+        int segendpx = 0, segpx = tf->xUL;
         int pwidthlimit = tf->xLR;
         int stat;
         XTextItem item;

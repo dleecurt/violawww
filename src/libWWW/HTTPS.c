@@ -842,6 +842,7 @@ retry:
                     } else {
                         /* FALL THROUGH */
                     }
+                    /* fall through */
                 default: {
                     char* p1 = HTParse(arg, "", PARSE_HOST);
                     char* message;

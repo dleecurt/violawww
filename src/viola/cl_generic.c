@@ -4140,7 +4140,7 @@ long meth_generic_nthChar(VObj* self, Packet* result, int argc, Packet argv[]) {
             result->info.c = '\0';
 
     } else if (argc == 3) {
-        int i;
+        int i = 0;
         long n1, n2;
         char *cp, *str;
 
@@ -4312,7 +4312,7 @@ long meth_generic_nthObjectInList(VObj* self, Packet* result, int argc, Packet a
     int i = 0;
     long n;
     char* listName;
-    VObjList* olist;
+    VObjList* olist = 0;
 
     if (argc != 2) {
         clearPacket(result);
@@ -4950,7 +4950,7 @@ long helper_generic_set(VObj* self, Packet* result, int argc, Packet argv[], lon
 
     case STR_children: {
         char* cp;
-        VObjList* objl;
+        VObjList* objl = 0;
 
         result->type = PKT_INT;
         result->canFree = 0;

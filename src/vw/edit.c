@@ -48,8 +48,6 @@ void sourceEditorDeleteWindowEH(Widget w, XtPointer clientData, XEvent* event, B
 void showSourceCB(Widget button, XtPointer clientData, XtPointer callData)
 {
     DocViewInfo* dvi;
-    char* arg[4];
-    char buf[256];
 
     dvi = (DocViewInfo*)((ClientData*)clientData)->shellInfo;
 
@@ -110,9 +108,8 @@ void showSourceStringMH(char* arg[], int argc, void* clientData)
 void showSourceFileMH(char* arg[], int argc, void* clientData)
 {
     DocViewInfo* parentDocViewInfo = (DocViewInfo*)clientData;
-    char *fileName, *sourceData;
-    FILE* fp;
-    int bytes = 0, bytesInFile = 0, bytesRead = 0, editable = 0;
+    char *sourceData;
+    int editable = 0;
 
     if (argc < 4)
         return;
@@ -179,9 +176,10 @@ char* readFile(char* fileName, DocViewInfo* dvi) {
         bytes = fread((char*)(fileData + bytesRead), 1, (bytesInFile - bytesRead), fp);
         bytesRead += bytes;
     }
+    int readError = ferror(fp); /* must check before fclose() */
     fclose(fp);
 
-    if (ferror(fp)) {
+    if (readError) {
         free(fileData);
         /* Inform user of error. */
         return (NULL);
@@ -198,13 +196,12 @@ void showSourceEditor(DocViewInfo* parentDVI, char* data, int editable)
 {
     Widget shell, titleFrame, title, helpLabel, form, frame, buttonBox, reloadB, saveB, saveAsB,
         closeB, textEditor;
-    Pixel bg;
     DocViewInfo* localDocViewInfo;
     ClientData* cd;
     char *name, shellName[1024];
     XmString xms;
     Arg args[16];
-    int n = 0, sourceLength;
+    int n = 0;
     extern Pixmap icon;
 
     localDocViewInfo = (DocViewInfo*)calloc(1, sizeof(DocViewInfo));
@@ -426,7 +423,6 @@ void sourceEditorDeleteWindowEH(Widget w, XtPointer clientData, XEvent* event, B
         if (cm->message_type == XInternAtom(XtDisplay(w), "WM_PROTOCOLS", False) &&
             (Atom)cm->data.l[0] == wm_delete_window) {
             /* User clicked the window close button */
-            ClientData* cd = (ClientData*)clientData;
             /* Call closeSourceEditor with NULL button and callData */
             closeSourceEditor((Widget)NULL, clientData, (XtPointer)NULL);
             *cont = False; /* Don't continue processing */
@@ -438,7 +434,6 @@ void closeSourceEditor(Widget button, XtPointer clientData, XtPointer callData)
 {
     ClientData* cd = (ClientData*)clientData;
     DocViewInfo* dvi = (DocViewInfo*)cd->shellInfo;
-    DocViewInfo* parentDVI = (DocViewInfo*)cd->data;
     char* answer;
 
     if (dvi->editorDataChanged) {
@@ -515,7 +510,6 @@ void saveSource(Widget button, XtPointer clientData, XtPointer callData)
 {
     ClientData* cd = (ClientData*)clientData;
     DocViewInfo* dvi = (DocViewInfo*)cd->shellInfo;
-    DocViewInfo* parentDVI = (DocViewInfo*)cd->data;
 
     if (!dvi->editable)
         return;
@@ -595,7 +589,6 @@ void reloadSource(Widget button, XtPointer clientData, XtPointer callData)
 {
     ClientData* cd = (ClientData*)clientData;
     DocViewInfo* dvi = (DocViewInfo*)cd->shellInfo;
-    DocViewInfo* parentDVI = (DocViewInfo*)cd->data;
 
     /*
      * Wrap data from textEditor in a string or a file.  Pass the string

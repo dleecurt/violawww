@@ -20,6 +20,10 @@
  */
 
 #ifndef __SABER__
+/* kept in each object file on purpose; marked unused to silence -Wunused-variable */
+#ifdef __GNUC__
+__attribute__((unused))
+#endif
 static char* Copyright = "Copyright 1989, 1990, 1991 Jim Frost";
 #endif
 #define _JIM_COPYRIGHT_

@@ -171,8 +171,6 @@ int anchorInP = 0;
 #define TOUPPER(c) (islower(c) ? toupper(c) : (c))
 
 /* Arrays for storing the HyperText References */
-PRIVATE char* logfile_root = 0; /* Log file name */
-PRIVATE char* logfile_name = 0; /* Root of log file name */
 
 /* Misc Externs */
 /* ================================ */

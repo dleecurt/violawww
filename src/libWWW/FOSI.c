@@ -34,7 +34,6 @@ extern HTStyleSheet* styleSheet; /* Application-wide */
 
 /*	Module-wide style cache
  */
-PRIVATE int got_styles = 0;
 PRIVATE HTStyle* styles[FOSI_ELEMENTS];
 PRIVATE HTStyle* default_style;
 

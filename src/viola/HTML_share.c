@@ -419,7 +419,7 @@ int HTMLTableFormater(VObj* self, VObj* titleObj, int titleTopP)
     int matCols, matRows;
     int maxCols;
     int x, y, width, xspan;
-    float rowSpan, colSpan;
+    float rowSpan, colSpan = 0;
     int type, lastCellType = 0;
     Packet evalResult;
 

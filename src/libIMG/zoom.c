@@ -35,7 +35,7 @@ static unsigned int* buildIndex(unsigned int width, unsigned int zoom, unsigned 
 
 Image* zoom(Image* oimage, unsigned int xzoom, unsigned int yzoom, int verbose) {
     char buf[BUFSIZ];
-    Image* image;
+    Image* image = 0;
     unsigned int *xindex, *yindex;
     unsigned int xwidth, ywidth;
     unsigned int x, y, xsrc, ysrc;

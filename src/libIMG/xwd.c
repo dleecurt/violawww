@@ -390,7 +390,7 @@ Image* xwdLoad(char* fullname, char* name, int verbose) {
     XWDHeader header;
     size_t cmaplen;
     XWDColor* cmap;
-    Image* image;
+    Image* image = 0;
     int a;
 
     if (!(zf = zopen(fullname)))

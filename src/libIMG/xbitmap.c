@@ -142,7 +142,7 @@ Image* xbitmapLoad(char* fullname, char* name, unsigned int verbose)
     char name_and_type[MAX_SIZE];
     char* type;
     int value;
-    int v10p;
+    int v10p = 0;
     unsigned int linelen, dlinelen;
     unsigned int x, y;
     unsigned int w = 0, h = 0;

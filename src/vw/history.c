@@ -62,7 +62,6 @@ void historyNext(DocViewInfo* dvi) {
 }
 
 void historyBackUp(DocViewInfo* dvi) {
-    int end, i;
 
     if (dvi->currentHistoryItem == 0) {
         XBell(XtDisplay(dvi->shell), 50);
@@ -86,7 +85,7 @@ void historyBackUp(DocViewInfo* dvi) {
 }
 
 void historyAdd(DocViewInfo* dvi, char* newItem) {
-    int i, nitems;
+    int nitems;
     char** tmpList;
     XmString itemXMS;
 
@@ -130,7 +129,6 @@ void historySelect(DocViewInfo* dvi, char* url) {
 int isURLInHistory(DocViewInfo* dvi, char* url) {
     int i;
     char* canonicalURL;
-    char* canonicalHist;
     
     if (!dvi || !url || !dvi->historyList)
         return 0;
@@ -178,7 +176,7 @@ void setHistoryList(DocViewInfo* dvi, char* newList[], int numItems) {
     int i;
     XmStringTable listItems = NULL;
 
-    if (!newList || !numItems)
+    if (!newList || numItems <= 0)
         return;
 
     /*
@@ -229,7 +227,7 @@ void growHistoryList(DocViewInfo* dvi) {
 }
 
 Widget createHistoryDialog(DocViewInfo* dvi) {
-    Widget dlog, form, list, doneButton, label1, label2, labelForm;
+    Widget form, list, doneButton, label1, label2, labelForm;
     Arg args[16];
     int n = 0, i;
     XmString labelXMS;

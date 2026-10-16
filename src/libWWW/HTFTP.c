@@ -678,7 +678,7 @@ PRIVATE int read_directory ARGS4(HTParentAnchor*, parent, const char*, address, 
 
     char c = 0;
 
-    char* lastpath = ""; /* prefix for link, either "" (for root) or xxx  */
+    char* lastpath = NULL; /* prefix for link, "/" (for root) or xxx; malloc'd */
 
     targetClass = *(target->isa);
 
@@ -686,9 +686,12 @@ PRIVATE int read_directory ARGS4(HTParentAnchor*, parent, const char*, address, 
 
     data_read_pointer = data_write_pointer = data_buffer;
 
-    if (*filename == 0) /* Empty filename : use root */
+    if (*filename == 0) { /* Empty filename : use root */
+        lastpath = (char*)malloc(2);
+        if (!lastpath)
+            outofmem(__FILE__, "read_directory");
         strcpy(lastpath, "/");
-    else {
+    } else {
         char* p = strrchr(filename, '/'); /* find lastslash */
         lastpath = (char*)malloc(strlen(p));
         if (!lastpath)

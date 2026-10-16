@@ -229,7 +229,7 @@ int load_object(char* filename, char* pathname)
 int load_objects_slots(FILE* fp, long (*slotv)[100][2], int* slotc)
 {
     char label[SLOT_LABEL_SIZE], *dynaBuff;
-    int labeli, sloti, dynaBuffi;
+    int labeli, sloti, dynaBuffi = 0;
     long seekBackPosition = 0;
     int done = 0;
     int llc = 0, lc = 0, c, nc;

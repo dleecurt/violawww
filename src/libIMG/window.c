@@ -344,7 +344,7 @@ static void bestVisual(Display* disp,
 {
     unsigned int depth, a;
     Screen* screen;
-    Visual *visual, *default_visual;
+    Visual *visual = 0, *default_visual;
 
     /* figure out the best depth the server supports.  note that some servers
      * (such as the HP 11.3 server) actually say they support some depths but

@@ -58,13 +58,12 @@ void showMailEditor(Widget widget, XtPointer clientData, XtPointer callData)
     Widget shell, titleFrame, title, helpLabel, form, frame, commandFrame, commandLabel,
         commandText, addressLabel, addressText, subjectLabel, subjectText, buttonBox, insertFileB,
         sendMailB, saveAsB, closeB, textEditor;
-    Pixel bg;
     ClientData* cd = (ClientData*)clientData;
     DocViewInfo *localDocViewInfo, *parentDVI = (DocViewInfo*)cd->shellInfo;
     MailCBStruct* ms;
     XmString xms;
     Arg args[24];
-    int n = 0, sourceLength;
+    int n = 0;
     extern Pixmap icon;
 
     localDocViewInfo = (DocViewInfo*)calloc(1, sizeof(DocViewInfo));

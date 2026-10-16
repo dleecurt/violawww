@@ -1437,7 +1437,7 @@ int magic16x16[16][16] = {
  */
 void make_magic(int size, int magic[16][16])
 {
-    int j, i, li, bi, bx, by;
+    int j, i, li, bi, bx = 0, by = 0;
     int xx, yy;
     int total;
 

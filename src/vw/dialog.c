@@ -114,7 +114,6 @@ void modalErrorDialog(DocViewInfo* dvip, char* msg) {
     int n = 0, done = 0;
     XEvent event;
     XmString msg_xms;
-    ClientData* cd;
 
     if (!msg)
         return;
@@ -721,7 +720,7 @@ void printDialog(DocViewInfo* dvip, char* docName) {
     form = XtVaCreateManagedWidget("form", xmFormWidgetClass, frame, NULL);
 
     if (docName && strlen(docName) < 256)
-        sprintf(labelString, "Printing %s", docName);
+        snprintf(labelString, sizeof(labelString), "Printing %s", docName);
     else
         sprintf(labelString, "Printing");
 
@@ -880,7 +879,7 @@ void urlDlogParseURL(struct urlDlogStruct* uds)
         machine = hostname;
         file = newURL;
 
-        sprintf(changedURL, "file://%s%s", machine, newURL);
+        snprintf(changedURL, sizeof(changedURL), "file://%s%s", machine, newURL);
         XmTextFieldSetString(uds->urlText, changedURL);
     }
 
@@ -1032,9 +1031,7 @@ void openURLDialog(Widget widget, XtPointer clientData, XtPointer callData)
         machineForm, machineLabel, machineText, fileForm, fileLabel, fileText, urlForm, urlLabel,
         urlText, openButton, cancelButton, button;
     Arg args[12];
-    int i, n = 0, done = 0;
-    char labelString[256], optionDefault[256], printString[512];
-    XEvent event;
+    int i, n = 0;
     XmString labelStringXMS, protocolXMS;
     ClientData* cd = (ClientData*)clientData;
     DocViewInfo* dvi = (DocViewInfo*)cd->shellInfo;
@@ -1188,11 +1185,9 @@ void openURLDialog(Widget widget, XtPointer clientData, XtPointer callData)
  */
 void openSimpleURLDialog(Widget widget, XtPointer clientData, XtPointer callData)
 {
-    Widget dlog, frame, form, label, urlText, openButton, clearButton, cancelButton;
+    Widget form, label, urlText, openButton, clearButton, cancelButton;
     Arg args[12];
-    int i, n = 0, done = 0;
-    char labelString[256], optionDefault[256], printString[512];
-    XEvent event;
+    int n = 0;
     XmString labelStringXMS;
     ClientData* cd = (ClientData*)clientData;
     DocViewInfo* dvi = (DocViewInfo*)cd->shellInfo;
@@ -1427,9 +1422,8 @@ char* openSimpleLineEntryDialog(DocViewInfo* dvi, char *dialogLabel, char *defau
     Widget dlog, frame, form, label, lineText, LineEntry_okButton, LineEntry_clearButton,
         LineEntry_cancelButton;
     Arg args[12];
-    int i, n = 0, done = 0;
-    XEvent event;
-    XmString labelStringXMS, defaultStringXMS;
+    int n = 0;
+    XmString labelStringXMS;
 
     struct lentryDlogStruct* lds;
 

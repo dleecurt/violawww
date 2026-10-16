@@ -474,7 +474,10 @@ int parse_menu_entryLine(VObj* self, char* entry, char* label, char* returnStr, 
                 if (entry[i + 1] == '-') {
                     *modifier = MODIFIER_META;
                     ++i; /* skip the dash character */
+                    *accelerator = entry[++i];
+                    break; /* was falling into default, which reset the modifier */
                 }
+                /* fall through - a plain 'M' is handled like any other key */
             default:
                 *modifier = MODIFIER_NONE;
                 *accelerator = entry[++i];

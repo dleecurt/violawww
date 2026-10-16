@@ -138,7 +138,7 @@ Image* normalize(Image* image, unsigned int verbose) {
     unsigned int a, x, y;
     unsigned int min, max;
     Pixel pixval;
-    Image* newimage;
+    Image* newimage = 0;
     byte *srcptr, *destptr;
     byte array[256];
 

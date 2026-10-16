@@ -380,7 +380,7 @@ VObj* html2_parseHTMLDocument(VObj* self, char* address, char** simpleAddress, c
 void CB_HTML_new() {
     SGMLBuildInfoState* bstate;
     int i, j, tagCount, idx;
-    char *dtd = "HTML", *tag;
+    char *dtd = "HTML", *tag = 0;
     SGMLTagMappingInfo *tmi, *tagMappingInfo = NULL;
     SGMLDocMappingInfo* dmi = NULL;
     /*	SGML_dtd sgmldtd;*/

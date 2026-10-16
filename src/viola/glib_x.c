@@ -38,6 +38,8 @@
 #include "classlist.h"
 #include "event.h"
 #include "glib.h"
+#include "violaIcon.xbm"  /* bitmap data, used only here */
+#include "dunselIcon.xbm"
 #include "slotaccess.h"
 
 #include <X11/Intrinsic.h>
@@ -814,7 +816,7 @@ int init_fonts() {
     Packet fontsPk;
     Packet* packetp;
     char* fontSet;
-    int i, n, idx;
+    int n, idx;
 
     nullPacket(&fontsPk);
 
@@ -1000,7 +1002,6 @@ Window GLOpenWindow(VObj* self, int x, int y, int width, int height, int isGlass
     Window w, parentWindow = 0;
     int borderThickness;
     XSetWindowAttributes attrs;
-    int inputOnlyWindowP = 0;
     char* window_name;
     char* argv = "viola";
     int argc = 1;
@@ -2100,7 +2101,7 @@ void GLDrawScrollBarH(Window w, int width, int start, int end, int thickness)
         XFillRectangle(display, w, gc_mesh, start, 3, end - start + 1, thickness - 5);
 
     } else {
-        GC ltGC, dkGC;
+        GC ltGC;
 
         if (shadingP) {
             ltGC = gc_bg_lighter;
@@ -2173,7 +2174,7 @@ void GLDrawScrollBarV(Window w, int height, int start, int end, int thickness)
         XSetForeground(display, gc_mesh, FGPixel);
         XFillRectangle(display, w, gc_mesh, 2, start, thickness - 3, end - start + 1);
     } else {
-        GC ltGC, dkGC;
+        GC ltGC;
 
         if (shadingP) {
             ltGC = gc_bg_lighter;
@@ -2356,7 +2357,7 @@ int approximateColor(int r, unsigned g, unsigned b)
        the entire X colormap and pick the closest color */
 
     for (i = 0; i < dc; i++) {
-        d = abs(r - ctab[i].red) + abs(g - ctab[i].green) + abs(b - ctab[i].blue);
+        d = abs(r - (int)ctab[i].red) + abs((int)g - (int)ctab[i].green) + abs((int)b - (int)ctab[i].blue);
         /*		print("%d: %d %d %d   d=%d, mdist=%d\n", i,
                                 ctab[i].red, ctab[i].green, ctab[i].blue, d, mdist);
         */
@@ -2381,7 +2382,7 @@ int GLSetColor(ColorStruct** colorpp, char* colorname, char* defaultColorName, l
 {
     ColorStruct* cs;
     XColor exactcolor;
-    long oldIndex;
+    long oldIndex = 0;
     char fc = colorname[0];
     int initP;
 
@@ -2514,7 +2515,6 @@ int GLSetBGColor(VObj* self, char* colorname)
 int GLSetBGColorPixel(VObj* self, unsigned long pixel)
 {
     Window w = GET_window(self);
-    ColorInfo* colorInfo = GET__colorInfo(self);
     if (w)
         XSetWindowBackground(display, w, pixel);
     return 1;
@@ -3067,8 +3067,6 @@ ColorStruct* addColorName(char* str)
 void releaseColor(ColorStruct* colorp)
 {
     if (--(colorp->refc) <= 0) {
-        HashEntry* entry;
-        ColorStruct* cs;
 
         colorNameShareDB->remove(colorNameShareDB, (long)(colorp->name));
         /*free the color struct*/

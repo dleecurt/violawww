@@ -47,7 +47,7 @@ Image* xpixmapLoad(char* fullname, char* name, unsigned int verbose)
     unsigned int value;
     unsigned int format;  /* image format */
     unsigned int w, h;    /* image dimensions */
-    unsigned int cpp;     /* chars per pixel */
+    unsigned int cpp = 0;     /* chars per pixel */
     unsigned int ncolors; /* number of colors */
     unsigned int depth;   /* depth of image */
     char** ctable;        /* color table */

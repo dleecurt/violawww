@@ -66,6 +66,10 @@ static MenuItem clonePageMenuItems[] = {
     NULL,
 };
 
+/* Defined but not yet wired into any menu bar. */
+#ifdef __GNUC__
+__attribute__((unused))
+#endif
 static Menu clonePageMainMenus[] = {
     {"File", 'F', clonePageMenuItems},
     NULL,
@@ -145,13 +149,11 @@ void oneWordMessageCB(Widget w, XtPointer clientData, XtPointer callData) {
 
 void clonePage(DocViewInfo* parentDocViewInfo) {
     Widget shell, menu, menuBar, closeB, titleFrame, title, helpLabel, form, titleForm, frame,
-        canvasForm, scrollBar, violaCanvas;
+         scrollBar, violaCanvas;
     DocViewInfo* localDocViewInfo;
     ClientData* cd;
-    Pixel bg;
     extern Pixmap icon;
-    XmString xms, xms_file, xms_close;
-    int i;
+    XmString xms;
 
     localDocViewInfo = (DocViewInfo*)calloc(1, sizeof(DocViewInfo));
     if (!localDocViewInfo) {
@@ -591,7 +593,6 @@ void closeThisShell(Widget button, XtPointer clientData, XtPointer callData) {
 }
 
 void quitOk(Widget widget, XtPointer clientData, XtPointer call) {
-    VObj* obj;
     ClientData* cd = (ClientData*)clientData;
     DocViewInfo* dvi = (DocViewInfo*)cd->shellInfo;
 
@@ -755,7 +756,7 @@ void openDocument(Widget widget, XtPointer clientD, XtPointer callData) {
     int n;
     Arg args[8];
     XmString xms;
-    XtCallbackRec okCallback[2], cancelCallback[2], helpCallback[2], filterCallback[2];
+    XtCallbackRec okCallback[2], cancelCallback[2], helpCallback[2];
 
     if (!dlog) {
         xms = XmStringCreateSimple("File Name:");
@@ -809,7 +810,7 @@ static int calledDrag;
 
 void scrollBarConfig(Widget sbar, int thumbPercent, int positionPercent)
 {
-    int sliderSize, maximum;
+    int maximum;
 
     XtVaGetValues(sbar, XmNmaximum, &maximum, NULL);
     XtVaSetValues(sbar, XmNsliderSize, (thumbPercent * maximum / SBAR_MAGNITUDE), XmNvalue,
@@ -1186,7 +1187,6 @@ void oneMessageCB(Widget widget, XtPointer clientData, XtPointer callData) {
  *
  */
 void newDocument(char* arg[], int argc, void* clientData) {
-    long cloneID;
     XmString xms;
     DocViewInfo* dvi = (DocViewInfo*)clientData;
 

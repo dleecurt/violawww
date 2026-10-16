@@ -54,8 +54,6 @@ struct _HTStructured {
 /*	Module-wide variables
  */
 PUBLIC char* HTNewsHost;
-PRIVATE char* override_host = NULL;          /* Host from nntp:// or news:// URL */
-PRIVATE int override_port = 0;               /* Port from URL (0 = use default) */
 PRIVATE struct sockaddr_in soc_address;      /* Binary network address */
 PRIVATE int s;                               /* Socket for NewsHost */
 PRIVATE char response_text[LINE_LENGTH + 1]; /* Last response */

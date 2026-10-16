@@ -120,7 +120,7 @@ int scanIntNDigits(int n)
  * i.e. "a" or "\n" or "\253"
  */
 char convertEscChar() {
-    char c;
+    char c = 0;
     /*	char escbuf[4];
             int i;*/
 
@@ -349,23 +349,6 @@ static int iskeyword(char* name);
 static int refresh_buf(void);
 #endif /* ANSI */
 
-static char* translate_token(int token)
-{
-    static char buf[80];
-    if (token == 0) {
-        sprintf(buf, "END-OF-INPUT");
-    } else if (token < 256) {
-        sprintf(buf, "'%c'", token);
-    } else if (token == STRING) {
-        sprintf(buf, "a string");
-    } else if (token == INTCONST) {
-        sprintf(buf, "the integer %ld", yylval.i);
-    } else if (token == FLOATCONST) {
-        sprintf(buf, "the float %f", yylval.f);
-    } else
-        sprintf(buf, "token %d", token);
-    return buf;
-}
 
 #ifdef NOT
 int yyerror(char* s)

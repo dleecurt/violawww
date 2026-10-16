@@ -187,7 +187,7 @@ Packet* getlistitem(Attr* attrp)
 Attr* makeArgAttr(VObj* self)
 {
     Attr* argAttr = GET__argAttr(self);
-    Attr *attrp, *attrlist = NULL;
+    Attr *attrp;
     Packet* argPk;
 
     if (!argAttr) {
@@ -233,7 +233,7 @@ Attr* makeArgAttr(VObj* self)
 int makeArgList(VObj* self, int argc)
 {
     int i;
-    Attr *argAttr, *attrp, *attrlist = NULL;
+    Attr *argAttr, *attrp;
     Packet* argPk;
 
     argAttr = GET__argAttr(self);
@@ -306,7 +306,7 @@ int makeArgList(VObj* self, int argc)
 
 void freeArgListForDestroyed() {
     int argAttrStackIdx_end = argAttrStackIdx;
-    Packet *pk, *argPk;
+    Packet *pk;
 
     if (argCountStackIdx <= 0) {
         fprintf(stderr, "freeArgListForDestroyed: argCountStackIdx underflow\n");
@@ -364,7 +364,6 @@ void freeArgList(VObj* self) {
 
 void freeVarList(Attr* varlist)
 {
-    Attr* attrlist;
     Attr *attrp2, *nextp, *nextp2;
     Packet* pk;
     int i = 0;
@@ -415,7 +414,6 @@ void freeVarList(Attr* varlist)
 
 void dumpVarList(Attr* varlist)
 {
-    Attr* attrlist;
     Attr* attrp2;
     int i = 0;
 
@@ -448,7 +446,6 @@ void dumpVarList(Attr* varlist)
 Packet* codeExec(VObj* self, union PCode* pcode, union PCode* pcode_end, Attr** varVectorp[]) {
     long currBaseIdx = stackBaseIdx;
     union PCode* pcode_start = pcode;
-    extern char* PCodeStr[];
     int data;
     long code;
 
@@ -683,7 +680,7 @@ Packet* codeExec(VObj* self, union PCode* pcode, union PCode* pcode_end, Attr** 
                                         (char*)symID2Str->get(symID2Str, funcid)->val);
                                 */
                                 (*(pcode - 2)).x =
-                                    (*(pcode - 2)).x & 0xf000ffff | (CODE_CALL2_C << 16);
+                                    ((*(pcode - 2)).x & 0xf000ffff) | (CODE_CALL2_C << 16);
                                 (*(pcode - 1)).i = (long)(entry->val);
 
                                 ((MethodFunc)(entry->val))(self, &reg1, argc,
@@ -698,7 +695,6 @@ Packet* codeExec(VObj* self, union PCode* pcode, union PCode* pcode_end, Attr** 
                 /* It's an object .. (bad mix) */
                 {
                     VObj* obj;
-                    int stat;
 
                     if ((entry = objID2Obj->get(objID2Obj, funcid))) {
                         obj = (VObj*)entry->val;
@@ -1104,7 +1100,6 @@ Packet* codeExec(VObj* self, union PCode* pcode, union PCode* pcode_end, Attr** 
             case CODE_PUSH_REFPS: {
                 Attr* varlist;
                 long varID,varCount;
-                Packet* vvp;
                 long vvi, varCount_TMP;
 
                 varCount = (*pcode++).i;

@@ -22,6 +22,10 @@
 ****/
 
 #ifndef __SABER__
+/* kept in each object file on purpose; marked unused to silence -Wunused-variable */
+#ifdef __GNUC__
+__attribute__((unused))
+#endif
 static char* TGNCopyright = "Copyright (C) 1991 Tim Northrup";
 #endif
 #define _TGN_COPYRIGHT_

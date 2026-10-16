@@ -34,7 +34,6 @@ int Scrn = 0;
 
 #define root_weave_width 4
 #define root_weave_height 4
-static byte root_weave_bits[] = {0xe0, 0xb0, 0xd0, 0x70};
 
 int initImgLib() {
     char* dname = NULL;

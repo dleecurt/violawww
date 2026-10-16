@@ -230,6 +230,10 @@ static MenuItem fileMenuItems[] = {
     NULL,
 };
 
+/* Defined but not yet wired into any menu bar. */
+#ifdef __GNUC__
+__attribute__((unused))
+#endif
 static MenuItem editMenuItems[] = {
     {"Copy", &xmPushButtonWidgetClass, 'C', "Ctrl<Key>C", "Ctrl-C", genericCallback, "Copy",
      "Copy the selection to the clipboard.", TRUE, (MenuItem*)NULL},
@@ -335,9 +339,7 @@ int main(int argc, char* argv[])
 {
     int i, loadCmdLineDoc = 0;
     DocViewInfo* dvip;
-    Dimension width, height;
     XEvent event;
-    FILE* output;
 
     topWidget = XtVaAppInitialize(&appCon, "Viola", NULL, 0, &argc, argv, fallback_resources,
                                   XmNborderWidth, 2, NULL);
@@ -458,7 +460,6 @@ DocViewInfo* makeBrowserInterface(Widget shell, char* shellName, DocViewInfo* pa
     Widget titleFrame;
     Widget toolBarForm;
     Widget title;
-    Widget fieldBox;
     Widget frame;
     Widget canvasForm;
     Widget scrollBar;
@@ -467,7 +468,6 @@ DocViewInfo* makeBrowserInterface(Widget shell, char* shellName, DocViewInfo* pa
     Widget searchLabel;
     Widget searchField;
     Pixel bg;
-    Dimension th, tw;
     XmString xms;
     DocViewInfo* docViewInfo;
     char* status;
@@ -657,7 +657,6 @@ DocViewInfo* makeBrowserInterface(Widget shell, char* shellName, DocViewInfo* pa
     if (!globes[0]) {
         int status;
         Pixmap mask;
-        XpmAttributes xpma;
 
         status = XpmCreatePixmapFromData(XtDisplay(titleIcon),
                                          XtWindow(titleIcon),
@@ -996,7 +995,6 @@ XmString makeXMSTitle(char * title, char * subTitle)
 
 void tmpMessageMH(char* arg[], int argc, void* clientData)
 {
-    XmString xms;
     DocViewInfo* dvi = (DocViewInfo*)clientData;
 
     if (argc != 3)

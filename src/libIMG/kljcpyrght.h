@@ -22,6 +22,10 @@
 ****/
 
 #ifndef __SABER__
+/* kept in each object file on purpose; marked unused to silence -Wunused-variable */
+#ifdef __GNUC__
+__attribute__((unused))
+#endif
 static char* KLJCopyright = "Copyright 1989, 1990 Kirk L. Johnson";
 #endif
 #define _KLJ_COPYRIGHT_

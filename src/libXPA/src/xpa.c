@@ -38,6 +38,9 @@
  */
 
 #if !defined(lint) && !defined(SABER)
+#ifdef __GNUC__
+__attribute__((unused))
+#endif
 static char octtools_copyright[] =
     "Copyright (c) 1988, 1989, Regents of the University of California.  All rights reserved.";
 #endif
@@ -512,19 +515,6 @@ static GC bg_gc(Display* disp, Window win, unsigned long bg)
 
 // Creates or modifies a static graphics context to have the
 // specified values. This one is generally used for filling areas.
-static GC bd_gc(Display* disp, Window win, unsigned long bd)
-{
-    static GC gc = (GC)0;
-    XGCValues gcvals;
-
-    gcvals.foreground = bd;
-    if (gc) {
-        XChangeGC(disp, gc, GCForeground, &gcvals);
-    } else {
-        gc = XCreateGC(disp, win, GCForeground, &gcvals);
-    }
-    return gc;
-}
 
 // Creates or modifies a static graphics context to have the
 // specified values. This one is generally used for filling areas.
@@ -787,7 +777,7 @@ static int cb_pane(XEvent* evt,        /* X Event causing callback */
  * selected item.
  */
 {
-    int rv;
+    int rv = 0;
 
     if (data->any.type != PANE_T)
         xpa_raise(XPA_TYPE);
@@ -1084,7 +1074,7 @@ static int make_item(xpa_intern* intern, Window parent, xpa_entry* entry, int le
 {
     Window item_win, sub_win;
     xpa_item* item;
-    int exp_w, exp_h, bl, off;
+    int exp_w, exp_h = 0, bl = 0, off;
 
     if (entry->item_type == XPA_ITEM_TYPE_ENTRY) {
         /* Called only to determine height of item */

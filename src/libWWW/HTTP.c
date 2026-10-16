@@ -706,6 +706,7 @@ retry:
                     } else {
                         /* FALL THROUGH */
                     }
+                    /* fall through */
                 default: {
                     char* p1 = HTParse(gate ? gate : arg, "", PARSE_HOST);
                     char* message;

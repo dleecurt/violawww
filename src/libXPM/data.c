@@ -9,9 +9,15 @@
 \*****************************************************************************/
 
 /* Official version number */
+#ifdef __GNUC__
+__attribute__((unused))
+#endif
 static char* RCS_Version = "$XpmVersion: 3.0 $";
 
 /* Internal version number */
+#ifdef __GNUC__
+__attribute__((unused))
+#endif
 static char* RCS_Id = "$Id: xpm.shar,v 3.0 1991/10/04 10:38:20 lehors Exp $";
 
 #include "xpmP.h"

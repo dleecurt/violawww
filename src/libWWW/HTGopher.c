@@ -143,7 +143,7 @@ PRIVATE void parse_menu ARGS2(const char*, arg, HTParentAnchor*, anAnchor) {
     char ch;
     char line[BIG];
     char address[BIG];
-    char *name, *selector; /* Gopher menu fields */
+    char *name, *selector = NULL; /* Gopher menu fields */
     char* host;
     char* port;
     char* p = line;

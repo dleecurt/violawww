@@ -57,7 +57,6 @@ void setIdleCursor_history(DocViewInfo* dvi) {
 }
 
 void printHotlistList(DocViewInfo* dvi) {
-    int i;
     /*
         fprintf(stderr, "\nHotlist List (%d items, %d = current):\n",
                 dvi->nHotlistItems, dvi->currentHotlistItem);
@@ -93,7 +92,6 @@ void hotlistNext(DocViewInfo* dvi) {
 }
 
 void hotlistBackUp(DocViewInfo* dvi) {
-    int end, i;
     /*
         if (dvi->currentHotlistItem == 0) {
             XBell(XtDisplay(dvi->shell), 50);
@@ -120,7 +118,7 @@ void hotlistBackUp(DocViewInfo* dvi) {
 }
 
 void hotlistAdd(DocViewInfo* dvi, char* newItem) {
-    int i, nitems;
+    int nitems;
     XmString itemXMS;
 
     nitems = theHotListCount;
@@ -188,18 +186,16 @@ void setHotlistList(DocViewInfo* dvi, char* newList[], int numItems)
 }
 
 void freeHotlistList(DocViewInfo* dvi) {
-    int i;
 
     dvi->hotlistSize = 0;
     dvi->nHotlistItems = 0;
 }
 
 Widget createHotlistDialog(DocViewInfo* dvi) {
-    Widget dlog, form, list, doneButton;
+    Widget form, list, doneButton;
     Widget actionForm, addButton, deleteButton, gotoButton, editButton;
     Arg args[16];
     int n = 0, i;
-    XmString labelXMS;
     XmStringTable xmsList;
 
     XtSetArg(args[n], XmNborderWidth, 2);
@@ -425,7 +421,6 @@ void editHotlistItemCB(struct lentryDlogStruct* lds)
 void editHotlistItem(Widget button, XtPointer clientData, XtPointer callData)
 {
     DocViewInfo* dvi = (DocViewInfo*)clientData;
-    char* cp;
     HotListItem* hip;
 
     if (dvi->violaDocViewObj) {

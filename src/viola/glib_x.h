@@ -144,10 +144,14 @@ extern int fontFamilyDefaultOffset;
 #define menuPixmap_height 8
 extern Pixmap menuPixmap;
 
-#include "violaIcon.xbm"
+/* Only the sizes are shared; the bitmap data is included once, in glib_x.c
+ * (including the .xbm here gave every file its own unused copy). */
+#define violaIcon_width 32
+#define violaIcon_height 32
 extern Pixmap violaPixmap;
 
-#include "dunselIcon.xbm"
+#define dunselIcon_width 16
+#define dunselIcon_height 16
 extern Pixmap dunselPixmap;
 
 #define togglePixmap_width 16

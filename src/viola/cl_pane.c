@@ -172,8 +172,8 @@ void helper_pane_config(VObj* self)
     VObjList *olist, *children = GET__children(self);
     int loopbreak = 999; /* precaution to infinite loop -- breaking limit */
     int i, doit = 1, positive = 1;
-    int posIdx, spanIdx, minIdx, maxIdx;
-    int spanOtherIdx, spanOtherIdxMax;
+    int posIdx = 0, spanIdx, minIdx, maxIdx;
+    int spanOtherIdx, spanOtherIdxMax = 0;
     int gapIdx, gapOtherIdx;
     static long geomBuff[CHILD_MAX][5];
 

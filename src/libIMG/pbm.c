@@ -200,8 +200,8 @@ Image* pbmLoad(char* fullname, char* name, unsigned int verbose)
     unsigned int width, height, maxval, depth;
     unsigned int linelen;
     byte srcmask, destmask;
-    byte *destptr, *destline;
-    int src, size;
+    byte *destptr = 0, *destline;
+    int src = 0, size;
     unsigned int numbytes, numread;
     int red, grn, blu;
 
@@ -239,6 +239,7 @@ Image* pbmLoad(char* fullname, char* name, unsigned int verbose)
                 switch (IntTable[src]) {
                 case 1:
                     *destptr |= destmask;
+                    /* fall through */
                 case 0:
                     if (!(destmask >>= 1)) {
                         destmask = 0x80;

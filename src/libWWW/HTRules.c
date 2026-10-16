@@ -234,7 +234,7 @@ char* HTTranslate(char* required)
                     printf("HTRule: Pass `%s'\n", current);
                 return current;
             }
-            /* Else fall through ...to map and pass */
+            /* fall through - else map and pass */
 
         case HT_Map:
             if (*p == *q) { /* End of both strings, no wildcard */

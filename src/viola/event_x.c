@@ -265,7 +265,6 @@ void violaProcessEvent(XEvent* e)
     }
 }
 
-static struct timeval noblocktimeval = {0, 0};
 /*
  * VIOLA_IDLE_EVENT() ... Called by the main program each time through its
  * event loop when there isn't an event waiting on the queue.

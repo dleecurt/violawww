@@ -359,11 +359,6 @@ static int th_validSubElements[] = {
 
 /* Valid children for GRAPHICS container */
 #define graphics_validSubElementsCount 17
-static int graphics_validSubElements[] = {
-    HTML_RECT, HTML_SQUARE, HTML_CIRCLE, HTML_OVAL, HTML_LINE, HTML_POLYGON, HTML_POINT, HTML_TEXT,
-    HTML_POS, HTML_SIZE, HTML_ROT, HTML_SCALE, HTML_AXIS,
-    HTML_FGCOLOR, HTML_BDCOLOR, HTML_BGCOLOR, HTML_ACTION
-};
 
 #define loose_validSubElementsCount 84
 static int loose_validSubElements[] = {
