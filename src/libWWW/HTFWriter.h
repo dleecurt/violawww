@@ -17,6 +17,7 @@
 #endif
 
 extern HTStream* HTFWriter_new PARAMS((FILE * fp));
+extern HTStream* HTFWriter_new_leave_open PARAMS((FILE * fp));
 
 extern HTStream* HTSaveAndExecute PARAMS((HTPresentation * pres,
                                           HTParentAnchor* anchor, /* Not used */

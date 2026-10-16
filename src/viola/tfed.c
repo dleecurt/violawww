@@ -2589,7 +2589,10 @@ int insertStr(TFStruct* tf, int split, TFLineNode* source)
 
         to->tagInfoCount = from->tagInfoCount;
         to->tagInfo = (TagInfo*)malloc(sizeof(struct TagInfo) * to->tagInfoCount);
-        bcopy(from->tagInfo, to->tagInfo, sizeof(struct TagInfo) * to->tagInfoCount);
+        /* from->tagInfo is NULL when tagInfoCount is 0; memmove with a NULL
+         * source is undefined behavior even for zero bytes. */
+        if (to->tagInfo && from->tagInfo && to->tagInfoCount > 0)
+            bcopy(from->tagInfo, to->tagInfo, sizeof(struct TagInfo) * to->tagInfoCount);
 
         return 1;
     }
@@ -2634,7 +2637,10 @@ int insertStr(TFStruct* tf, int split, TFLineNode* source)
 
         to->tagInfoCount = from->tagInfoCount;
         to->tagInfo = (TagInfo*)malloc(sizeof(struct TagInfo) * to->tagInfoCount);
-        bcopy(from->tagInfo, to->tagInfo, sizeof(struct TagInfo) * to->tagInfoCount);
+        /* from->tagInfo is NULL when tagInfoCount is 0; memmove with a NULL
+         * source is undefined behavior even for zero bytes. */
+        if (to->tagInfo && from->tagInfo && to->tagInfoCount > 0)
+            bcopy(from->tagInfo, to->tagInfo, sizeof(struct TagInfo) * to->tagInfoCount);
 
         return 1;
     }

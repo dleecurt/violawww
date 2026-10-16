@@ -29,6 +29,7 @@ struct _HTStream {
     char* end_command;
     char* remove_command;
     BOOL announce;
+    BOOL leave_open; /* caller owns fp: flush, don't close */
 };
 
 /*_________________________________________________________________________
@@ -106,7 +107,10 @@ PRIVATE void HTFWriter_write ARGS3(HTStream*, me, const char*, s, int, l) {
 **	as it takes on an existence of its own unless explicitly freed.
 */
 PRIVATE void HTFWriter_free ARGS1(HTStream*, me) {
-    fclose(me->fp);
+    if (me->leave_open)
+        fflush(me->fp);
+    else
+        fclose(me->fp);
     if (me->end_command) {           /* Temp file */
         HTProgress(me->end_command); /* Tell user what's happening */
         system(me->end_command);
@@ -126,7 +130,10 @@ PRIVATE void HTFWriter_end ARGS1(HTStream*, me) {}
  */
 
 PRIVATE void HTFWriter_abort ARGS2(HTStream*, me, HTError, e) {
-    fclose(me->fp);
+    if (me->leave_open)
+        fflush(me->fp);
+    else
+        fclose(me->fp);
     if (me->end_command) { /* Temp file */
         if (TRACE)
             fprintf(stderr, "HTFWriter: Aborting: file not executed.\n");
@@ -167,7 +174,22 @@ PUBLIC HTStream* HTFWriter_new ARGS1(FILE*, fp) {
     me->end_command = NULL;
     me->remove_command = NULL;
     me->announce = NO;
+    me->leave_open = NO;
 
+    return me;
+}
+
+/*	File writer that does not take ownership of fp
+**	-----------------------------------------------
+**	The stream flushes fp when it is freed or aborted but never closes
+**	it; the caller must fclose() it.  Use this when the caller cannot
+**	tell whether the load path freed the stream (success) or not (error).
+*/
+PUBLIC HTStream* HTFWriter_new_leave_open ARGS1(FILE*, fp) {
+    HTStream* me = HTFWriter_new(fp);
+
+    if (me)
+        me->leave_open = YES;
     return me;
 }
 

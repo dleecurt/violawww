@@ -1573,7 +1573,9 @@ int html_fetchDocument(VObj* self, char* address, char** simpleAddress, char** a
             break;
         }
     }
-    HTOutputStream = HTFWriter_new(fp);
+    /* fp stays owned by the caller, which closes it: libWWW frees the
+     * stream on success but not on every error path. */
+    HTOutputStream = HTFWriter_new_leave_open(fp);
     HTOutputFormat = WWW_SOURCE;
     HTOutputSource = YES;
 
