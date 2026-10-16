@@ -14,6 +14,7 @@
  * class	: generic
  * superClass	: cosmic
  */
+#include <time.h>
 #include "cl_generic.h"
 #include "ast.h"
 #include "attr.h"

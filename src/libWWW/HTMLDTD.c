@@ -268,7 +268,7 @@ static attr shared_list_attr[] = {
 };
 
 #define dd_dt_validSubElementsCount 82
-static HTMLElement dd_dt_validSubElements[] = {
+static int dd_dt_validSubElements[] = {
     HTML_A,        HTML_BASE,    HTML_ADDRESS,  HTML_AUTHOR,    HTML_B,       HTML_BLOCKQUOTE,
     HTML_BODY,     HTML_BOLD,    HTML_BR,       HTML_CAUTION,   HTML_CHANGED, HTML_CITE,
     HTML_CMD,      HTML_CODE,    HTML_COMMENT,  HTML_DFN,       HTML_DIR,     HTML_DL,
@@ -286,14 +286,14 @@ static HTMLElement dd_dt_validSubElements[] = {
 };
 
 #define l_validSubElementsCount 3
-static HTMLElement l_validSubElements[] = {
+static int l_validSubElements[] = {
     HTML_A,
     HTML_IMAGE,
     HTML_IMG,
 };
 
 #define style_validSubElementsCount 18
-static HTMLElement style_validSubElements[] = {
+static int style_validSubElements[] = {
     HTML_A,   HTML_B,      HTML_BOLD, HTML_CMD,    HTML_EM,  HTML_EMPH,
     HTML_I,   HTML_IMAGE,  HTML_IMG,  HTML_ITALIC, HTML_KBD, HTML_KEY,
     HTML_LIT, HTML_STRONG, HTML_SUB,  HTML_SUP,    HTML_TT,  HTML_U,
@@ -301,7 +301,7 @@ static HTMLElement style_validSubElements[] = {
 
 /* Oh hell. Important thing is to omit LI. Plus other misc sub-tags */
 #define li_validSubElementsCount 82
-static HTMLElement li_validSubElements[] = {
+static int li_validSubElements[] = {
     HTML_A,        HTML_ADDRESS, HTML_AUTHOR,   HTML_B,         HTML_BASE,    HTML_BLOCKQUOTE,
     HTML_BODY,     HTML_BOLD,    HTML_BR,       HTML_CAUTION,   HTML_CHANGED, HTML_CITE,
     HTML_CMD,      HTML_CODE,    HTML_COMMENT,  HTML_DFN,       HTML_DIR,     HTML_DL,
@@ -319,7 +319,7 @@ static HTMLElement li_validSubElements[] = {
 };
 
 #define ol_ul_validSubElementsCount 31
-static HTMLElement ol_ul_validSubElements[] = {
+static int ol_ul_validSubElements[] = {
     HTML_A,   HTML_B,    HTML_BOLD,     HTML_BR, HTML_CITE,  HTML_CMD, HTML_CODE,    HTML_DFN,
     HTML_EM,  HTML_EMPH, HTML_FOOTNOTE, HTML_I,  HTML_IMAGE, HTML_IMG, HTML_ITALIC,  HTML_KBD,
     HTML_KEY, HTML_L,    HTML_LABEL,    HTML_LI, HTML_LINK,  HTML_P,   HTML_SAMP,    HTML_STRONG,
@@ -327,7 +327,7 @@ static HTMLElement ol_ul_validSubElements[] = {
 };
 
 #define p_validSubElementsCount 29
-static HTMLElement p_validSubElements[] = {
+static int p_validSubElements[] = {
     HTML_A,     HTML_B,     HTML_BOLD,   HTML_CITE,     HTML_CMD,     HTML_CODE,
     HTML_DFN,   HTML_EM,    HTML_EMPH,   HTML_FOOTNOTE, HTML_I,       HTML_IMAGE,
     HTML_IMG,   HTML_INPUT, HTML_ITALIC, HTML_KBD,      HTML_KEY,     HTML_L,
@@ -336,12 +336,12 @@ static HTMLElement p_validSubElements[] = {
 };
 
 #define vobj_validSubElementsCount 1
-static HTMLElement vobj_validSubElements[] = {
+static int vobj_validSubElements[] = {
     HTML_ATTR,
 };
 
 #define option_validSubElementsCount 29
-static HTMLElement option_validSubElements[] = {
+static int option_validSubElements[] = {
     HTML_A,   HTML_B,    HTML_BOLD,     HTML_BR,   HTML_CITE,    HTML_CMD,    HTML_CODE,   HTML_DFN,
     HTML_EM,  HTML_EMPH, HTML_FOOTNOTE, HTML_I,    HTML_IMAGE,   HTML_IMG,    HTML_ITALIC, HTML_KBD,
     HTML_KEY, HTML_L,    HTML_LABEL,    HTML_LINK, HTML_SAMP,    HTML_STRONG, HTML_SUB,    HTML_SUP,
@@ -349,7 +349,7 @@ static HTMLElement option_validSubElements[] = {
 };
 
 #define th_validSubElementsCount 34
-static HTMLElement th_validSubElements[] = {
+static int th_validSubElements[] = {
     HTML_A,     HTML_B,    HTML_BOLD,   HTML_BR,    HTML_CITE,   HTML_CMD,      HTML_CODE,
     HTML_DFN,   HTML_DIR,  HTML_DL,     HTML_EM,    HTML_EMPH,   HTML_FOOTNOTE, HTML_I,
     HTML_IMAGE, HTML_IMG,  HTML_ITALIC, HTML_KBD,   HTML_KEY,    HTML_L,        HTML_LABEL,
@@ -359,14 +359,14 @@ static HTMLElement th_validSubElements[] = {
 
 /* Valid children for GRAPHICS container */
 #define graphics_validSubElementsCount 17
-static HTMLElement graphics_validSubElements[] = {
+static int graphics_validSubElements[] = {
     HTML_RECT, HTML_SQUARE, HTML_CIRCLE, HTML_OVAL, HTML_LINE, HTML_POLYGON, HTML_POINT, HTML_TEXT,
     HTML_POS, HTML_SIZE, HTML_ROT, HTML_SCALE, HTML_AXIS,
     HTML_FGCOLOR, HTML_BDCOLOR, HTML_BGCOLOR, HTML_ACTION
 };
 
 #define loose_validSubElementsCount 84
-static HTMLElement loose_validSubElements[] = {
+static int loose_validSubElements[] = {
     HTML_A,        HTML_ADDRESS, HTML_AUTHOR,   HTML_B,         HTML_BASE,     HTML_BLOCKQUOTE,
     HTML_BODY,     HTML_BOLD,    HTML_BR,       HTML_CAUTION,   HTML_CHANGED,  HTML_CITE,
     HTML_CMD,      HTML_CODE,    HTML_COMMENT,  HTML_DFN,       HTML_DIR,      HTML_DL,

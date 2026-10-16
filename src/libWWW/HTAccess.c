@@ -26,6 +26,7 @@
 
 /* Implements:
  */
+#include <time.h>
 #include "HTAccess.h"
 
 /* Uses:

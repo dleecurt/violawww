@@ -12,6 +12,7 @@
  * class	: PS
  * superClass	: field
  */
+#include <libgen.h>
 #include "cl_PS.h"
 #include "class.h"
 #include "classlist.h"

@@ -43,6 +43,7 @@
 
 #include <stdio.h>  /* FILE */
 #include <string.h> /* strchr() */
+#include <time.h>   /* time(), ctime() */
 
 #include "HTAccess.h" /* HTSecure			*/
 #include "HTFile.h"   /* HTLocalName			*/
