@@ -567,7 +567,26 @@ void CB_HTML_data(char* str, int size)
             str = tempbuf;
             size = converted_size;
         }
-        
+
+        /* dataBuff is a fixed global array: never write past its end.
+         * Reserve 7 bytes for the optional \m( \m) markers and the NUL.
+         * An overrun here corrupts neighboring globals and shows up
+         * later as heap errors (e.g. "double free detected"). */
+        if (size < 0)
+            return;
+        if (dataBuffIdx < 0 || dataBuffIdx > DATABUFF_SIZE - 7)
+            return;
+        if (size > DATABUFF_SIZE - 7 - dataBuffIdx) {
+            static int overflow_warn = 3;
+            if (overflow_warn > 0) {
+                fprintf(stderr, "CB_HTML_data: text buffer full, truncating\n");
+                overflow_warn--;
+            }
+            size = DATABUFF_SIZE - 7 - dataBuffIdx;
+            if (size <= 0)
+                return;
+        }
+
         /* If inside CHANGED region, prepend \m( */
         if (SGMLBuildDoc_inChanged > 0) {
             dataBuff[dataBuffIdx++] = '\\';
@@ -1266,6 +1285,19 @@ void CB_HTML_etag(int element_number)
         fprintf(stderr, "CB_HTML_etag[%s]: stacki out of bounds: %d\n",
                 name, SBI.stacki);
         return;
+    }
+
+    /* Only pop if this end tag closes the frame on top of our stack.
+     * CB_HTML_stag does not push a frame for every start tag (META,
+     * unstyled EMPTY elements such as LINK, failed objects), but the SGML
+     * layer still delivers an end tag for each of them.  Popping
+     * unconditionally underflowed the stack on any page whose <head> has
+     * META/LINK tags, so everything after it was dropped.  The end-of-
+     * document flush (SBI.endP) keeps the old unconditional behavior. */
+    if (!SBI.endP && element_number >= 0 && element_number < HTML_dtd.number_of_tags) {
+        const char* top_tag = SBI.stack[SBI.stacki].tag;
+        if (!top_tag || strcasecmp(top_tag, HTML_dtd.tags[element_number].name) != 0)
+            return;
     }
     bstate = &SBI.stack[SBI.stacki];
 
