@@ -442,6 +442,25 @@ retry:
     }
 #endif
 
+    /* Trace the exact request (Authorization values redacted) */
+    if (TRACE) {
+        const char* p = command;
+        fprintf(stderr, "HTTPS: Tx request:\n");
+        while (*p) {
+            const char* e = strstr(p, "\r\n");
+            int len = e ? (int)(e - p) : (int)strlen(p);
+            if (len == 0)
+                break; /* blank line: end of headers */
+            if (strncasecmp(p, "Authorization:", 14) == 0)
+                fprintf(stderr, "HTTPS: Tx:   Authorization: [redacted]\n");
+            else
+                fprintf(stderr, "HTTPS: Tx:   %.*s\n", len, p);
+            if (!e)
+                break;
+            p = e + 2;
+        }
+    }
+
     /* Send request over SSL */
     status = HTSSL_write(ssl_conn, command, strlen(command));
     free(command);
@@ -621,6 +640,18 @@ retry:
         }
 
         fields = sscanf(text_buffer, "%20s%d", server_version, &server_status);
+
+        /* On errors, show the start of the response: servers usually
+         * explain a 4xx/5xx refusal in the headers or body. */
+        if (TRACE && fields >= 2 && server_status >= 400) {
+            int shown = 0;
+            const char* p;
+            fprintf(stderr, "HTTPS: Error response (first bytes):\n");
+            for (p = text_buffer + strlen(text_buffer) + 1;
+                 p < text_buffer + length && shown < 800; p++, shown++)
+                fputc((*p == '\r') ? ' ' : (*p ? *p : ' '), stderr);
+            fputc('\n', stderr);
+        }
 
         if (fields < 2 || strncmp(server_version, "HTTP/", 5) != 0) {
             format_in = WWW_HTML;
