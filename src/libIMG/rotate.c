@@ -52,7 +52,6 @@ Image* rotate(Image* simage, int rotate, unsigned int verbose)
     int bit[8];       /* Array of hex values         */
     int x, y;
     int i, b;
-    int newx, newy;
     int newi, newb;
     byte** yptr;
 

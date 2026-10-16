@@ -359,7 +359,6 @@ PRIVATE void closeImpliedTags ARGS2(HTStream*, context, HTTag*, tag) {
     HTElement* bottom; /* bottom item of stack */
     char* tagName;
     int implyETagP = 1;
-    int elemCount;
     int i, high, low, diff;
     int tagIdx;
 
@@ -770,12 +769,6 @@ PUBLIC void SGML_character ARGS2(HTStream*, context, char, c)
             } else {
                 if (context->current_tag) {
                     char *closeTag;
-                    int implyETagP = 1;
-                    char* oldTagName;
-                    HTElement* upper;  /* bottom-1 item on stack */
-                    HTElement* bottom; /* bottom item of stack */
-                    int bottomTagID;
-                    int* subep;
 
                     closeTag = t->name;
 #ifdef IMPLY_VERBOSE

@@ -142,7 +142,6 @@ PRIVATE int HTLoadHTTP_impl(const char* arg, HTParentAnchor* anAnchor, HTFormat 
     const char* gate = 0; /* disable this feature */
     SockA soc_address;    /* Binary network address */
     SockA* sin = &soc_address;
-    BOOL had_header = NO; /* Have we had at least one header? */
     char* text_buffer = NULL;
     char* binary_buffer = NULL;
     int buffer_length = INIT_LINE_SIZE; /* Why not? */
@@ -150,7 +149,6 @@ PRIVATE int HTLoadHTTP_impl(const char* arg, HTParentAnchor* anAnchor, HTFormat 
     int server_status = 0;
     ptrdiff_t offset = 0;  /* Changed from int to ptrdiff_t for 64-bit safety */
 
-    int tries = 0;
     static int redirect_count = 0;  /* Track redirect depth */
     #define MAX_REDIRECTS 10
     
@@ -173,8 +171,6 @@ PRIVATE int HTLoadHTTP_impl(const char* arg, HTParentAnchor* anAnchor, HTFormat 
     extern int http_progress_reporter_level;
     static int delimSize = 0;
     static char* delim = "Content-length: ";
-    char delimBuf[32];
-    int i, j, delimi = 0;
     char *cp, *buffp, buff[100];
     int foundContentLength = 0;
 
@@ -849,7 +845,7 @@ copy:
     /* strip MIME headers */
     if (server_status) {
         if (server_status / 100 == 2 && format_out == WWW_SOURCE) {
-            char *sp, *end;
+            char *sp;
             char lc = '\0', llc = '\0', lllc = '\0';
 
             if (foundContentLength == 0 && http_progress_reporter_level == 1) {

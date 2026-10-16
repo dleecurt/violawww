@@ -381,7 +381,6 @@ void CB_HTML_new() {
     SGMLBuildInfoState* bstate;
     int i, j, tagCount, idx;
     char *dtd = "HTML", *tag;
-    SGMLDocMappingInfo* docMappingInfo = NULL;
     SGMLTagMappingInfo *tmi, *tagMappingInfo = NULL;
     SGMLDocMappingInfo* dmi = NULL;
     /*	SGML_dtd sgmldtd;*/
@@ -641,9 +640,7 @@ void CB_HTML_special_entity(int entity_number, char* data, int dataLength)
 
     if (bstate->obj && parent_bstate && parent_bstate->tmi &&
         (parent_bstate->tmi->flushAlwaysP || parent_bstate->tmi->flushOnSubTagP)) {
-        int src_starti, src_endi, size;
         char* cp;
-        int span;
 
         if (dataLength > 0) {
             cp = (char*)malloc(sizeof(char) * (dataLength + 1));
@@ -670,13 +667,9 @@ void CB_HTML_stag(int element_number, const BOOL* present, const char** value, H
     SGMLBuildInfoState* parent_bstate;
     SGMLBuildInfoState* bstate;
     char* cp;
-    char attrName[64];
-    int attrTypeID;
-    SGMLTagMappingInfo* ctmi;
     VObj* _insert_obj = insert_obj;
-    int i, x, y, width;
+    int i, y, width;
     char* tag;
-    SGMLTagMappingInfo* tmi;
     int hadFlushed = 0;
     char* str;
     int size, span, src_starti, src_endi;
@@ -1152,7 +1145,7 @@ void CB_HTML_stag(int element_number, const BOOL* present, const char** value, H
         }
     if (parent_bstate->obj && bstate->tmi) {
         if (insert_obj) {
-            VObjList *olist, *subObj;
+            VObjList *olist;
             int _width, span;
 
             /*printf("HTML2.c INSERT_OBJ is called for STAG!!!\n");*/
@@ -1687,7 +1680,6 @@ void CB_HTML_end() {
 VObj* HTMLBuildObj(SGMLBuildInfoState* bstate, int parentWidth, SGMLTagMappingInfo* tmi)
 {
     Packet argv[1];
-    char* dtd;
     extern int global_cloneID;
     int mask;
     int containsAnchor = 1;
@@ -2068,7 +2060,7 @@ Bool initHotList() {
 
 Bool addHotListItem(char * url, char * comment, char * date)
 {
-    HotListItem *new, *l_hip, *hip;
+    HotListItem *new, *hip;
 
     new = (HotListItem*)malloc(sizeof(struct HotListItem));
     if (!new)
@@ -2186,7 +2178,6 @@ int saveHotList() {
 }
 
 char* HotList_nextLine() {
-    int end = 0;
     char c;
 
     linei = 0;

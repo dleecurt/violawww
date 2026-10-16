@@ -679,7 +679,6 @@ PRIVATE int read_directory ARGS4(HTParentAnchor*, parent, const char*, address, 
     char c = 0;
 
     char* lastpath = ""; /* prefix for link, either "" (for root) or xxx  */
-    char* entry = "";    /* pointer into lastpath to bit after last slash */
 
     targetClass = *(target->isa);
 
@@ -706,7 +705,6 @@ PRIVATE int read_directory ARGS4(HTParentAnchor*, parent, const char*, address, 
         for (c = 0; c != (char)EOF;) /* For each entry in the directory */
         {
             char* filename = NULL;
-            char* p = entry;
             HTChunkClear(chunk);
             /*   read directory entry
              */

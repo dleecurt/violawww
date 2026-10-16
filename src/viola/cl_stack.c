@@ -181,7 +181,7 @@ long meth_stack_expose(VObj* self, Packet* result, int argc, Packet argv[])
 long meth_stack_firstCard(VObj* self, Packet* result, int argc, Packet argv[])
 {
     VObjList* olist;
-    VObj *nobj, *stackObj = findStackObj(self);
+    VObj *stackObj = findStackObj(self);
 
     result->type = PKT_OBJ;
     result->canFree = 0;
@@ -361,7 +361,6 @@ long meth_stack_previousCard(VObj* self, Packet* result, int argc, Packet argv[]
 long meth_stack_render(VObj* self, Packet* result, int argc, Packet argv[])
 {
     Window w = GET_window(self);
-    Pixmap pixmap;
 
     if (!w)
         meth_pane_render(self, result, argc, argv);

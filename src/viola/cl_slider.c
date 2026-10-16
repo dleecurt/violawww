@@ -283,7 +283,6 @@ long meth_slider_render(VObj* self, Packet* result, int argc, Packet argv[])
         int paramExtent, paramD;
         int barThickness;
         char dirc = *GET_direction(self);
-        int x1, y1, x2, y2;
 
         if (HORIZONTAL_DIR(dirc)) {
             thumbSize = GET_shownSizeH(self);
@@ -344,7 +343,6 @@ long meth_slider_processMouseInput(VObj* self, Packet* result, int argc, Packet 
     int thumbPixels, thumbSize, thumbStart, thumbEnd, mousePos;
     int paramExtent;
     int delta, z;
-    int os = -1, s = 0;
     int reverse = 0;
     int rootx, rooty, wx, wy;
     float m, d;

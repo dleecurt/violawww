@@ -370,7 +370,6 @@ PRIVATE void FOSI_put_character ARGS2(HTStructured*, this, char, c) {
 **	in some cases be postponed to a lower level for speed.
 */
 PRIVATE void FOSI_put_string ARGS2(HTStructured*, this, const char*, s) {
-    char* cp;
     fprintf(stderr, "### FOSI  STRING {/%s}\n", s);
 
     switch (this->sp[0].tag_number) {

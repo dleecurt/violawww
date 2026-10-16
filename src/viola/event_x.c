@@ -232,7 +232,7 @@ void signalHandler(int sig)
  */
 void violaProcessEvent(XEvent* e)
 {
-    VObj *topObj, *obj;
+    VObj *obj;
     HashEntry* hentry;
     Window w;
 
@@ -281,8 +281,7 @@ void violaIdleEvent() {
     fd_set cur_read_mask;
     TimeInfo* tip;
     struct timeval timeout, timenow, *timeval = NULL;
-    struct timeval time;
-    VObj *topObj, *obj;
+    VObj *obj;
 
     FD_SET(ConnectionNumber(display), &read_mask);
 
@@ -356,10 +355,8 @@ void violaIdleEvent() {
  *
  */
 int eventLoop() {
-    VObj *topObj, *obj;
-    HashEntry* hentry;
+    VObj *obj;
     TimeInfo* tip;
-    int lock = 0;
     int i;
     Window w;
     fd_set cur_read_mask;
@@ -379,7 +376,6 @@ int eventLoop() {
         if (XPending(display)) {
             FD_SET(ConnectionNumber(display), &cur_read_mask);
         } else {
-            struct timeval time;
 
             if (firstTimeInfo) {
                 tip = firstTimeInfo;
@@ -554,7 +550,6 @@ void process_event(XEvent* ep, int tool)
     static int resize_corner, mouseDown = 0, from_x, from_y;
     /*	Window w = GET_window(VCurrentObj);
      */
-    Window w;
 
     /*	if (verbose) {
                     XExposeEvent *eep = (XExposeEvent*)ep;
@@ -1257,7 +1252,7 @@ long handle_MotionNotify(XEvent* ep, VObj** dragObjp, int tool, int* resize_corn
     case RESIZE_TOOL: /* motion */
 
         if (*mouseDown && *dragObjp) {
-            Window pw, w = eventWindow(*((XEvent*)ep));
+            Window w = eventWindow(*((XEvent*)ep));
             int root_x, root_y, dx, dy;
 
             if (*dragObjp != findWindowObject(w))

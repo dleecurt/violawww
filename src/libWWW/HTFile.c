@@ -144,9 +144,7 @@ PRIVATE void do_readme(HTStructured* target, const char* localname) {
     fp = fopen(readme_file_name, "r");
 
     if (fp) {
-        HTStructuredClass targetClass;
 
-        targetClass = *target->isa; /* (Can't init agregate in K&R) */
         START(HTML_PRE);
         for (;;) {
             char c = fgetc(fp);
@@ -711,7 +709,6 @@ PUBLIC int HTLoadFile(const char* addr, HTParentAnchor* anchor, HTFormat format_
                 /* if localname is a directory */
 
                 HTStructured* target; /* HTML object */
-                HTStructuredClass targetClass;
 
                 DIR* dp;
                 STRUCT_DIRENT* dirbuf;
@@ -761,7 +758,6 @@ PUBLIC int HTLoadFile(const char* addr, HTParentAnchor* anchor, HTFormat format_
                 tail = strrchr(logical, '/') + 1; /* last part or "" */
 
                 target = HTML_new(anchor, format_out, sink);
-                targetClass = *target->isa; /* Copy routine entry points */
 
                 {
                     int i;

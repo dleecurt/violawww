@@ -81,7 +81,6 @@ void ViolaDeleteMessageHandler(char* msgName, VMsgHandler msgHandler, void* clie
 
 void ViolaInvokeMessageHandler(char* arg[], int argc)
 {
-    int i;
 
     if (!arg[0] || !ViolaMessageHandlers) {
         return;

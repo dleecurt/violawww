@@ -291,9 +291,8 @@ PRIVATE void parse_cso ARGS2(const char*, arg, HTParentAnchor*, anAnchor) {
     char line[BIG];
     char* p = line;
     char *second_colon, last_char = '\0';
-    const char* title;
 
-    title = HTAnchor_title(anAnchor);
+    HTAnchor_title(anAnchor);
     START(HTML_H1);
     PUTS("CSO Search Results");
     END(HTML_H1);

@@ -365,7 +365,7 @@ Image* reduce(Image* image, unsigned int n, unsigned int verbose)
     unsigned long pixel_counts[32768]; /* pixel occurrance histogram */
     unsigned short pixel_array[32768];
     unsigned long count, midpoint;
-    int x, y, num_pixels, allocated, depth, ncolors;
+    int x, y, num_pixels, allocated, depth;
     byte *pixel, *dpixel;
     struct color_area *areas, *largest_area, *smallest_area;
     struct color_area *new_area, *old_area;
@@ -505,10 +505,9 @@ Image* reduce(Image* image, unsigned int n, unsigned int verbose)
      */
 
     for (x = 0; x < allocated; x++) {
-        long red, green, blue, count, pixel;
+        long red, green, blue, pixel;
 
         red = green = blue = 0;
-        count = areas[x].pixel_count;
         for (y = 0; y < areas[x].num_pixels; y++) {
             pixel = areas[x].pixels[y];
             red += RED_INTENSITY(pixel);

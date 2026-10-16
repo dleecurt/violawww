@@ -56,7 +56,6 @@ void helper_tray_config(VObj* self, long oldWidth, long oldHeight)
 {
     VObjList *olist, *children = GET__children(self);
     float xratio, yratio;
-    Window w;
     int x, y, width, height;
 
     xratio = (float)GET_width(self) / (float)oldWidth;

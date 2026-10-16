@@ -174,7 +174,6 @@ int countASTSiblings(AST* ast)
 void printAST(AST* ast, int tab)
 {
     int i;
-    AST* children;
 
     for (; ast; ast = ast->next) {
 

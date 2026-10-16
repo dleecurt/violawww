@@ -170,7 +170,6 @@ long meth_HTML_config(VObj* self, Packet* result, int argc, Packet argv[]) {
 }
 
 long helper_HTML_get(VObj* self, Packet* result, int argc, Packet argv[], long labelID) {
-    char* str;
 
     switch (labelID) {
     case STR_HTMLAddress: {
@@ -284,7 +283,6 @@ long meth_HTML_search(VObj* self, Packet* result, int argc, Packet argv[]) {
  * returns non-zero if set operation succeded, zero otherwise.
  */
 long helper_HTML_set(VObj* self, Packet* result, int argc, Packet argv[], long labelID) {
-    char* str;
 
     switch (labelID) {
     case STR_HTMLAddress: {

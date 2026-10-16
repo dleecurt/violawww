@@ -374,7 +374,7 @@ char* PkInfo2Str(Packet* pk)
         if (pk->info.o)
             sprintf(buff, "%s", GET_name(pk->info.o));
         else
-            sprintf(buff, "");
+            buff[0] = '\0';
         break;
     case PKT_ARY:
         if (pk->info.y) {
@@ -479,7 +479,6 @@ VObj* getObject(char* objName)
 
 VObj* PkInfo2Obj(Packet* pk)
 {
-    VObj* obj = NULL;
 
     if (pk->type == PKT_OBJ) {
         return pk->info.o;

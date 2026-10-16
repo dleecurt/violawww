@@ -533,7 +533,7 @@ void frameCoords(MAST* self, int rx, int ry)
 
 void doOver(MAST* self)
 {
-    MAST *mast, *new, *objsToPush, *hbox;
+    MAST *mast, *objsToPush, *hbox;
 
     hbox = makeMAST();
     hbox->parent = self->parent; /*XXX*/
@@ -593,7 +593,7 @@ int isInSupOrSub(MAST* mast) {
 void tile(MAST* self, int level)
 {
     MAST *mast, *cmast;
-    int i, x, y;
+    int i;
     int vspan = 0, maxWidth = 0;
     int hspan = 0, maxHeight = 0;
 
@@ -1431,7 +1431,6 @@ void drawMAST(MAST* self, int level, Window w)
         } break;
         case MINFO_INTEGRAL: {
             FPair* fpath;
-            float fx, fy;
             int i, width, height, x, y, lx, ly, sx, sy;
             /*
                                     int y0, y1, y2, y3, x0, x1, x2, x3, x4;
@@ -1490,7 +1489,7 @@ int HTMLMathFormater(VObj* self, Packet* tokenListPk, Packet* dataListPk, int li
 {
     int i, token;
     char* dataStr;
-    Attr *tokAttrp, *dataAttrp, *attrp2;
+    Attr *tokAttrp, *dataAttrp;
     Packet *tokPk, *dataPk;
     /*
     drawMAST(handle, 0, w);

@@ -67,7 +67,6 @@ VObj* findWindowObject(Window w)
     static Window lastFailedSearchW = 0;
     static Window lastSuccessSearchW = 0;
     static VObj* lastSuccessSearchObj = NULL;
-    VObj* obj;
     HashEntry* entry;
 
     if (w == lastFailedSearchW)

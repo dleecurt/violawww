@@ -240,8 +240,7 @@ void helper_pane_config(VObj* self)
         long span, position = 0;
         int nmarked = 0;
         long markedsum = 0;
-        int pbd = borderStyleThickness[GET_border(self)] * 2;
-        long gap, gap2, gapOther;
+        long gap2;
 
         /* 0 indicates undetermined value */
         for (olist = children; olist; olist = olist->next) {

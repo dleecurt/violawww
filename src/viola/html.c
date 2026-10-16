@@ -484,9 +484,8 @@ PRIVATE void new_line ARGS1(HText*, text) {
 
 void split_line ARGS2(HText*, text, int, split) {
     HTStyle* style = text->style;
-    HTStyle* nextstyle = text->next_style;
     TFLineNode* newp;
-    TFChar *tfcp, itfc;
+    TFChar *tfcp;
     int size, i;
     int fontID;
     TFStruct* tf = text->tfstruct;
@@ -779,7 +778,6 @@ PUBLIC void HText_appendCharacter ARGS2(HText*, text, char, ch) {
     }
     if (ch == '\t') {
 
-        HTTabStop* tab;
         int target; /* Where to tab to, in pixel value */
         int here = indent + text->px;
         int limit = text->tfstruct->width - (int)style->rightIndent;
@@ -1307,16 +1305,12 @@ TFStruct* html_updateTFStruct(VObj* self, char* address)
  */
 HText* html_loadDocument(VObj* self, char* address, char** title, char** simpleAddress, char** anchorSearch)
 {
-    TFLineNode* currentp = NULL;
     TFLineNode* oldp;
-    TFChar tbuff[TBUFFSIZE];
-    int tbuffi = 0, sameDoc = 0;
-    int i, j;
+    int i;
     int status = 0;
     HText* htext;
     char anchorInfo[64];
     TFStruct *oldtf, *tf = NULL;
-    char* oldHTMLSrc;
     extern SGMLBuildInfo SBI;
     SGMLBuildInfoState* bstate;
     int loadRetStatus;
@@ -1552,7 +1546,6 @@ int html_fetchDocument(VObj* self, char* address, char** simpleAddress, char** a
     HTStream* HTOutputStream_save = HTOutputStream;
     HTFormat HTOutputFormat_save = HTOutputFormat;
     BOOL HTOutputSource_save = HTOutputSource;
-    char* current_addr_save = current_addr;
 
     trimEdgeSpaces(address);
 
@@ -1864,7 +1857,6 @@ int setHTMLStyle() {
 
 char* html_headerInfo(VObj* self)
 {
-    char* cp;
     return NULL;
 }
 

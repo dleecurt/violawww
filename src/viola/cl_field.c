@@ -1885,7 +1885,6 @@ long meth_field_raise(VObj* self, Packet* result, int argc, Packet argv[]) {
  */
 long meth_field_randomizeArea(VObj* self, Packet* result, int argc, Packet argv[]) {
     int fromx, fromy, width, height, iteration, factor;
-    int x0, y0, x1, y1, xx, yy;
 
     fromx = (int)PkInfo2Int(&argv[0]);
     fromy = (int)PkInfo2Int(&argv[1]);
@@ -1969,7 +1968,6 @@ long meth_field_render(VObj* self, Packet* result, int argc, Packet argv[]) {
  * returns non-zero if set operation succeded, zero otherwise.
  */
 long helper_field_set(VObj* self, Packet* result, int argc, Packet argv[], long labelID) {
-    char* cp;
 
     switch (labelID) {
     case STR_x:

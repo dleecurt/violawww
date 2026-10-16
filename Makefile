@@ -78,8 +78,12 @@ else
   # Linux: no -arch flag, use gcc-compatible warnings
   ARCH_FLAGS =
   CFLAGS_COMMON = -fno-common
-  # Use moderate warnings; can be overridden with WARN_64BIT=1 for detailed analysis
-  WARNING_FLAGS = -Wall -Wextra
+  # Use moderate warnings; can be overridden with WARN_64BIT=1 for detailed analysis.
+  # -Wunused-parameter: Viola methods share one dispatch signature, so most
+  #   ignore some arguments by design.
+  # -Wmissing-field-initializers: static tables rely on zero-filled trailing
+  #   fields on purpose.
+  WARNING_FLAGS = -Wall -Wextra -Wno-unused-parameter -Wno-missing-field-initializers
 endif
 
 CFLAGS = -O2 $(ARCH_FLAGS) -std=gnu17 $(WARNING_FLAGS) $(PLATFORM_CFLAGS) $(CFLAGS_COMMON) -funsigned-char

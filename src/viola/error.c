@@ -61,7 +61,6 @@ char* messageToUser(void* self, int type, char* messg)
 {
     if (posting) {
 
-        VObj* handlerObj;
         char* handler;
         char* dumpBuff;
 

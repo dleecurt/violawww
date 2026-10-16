@@ -168,7 +168,6 @@ Image* dither(Image* cimage, unsigned int verbose) {
 
 Image* approx(Image* cimage, unsigned int verbose) {
     Image* image;       /* destination image */
-    unsigned int* grey; /* grey map for source image */
     unsigned int spl;   /* source pixel length in bytes */
     unsigned int dll;   /* destination line length in bytes */
     unsigned char* src; /* source data */
@@ -177,7 +176,6 @@ Image* approx(Image* cimage, unsigned int verbose) {
     int* next;          /* next line buffer */
     int* swap;          /* for swapping line buffers */
     Pixel color;        /* pixel color */
-    unsigned int level; /* grey level */
     unsigned int i, j;  /* loop counters */
 
     /*

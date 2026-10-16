@@ -120,10 +120,6 @@ PUBLIC char* HTWaybackCheck PARAMS((const char* url)) {
     int response_len = 0;
     int total_read = 0;
     char* url_encoded = NULL;
-    char* timestamp_start = NULL;
-    char* url_start = NULL;
-    char* p;
-    int i;
 
     if (!url || !*url) {
         return NULL;

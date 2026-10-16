@@ -221,7 +221,6 @@ int scanString() {
  */
 int scanIdentifier(char* sp)
 {
-    HashEntry* entry;
 
     /* store in symbolic table */
     yylval.i = storeIdent(SaveString(sp));
@@ -651,7 +650,6 @@ int grabtag(char c)
 {
     char buf[BUFSIZ];
     int i = 0, j;
-    void* q;
 
     while (c && (i < BUFSIZ - 1)) {
         if (isalnum(c) || (c == '_') || (c == '.')) {
@@ -678,14 +676,12 @@ int grabtag(char c)
         break;
     }
 
-nospec:
     return scanIdentifier(buf);
 }
 
 #define BIGBUFSIZ 2 * BUFSIZ
 static int grabstring() {
     char buf[BIGBUFSIZ];
-    static int have_allocated = 0;
     char c;
     int i = 0;
     char* product;
@@ -860,7 +856,6 @@ donereading:
 
 int iskeyword(char* name)
 {
-    int index = 0;
     trielevel tb = trietop;
 
     while (*name) {

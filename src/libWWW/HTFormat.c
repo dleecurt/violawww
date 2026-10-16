@@ -429,10 +429,6 @@ PUBLIC void HTCopy ARGS2(int, file_number, HTStream*, sink) {
 */
 PUBLIC void HTFileCopy ARGS2(FILE*, fp, HTStream*, sink) {
     HTStreamClass targetClass;
-    extern int http_progress_expected_total_bytes; /*PYW*/
-    extern int http_progress_subtotal_bytes;
-    extern int http_progress_total_bytes;
-    extern int http_progress_reporter_level;
 
     /*	Push the data down the stream
     **

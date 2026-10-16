@@ -124,7 +124,6 @@ int load_object_with_security(char* filename, char* pathname, int securityLevel)
     FILE* fp;
     long slotv[100][2];
     int slotc;
-    long* slotp;
     int i, status = 1, newObjCount;
     VObj *obj, *newObj[NEWOBJ_SIZE];
     char path[256]; /*XXX*/
@@ -380,7 +379,7 @@ int load_objects_slots(FILE* fp, long (*slotv)[100][2], int* slotc)
 int load_objects_slots_fromBuiltInCache(SlotStruct* slotsInfo, int* slotsInfoIdx, long (*slotv)[100][2], int* slotc)
 {
     HashEntry* entry;
-    char *label, *cp;
+    char *label;
 
     for (;;) {
         /* read the slot label
@@ -422,10 +421,8 @@ int loadFromBuiltInCache(char* filename)
 {
     long slotv[100][2];
     int slotc;
-    long* slotp;
     int i, status = 1, newObjCount;
     VObj *obj, *newObj[NEWOBJ_SIZE];
-    char path[256]; /*XXX*/
     SlotStruct* slotsInfo = NULL;
     int slotsInfoIdx = 0;
 

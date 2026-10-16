@@ -494,7 +494,6 @@ ClassInfo class_generic = {
  * Result: a copy (malloc'ed) of the global buffer
  */
 long meth_generic_GB_copy(VObj* self, Packet* result, int argc, Packet argv[]) {
-    char* str;
     long bufferID;
 
     result->type = PKT_STR;
@@ -1168,7 +1167,6 @@ long meth_generic_HTTPCanonicalURL(VObj* self, Packet* result, int argc, Packet 
  */
 long meth_generic_HTTPCurrentDocAddr(VObj* self, Packet* result, int argc, Packet argv[]) {
     extern char* current_addr;    /* from html.c */
-    extern char* default_default; /* from html.c */
 
     char* parsed_addr = HTParse(current_addr, current_addr, PARSE_ALL);
     result->info.s = saveString(parsed_addr);
@@ -1190,7 +1188,6 @@ long meth_generic_HTTPCurrentDocAddr(VObj* self, Packet* result, int argc, Packe
  */
 long meth_generic_HTTPCurrentDocAddrParsed(VObj* self, Packet* result, int argc, Packet argv[]) {
     extern char* current_addr;    /* from html.c */
-    extern char* default_default; /* from html.c */
     
     char *addr, *relative;
 
@@ -1999,7 +1996,6 @@ long meth_generic_activeHelp(VObj* self, Packet* result, int argc, Packet argv[]
 #ifdef VW
     extern void showHelpMessageInMainWindow(char* message);
     extern void blankHelpHandlerInMainWindow(void);
-    char* str;
 
     if (argc == 0) {
         blankHelpHandlerInMainWindow();
@@ -2442,10 +2438,9 @@ long meth_generic_clone(VObj* self, Packet* result, int argc, Packet argv[]) {
 }
 
 long meth_generic_clone2(VObj* self, Packet* result, int argc, Packet argv[]) {
-    VObj *cloneObj, *obj;
+    VObj *cloneObj;
     VObjList *olist, *newolist;
     union PCode* pcode;
-    size_t size;  /* Changed from int to size_t for 64-bit safety */
 
     if (!meth_cosmic_clone2(self, result, argc, argv))
         return 0;
@@ -2520,7 +2515,6 @@ long meth_generic_clone2(VObj* self, Packet* result, int argc, Packet argv[]) {
     pcode = GET__script(self);
     if (pcode) {
         pcode[PCODE_IDX_REFC].i++;
-        size = sizeof(union PCode) * (pcode[PCODE_IDX_INSTR].i + pcode[PCODE_IDX_SIZE].i);
         SET__script(cloneObj, pcode);
     }
 
@@ -3367,7 +3361,6 @@ long meth_generic_format(VObj* self, Packet* result, int argc, Packet argv[]) {
  * Return: 1 if successful, 0 if error occured
  */
 long meth_generic_freeSelf(VObj* self, Packet* result, int argc, Packet argv[]) {
-    HashEntry* entry;
     union PCode* pcode;
     VObjList* olist;
     Attr* varlist;
@@ -4038,7 +4031,7 @@ long meth_generic_objectPosition(VObj* self, Packet* result, int argc, Packet ar
  * Return: 1 if successful, 0 if error occured
  */
 long meth_generic_loadFile(VObj* self, Packet* result, int argc, Packet argv[]) {
-    char *cp, *retStrp, *path;
+    char *cp, *retStrp;
     
     result->type = PKT_STR;
     cp = PkInfo2Str(&argv[0]);
@@ -4182,7 +4175,6 @@ long meth_generic_nthChar(VObj* self, Packet* result, int argc, Packet argv[]) {
 long meth_generic_nthChild(VObj* self, Packet* result, int argc, Packet argv[]) {
     int i = 0;
     long n;
-    char* listName;
     VObjList* olist;
 
     if (argc != 1) {
@@ -4284,7 +4276,6 @@ long meth_generic_nthItem(VObj* self, Packet* result, int argc, Packet argv[]) {
  */
 long meth_generic_nthLine(VObj* self, Packet* result, int argc, Packet argv[]) {
     long li, hi;
-    int lines;
     long size;
     char* str;
 
@@ -4356,7 +4347,6 @@ long meth_generic_nthObjectInList(VObj* self, Packet* result, int argc, Packet a
 long meth_generic_nthSibling(VObj* self, Packet* result, int argc, Packet argv[]) {
     int i = 0;
     long n;
-    char* listName;
     VObjList* olist;
     VObj* parent;
 
@@ -4645,14 +4635,13 @@ long meth_generic_replaceStr(VObj* self, Packet* result, int argc, Packet argv[]
     char *cp, *lp;
     char *inStr, *patStr, *repStr;
     int ii = 0, pi = 0;
-    size_t inLength, patLength, repLength;
+    size_t inLength, patLength;
 
     inStr = PkInfo2Str(&argv[0]);
     patStr = PkInfo2Str(&argv[1]);
     repStr = PkInfo2Str(&argv[3]);
     inLength = strlen(inStr);
     patLength = strlen(patStr);
-    repLength = strlen(repStr);
 
     result->type = PKT_STR;
     lp = inStr;
@@ -4784,7 +4773,6 @@ long meth_generic_saveFile(VObj* self, Packet* result, int argc, Packet argv[]) 
  * Return: 1 if successful, 0 if error occured
  */
 long meth_generic_scan(VObj* self, Packet* result, int argc, Packet argv[]) {
-    int i;
     clearPacket(result);
     return 0;
 }
@@ -4921,7 +4909,6 @@ void helper_setSecurity(VObj* self, long level) {
  * Return: 1 if successful, 0 if error occured
  */
 long helper_generic_set(VObj* self, Packet* result, int argc, Packet argv[], long labelID) {
-    char* str;
 
     switch (labelID) {
     case STR_name:
@@ -6184,9 +6171,6 @@ long meth_generic_code_HTML_txtAnchor(VObj* self, Packet* result, int argc, Pack
 long meth_generic_code_HTML_header_large(VObj* self, Packet* result, int argc, Packet argv[]) {
     Packet* arg0 = (Packet*)((Attr*)(argv[0].info.a)->val);
     char* mesg;
-    int vspan;
-    SGMLTagMappingInfo* tmi;
-    char* text;
 
     if (arg0->type == PKT_INT) {
         if (arg0->info.i == STR_D) {

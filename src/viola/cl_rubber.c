@@ -56,7 +56,6 @@ void helper_rubber_config(VObj* self, long oldWidth, long oldHeight) {
     float xratio, yratio;
     int x, y, width, height;
     VObjList *olist, *children = GET__children(self);
-    Window w;
 
     xratio = (float)GET_width(self) / (float)oldWidth;
     yratio = (float)GET_height(self) / (float)oldHeight;

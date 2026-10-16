@@ -194,7 +194,6 @@ Image* fbmLoad(char* fullname, char* name, unsigned int verbose)
     Image* image;
     int x, y, j, k, rowlen, plnlen;
     unsigned char *pixptr, *cm;
-    extern int Scrn;
     unsigned char *r, *g, *b;
 
     if (!(zf = zopen(fullname)))

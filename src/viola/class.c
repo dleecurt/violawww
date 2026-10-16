@@ -51,7 +51,7 @@ MHInfo allmhp;
 int initSlotOffsetInfo(ClassInfo* cip, int section)
 {
     SlotInfo* sip;
-    int i, offset;
+    int offset;
 
     if (cip->superClass) {
         offset = initSlotOffsetInfo(cip->superClass, section);
@@ -68,7 +68,7 @@ int initSlotOffsetInfo(ClassInfo* cip, int section)
 void dumpSlotInfo(ClassInfo* cip, int section)
 {
     SlotInfo* sip;
-    int i, offset;
+    int i;
 
     if (cip->superClass)
         dumpSlotInfo(cip->superClass, section);
@@ -104,7 +104,7 @@ void dumpSlotLookup(SlotInfo** sip, int size)
 int initSlotLookUpTable(ClassInfo* cip, int section, SlotInfo** slookup)
 {
     SlotInfo* sip;
-    int offset, i;
+    int offset;
 
     if (cip->superClass)
         offset = initSlotLookUpTable(cip->superClass, section, slookup);
@@ -125,7 +125,7 @@ void overRideSlotLookUpTable(ClassInfo* cip, int section, SlotInfo** slookup, in
 {
     SlotInfo* sip;
     int slookupi;
-    int offset, i;
+    int i;
 
     if (cip->superClass)
         overRideSlotLookUpTable(cip->superClass, section, slookup, slookup_size);
@@ -140,11 +140,10 @@ void overRideSlotLookUpTable(ClassInfo* cip, int section, SlotInfo** slookup, in
 /*
  */
 int init_class() {
-    ClassInfo *base_clip, *clip;
     ClassInfo *cip, *tcip;
     SlotInfo* sip;
     VObj* obj;
-    int offset, i, j;
+    int i, j;
     int load_classScripts(char* classScriptPath);
     char classScriptPathBuff[128];
 
@@ -212,7 +211,6 @@ int init_class() {
 
     for (i = 0; (cip = classList[i]); i++) {
         int bitsSize;
-        HashEntry* entry;
         HashTable* methHashTable;
         MethodInfo* mip;
         int id;
@@ -443,7 +441,6 @@ int generateSlotAccessors() {
 ClassInfo* getClassInfoByID(int classid)
 {
     ClassInfo* cip;
-    HashEntry* entry;
     int i;
 
     for (i = 0; (cip = classList[i]); i++)

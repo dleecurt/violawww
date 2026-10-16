@@ -188,7 +188,6 @@ long helper_XBM_set(VObj* self, Packet* result, int argc, Packet argv[], long la
         Pixmap pixmap;
         unsigned int width = 0, height = 0;
         int hotx, hoty;
-        char* cp;
         char* trimmedStr;
 
         result->info.s = SaveString(PkInfo2Str(&argv[1]));

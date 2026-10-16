@@ -178,10 +178,8 @@ PRIVATE int HTLoadHTTPS_impl(const char* arg, HTParentAnchor* anAnchor, HTFormat
     HTFormat format_in;      /* Format arriving in the message */
     char* auth = NULL;       /* Authorization information */
 
-    const char* gate = 0; /* disable gateway feature */
     SockA soc_address;    /* Binary network address */
     SockA* sin = &soc_address;
-    BOOL had_header = NO;
     char* text_buffer = NULL;
     char* binary_buffer = NULL;
     int buffer_length = INIT_LINE_SIZE;
@@ -189,7 +187,6 @@ PRIVATE int HTLoadHTTPS_impl(const char* arg, HTParentAnchor* anAnchor, HTFormat
     int server_status = 0;
     ptrdiff_t offset = 0;
 
-    int tries = 0;
     char* hostname = NULL;
     static int redirect_count = 0;  /* Track redirect depth */
     #define MAX_REDIRECTS 10
@@ -212,8 +209,6 @@ PRIVATE int HTLoadHTTPS_impl(const char* arg, HTParentAnchor* anAnchor, HTFormat
     extern int http_progress_reporter_level;
     static int delimSize = 0;
     static char* delim = "Content-length: ";
-    char delimBuf[32];
-    int i, j, delimi = 0;
     char *cp, *buffp, buff[100];
     int foundContentLength = 0;
 
@@ -1313,7 +1308,6 @@ clean_up:
         if (connection_from_pool && pooled_conn) {
             /* Reuse the same pooled_conn object - just update timestamp and stats */
             time_t now = time(NULL);
-            long reuse_delay = now - pooled_conn->last_used;
             pooled_conn->last_used = now;
             pooled_conn->total_requests++;
             pooled_conn->total_bytes += bytes_received;

@@ -237,7 +237,6 @@ imageToXImage: XAllocColor failed on a TrueColor/Directcolor visual\n");
     } break;
 
     default:
-    retry: /* this tag is used when retrying because we couldn't get a fit */
         XServerInGrip = 0;
         index = (Pixel*)lmalloc(sizeof(Pixel) * image->rgb.used);
 

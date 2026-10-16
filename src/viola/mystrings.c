@@ -120,7 +120,6 @@ int GetNextPhrase(char* restrict str, int i, char* restrict destStr, char* restr
     char c;
     int x, y, ci = i, cuti = 0, parenLevel = 0, quoteToggle = 0;
     size_t cutOffWordLen = strlen(cutOffWord);
-    extern int hush;
 
     while ((c = str[ci])) {
         if (parenLevel == 0 && quoteToggle == 0) {

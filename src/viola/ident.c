@@ -1280,7 +1280,6 @@ strNIntPair symList[] = {STR_BCard,
 HashTable *symStr2ID, *symID2Str;
 
 int init_ident() {
-    int i;
     strNIntPair* symp;
 
     symStr2ID = initHashTable(1021, hash_str, cmp_str, NULL, NULL, getHashEntry_str,

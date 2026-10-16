@@ -313,7 +313,6 @@ void regRef(AST* ast)
 
 void regListRef(AST* ast)
 {
-    int i;
     long id;
     RefInfo *lfap, *lfap_end;
 
@@ -360,7 +359,6 @@ int assignReferences(AST* ast, union PCode* pcode, int* pc)
     long id, refID = 0;
     int pcodePC_varCount, varCount = 0;
     RefInfo *vap, *vap_end, *refArrayp;
-    AST* vastp;
 
     if (varArrayIdx == 0)
         return 1; /* no variables... */
@@ -558,8 +556,6 @@ int switchHelper(AST* ast, union PCode* pcode, int* pc)
     int i, default_bodyPatchIdx = -1;
     AST *astp, *castp, *astp2;
     int broke = 0;
-    Packet* pk;
-    char* cp;
 
     /* remember to patch going to the tests */
     br2testsPatch = *pc;
@@ -1148,7 +1144,7 @@ void printPCode(union PCode* pcode, long* pc, long size) {
                 break;
 
             case CODE_PUSH_REFPS: {
-                int i, n;
+                int n;
                 n = (int)pcode[*pc].i;
                 fprintf(stderr, "%ld\tcount=%d\n", *pc, n);
                 (*pc)++;

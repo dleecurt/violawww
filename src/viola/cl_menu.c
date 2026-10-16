@@ -512,7 +512,7 @@ xpa_entry* parse_menu_allocateEntryTree(VObj* self, char* idata, int* textIndex)
     char label[127], returnStr[512];
     int l, scrapTextIndex, previousIndex;
     int depth, originalDepth = -1;
-    int menuItemCount, subMenuItemCount, hasReturnStr;
+    int menuItemCount, hasReturnStr;
     char accelerator, modifier;
     int type;
 
@@ -685,7 +685,6 @@ xpa_menu make_menu(char* menuSpec, xpa_entrys* ret_menu_entries, VObj* self) {
     xpa_entrys menu_entries;
     xpa_menu menu;
     int mask;
-    ColorInfo* colorInfo = GET__colorInfo(self);
     extern unsigned long DefaultFGPixel;
     extern unsigned long DefaultBGPixel;
     extern unsigned long DefaultBGPixel_darkest;
@@ -702,7 +701,6 @@ xpa_menu make_menu(char* menuSpec, xpa_entrys* ret_menu_entries, VObj* self) {
     /* Set some display attributes */
     /*if (DefaultDepth(display, DefaultScreen(display)) > 1)*/
     {
-        char* colorp;
 
         attr.title_fg = 0;
         attr.title_bg = 0;

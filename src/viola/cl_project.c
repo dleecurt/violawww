@@ -154,7 +154,6 @@ long meth_project_set(VObj* self, Packet* result, int argc, Packet argv[])
 long meth_project_render(VObj* self, Packet* result, int argc, Packet argv[])
 {
     Window w = GET_window(self);
-    Pixmap pixmap;
 
     if (!w)
         meth_field_render(self, result, argc, argv);

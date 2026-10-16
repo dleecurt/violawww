@@ -1101,7 +1101,7 @@ PRIVATE void read_group ARGS3(const char*, groupName, int, first_required, int, 
 **	news:group                    - newsgroup on default server
 **	news:message-id@domain        - article by Message-ID
 **	news://host[:port]/group      - newsgroup on specific server
-**	news://host[:port]/*          - list all groups on server
+**	news://host[:port]/\*         - list all groups on server
 **	news://host[:port]/           - same as above
 **	nntp://host[:port]/group      - newsgroup on specific server
 **	nntp://host[:port]/group/num  - specific article by number

@@ -115,7 +115,7 @@ Image* newBitImage(unsigned int width, unsigned int height)
 Image* newRGBImage(unsigned int width, unsigned int height, unsigned int depth)
 {
     Image* image;
-    unsigned int pixlen, numcolors, a;
+    unsigned int pixlen, numcolors;
 
     pixlen = (depth / 8) + (depth % 8 ? 1 : 0);
     if (pixlen == 0) /* special case for `zero' depth image, which is */
@@ -136,7 +136,6 @@ Image* newRGBImage(unsigned int width, unsigned int height, unsigned int depth)
 Image* newTrueImage(unsigned int width, unsigned int height)
 {
     Image* image;
-    unsigned int pixlen, numcolors, a;
 
     image = (Image*)lmalloc(sizeof(Image));
     image->type = ITRUE;

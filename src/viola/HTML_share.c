@@ -157,8 +157,6 @@ int txtDisp_HTML_header_D(VObj* self, Packet* result, Packet* argv)
     /* Equivalent C code:
      */
     TFStruct* tf = GET__TFStruct(self);
-    Attr* varlist = GET__varList(self);
-    Packet* pk;
     char *text, *s;
     SGMLTagMappingInfo* tmi;
     int vspan;
@@ -413,14 +411,14 @@ void dumpMatrix(TableMatrixCell* matrix, int matCols, int matRows, int mode)
 
 int HTMLTableFormater(VObj* self, VObj* titleObj, int titleTopP)
 {
-    int i, j, r, c, row, col;
+    int i, r, c, row, col;
     int reg[MAX_TABLE_ROWS]; /* limit on number of rows */
-    int rowIdx = 0, rowCount = 0, elemCount = 0;
+    int rowIdx = 0, rowCount = 0;
     VObjList* olist;
     TableMatrixCell *mat, *matrix;
     int matCols, matRows;
     int maxCols;
-    int x, y, width, height, xspan, yspan;
+    int x, y, width, xspan;
     float rowSpan, colSpan;
     int type, lastCellType = 0;
     Packet evalResult;

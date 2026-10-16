@@ -105,7 +105,6 @@ STGGroup* STG_makeGroup(STGLib* lib, char* gspec)
     char* cp = gspec;
     STGGroup* group = (STGGroup*)malloc(sizeof(struct STGGroup));
     STGMajor* major = NULL;
-    STGMinor* minor;
 
     if (!group) {
         fprintf(stderr, "malloc failed\n");
@@ -139,7 +138,7 @@ STGGroup* STG_makeGroup(STGLib* lib, char* gspec)
             // probably should not happen here at top level
             // (must be inside a major)
             cp++; // Skip the '{' before calling parseMinor
-            minor = parseMinor(&cp, NULL);
+            parseMinor(&cp, NULL);
         }
     }
     return group;
@@ -593,7 +592,6 @@ int STG_findStyle(STGGroup* group, char* context[], int contextCount, STGResult 
     STGResult majorResults[10];
     int majorResultCount = 0;
     STGResult majorTryReg[10];
-    int majorTryRegCount = 0;
     STGStrList* ids;
     STGMajor* maj = NULL;
 

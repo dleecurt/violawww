@@ -83,8 +83,6 @@ int loadImg(char* imagename, /*Image** image,*/ XImageInfo** ximageinfo, int* wi
     int a;
     unsigned int imagecount;  /* number of images in ImageName array */
     char* user_geometry;      /* -geometry passed by user */
-    unsigned int dest_window; /* window id to put image onto */
-    unsigned int do_fork;
     unsigned int fit;
     unsigned int fullscreen;
     unsigned int identify;
@@ -96,15 +94,6 @@ int loadImg(char* imagename, /*Image** image,*/ XImageInfo** ximageinfo, int* wi
     unsigned int verbose;
     int visual_class;                 /* user-defined visual class */
     unsigned int winwidth, winheight; /* geometry of image */
-    unsigned int global_bright = 0;   /* options which are propagated to all */
-    unsigned int global_colors = 0;   /* remaining images */
-    unsigned int global_delay = 0;
-    unsigned int global_dither = 0;
-    float global_gamma = 1.0;
-    unsigned int global_normalize = 0;
-    unsigned int global_smooth = 0;
-    unsigned int global_xzoom = 0;
-    unsigned int global_yzoom = 0;
 
     int argc = 0;
     char** argv = 0;
@@ -120,13 +109,11 @@ int loadImg(char* imagename, /*Image** image,*/ XImageInfo** ximageinfo, int* wi
     /*  fit= 0;*/
     fit = 1; /*MAKE DEFAULT PYW*/
     fullscreen = 0;
-    do_fork = 0;
     identify = 0;
     install = 0;
     private_cmap = 0;
     use_pixmap = 0;
     set_default = 0;
-    dest_window = 0;
     user_geometry = NULL;
     winwidth = winheight = 0;
     visual_class = -1;
@@ -233,7 +220,6 @@ int loadImg(char* imagename, /*Image** image,*/ XImageInfo** ximageinfo, int* wi
         if ((a == 0) && onroot && fullscreen && (images[0].xzoom == 0.0) &&
             (images[0].yzoom == 0.0) && (images[0].atx == 0) && (images[0].aty == 0) &&
             (images[0].center == 0)) {
-            XWindowAttributes wa;
             images[0].center = 1;
 
             if ((newimage->width > (unsigned int)DisplayWidth(disp, scrn)) ||

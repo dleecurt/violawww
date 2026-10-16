@@ -148,7 +148,6 @@ PUBLIC const char* HTInetString ARGS1(SockA*, sin) {
 PUBLIC int HTParseInet ARGS2(SockA*, sin, const char*, str) {
     char* port;
     char host[256];
-    struct hostent* phost; /* Pointer to host - See netdb.h */
     strcpy(host, str);     /* Take a copy we can mutilate */
 
     /*	Parse port number if present

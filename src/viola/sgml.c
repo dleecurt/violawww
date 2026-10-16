@@ -363,23 +363,13 @@ char *findTagName(tagID)
 VObj* SGMLBuildDoc(char* srcp, char* url, VObj* parent, char* name, int width, char* anchor)
 {
     VObj* docObj;
-    char *cp, *ccp;
-    SGMLDocMappingInfo* docMappingInfo = NULL;
-    SGMLTagMappingInfo *tmi, *tagMappingInfo = NULL;
+    SGMLTagMappingInfo *tagMappingInfo = NULL;
     SGMLDocMappingInfo* dmi = NULL;
     int h = 0;
     int y = 0;
-    int i, j;
+    int i;
     char dtd[128];
-    char data[100];
-    int tagSize, tagID;
     FILE* fp;
-    char c;
-    int byteOrderHint;
-    int version;
-    Packet margv[3];
-    Packet argv[1];
-    char* itag;
     char tagName[64];
     int size;
 
@@ -469,17 +459,15 @@ VObj* SGMLBuild(SGMLDocMappingInfo* dmi, SGMLTagMappingInfo* tagMappingInfo, cha
     int endP = 0;
     char token;
     Packet argv[1];
-    int i, j, size;
+    int i, size;
     SGMLTagMappingInfo* tmi = NULL;
     VObj *obj, *template = NULL, *subObj;
-    char c, c0, *s, *anchor, *subTagp, *datap;
-    int span, height;
-    char *name, *ref;
-    char** srcp;
+    char c, *s;
+    int span;
+    char *name;
     int dataBuffIdx_localStart = dataBuffIdx;
     char* dtd;
     char* attrName;
-    int attrTypeID;
     extern int global_cloneID;
 
     dataBuffIdxStack[++dataBuffIdxStackIdx] = dataBuffIdx;
@@ -677,7 +665,6 @@ VObj* SGMLBuild(SGMLDocMappingInfo* dmi, SGMLTagMappingInfo* tagMappingInfo, cha
             }
         } break;
         case '(': {
-            int tagID;
             SGMLTagMappingInfo* ctmi;
             VObj* _insert_obj = insert_obj;
             char subTagName[64];
@@ -896,14 +883,11 @@ VObj* SGMLBuild(SGMLDocMappingInfo* dmi, SGMLTagMappingInfo* tagMappingInfo, cha
 VObj* SGMLBuildDoc_B(char* srcp, char* url, VObj* parent, char* name, int width, char* anchor)
 {
     VObj* docObj;
-    char *cp, *ccp;
-    char *subTagp, subTag[100];
-    SGMLDocMappingInfo* docMappingInfo = NULL;
     SGMLTagMappingInfo *tmi, *tagMappingInfo = NULL;
     SGMLDocMappingInfo* dmi = NULL;
     int h = 0;
     int y = 0;
-    int i, j;
+    int i;
     char dtd[128];
     char data[100];
     int tagSize, tagID;
@@ -911,9 +895,7 @@ VObj* SGMLBuildDoc_B(char* srcp, char* url, VObj* parent, char* name, int width,
     char c;
     int byteOrderHint;
     int version;
-    Packet margv[3];
     Packet argv[1];
-    char* itag;
 
     fp = fopen(url, "r");
     if (!fp) {
@@ -1115,16 +1097,13 @@ VObj* SGMLBuild_B(SGMLDocMappingInfo* dmi, SGMLTagMappingInfo* tagMappingInfo, i
 {
     int endP = 0;
     int token, size;
-    int i, j;
+    int i;
     SGMLTagMappingInfo* tmi = NULL;
     VObj *obj, *template = NULL, *subObj;
     Packet argv[1];
-    char c, c0, *s, *anchor, *subTagp, *datap;
-    int span, height;
-    char *name, *ref;
-    char** srcp;
+    char *s;
+    int span;
     int dataBuffIdx_localStart = dataBuffIdx;
-    char* dtd;
     char attrName[64];
     int attrTypeID;
     extern int global_cloneID;
@@ -1794,7 +1773,7 @@ int setSGMLStyle(char* dtd, char* tagName, char* attrName, Packet* value)
 
 SGMLDocMappingInfo* setSGMLStylesheet(char* dtd, char* stylesheet)
 {
-    char *cp, *retStrp, *path;
+    char *cp, *retStrp;
     char tagName[128], type[128];
     int inlineP, notifyOnCreationP, flushAlwaysP, flushOnSubTagP, hpaneP;
     int top, bttm, left, right, i;

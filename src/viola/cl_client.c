@@ -283,7 +283,7 @@ long meth_client_initialize(VObj* self, Packet* result, int argc, Packet argv[])
 long meth_client_input(VObj* self, Packet* result, int argc, Packet argv[]) {
 
     int fd = GET_clientFD(self);
-    int c, i = 0, n;
+    int c, n;
     ssize_t cc;
     char* inDelimStr1 = GET_inDelimStr1(self);
     char* inDelimStr2 = GET_inDelimStr2(self);

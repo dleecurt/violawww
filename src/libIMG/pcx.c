@@ -90,7 +90,6 @@ Image* pcxLoad(char* fullname, char* name, unsigned int verbose)
 {
     ZFILE* zf;
     unsigned char pcxhd[128];
-    int cnt, b;
     int xmin;
     int xmax;
     int ymin;

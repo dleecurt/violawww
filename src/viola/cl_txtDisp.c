@@ -429,7 +429,6 @@ long int meth_txtDisp_clone(VObj* self, Packet* result, int argc, Packet argv[])
  */
 static char* updateContentInsetNames(VObj* clone, char* content, char* suffix)
 {
-    char* result;
     char* src;
     char* dst;
     char* newContent;
@@ -512,7 +511,7 @@ static char* updateContentInsetNames(VObj* clone, char* content, char* suffix)
 long meth_txtDisp_clone2(VObj* self, Packet* result, int argc, Packet argv[])
 {
     VObj* cloneObj;
-    TFStruct *oldtf, *clonetf;
+    TFStruct *clonetf;
 
     if (!meth_txt_clone2(self, result, argc, argv))
         return 0;
@@ -740,7 +739,6 @@ long int meth_txtDisp_freeSelf(VObj* self, Packet* result, int argc, Packet argv
 
 long int helper_txtDisp_get(VObj* self, Packet* result, int argc, Packet argv[], long labelID)
 {
-    char* str;
     extern TFLineNode* theEditLN;
 
     switch (labelID) {
@@ -810,7 +808,6 @@ long int meth_txtDisp_highLight(VObj* self, Packet* result, int argc, Packet arg
 
 long int meth_txtDisp_initialize(VObj* self, Packet* result, int argc, Packet argv[])
 {
-    VObjList* objl;
 
     if (!meth_txt_initialize(self, result, argc, argv))
         return 0;
@@ -1062,7 +1059,6 @@ int help_txtDisp_shownPositionV(VObj* self, int newPosition)
     TFStruct* tf = updateEStrUser(self);
     int oldDestLine, destLine;
     int position = GET_shownPositionV(self);
-    VObjList* objl;
 
     if (newPosition < 0)
         newPosition = 0;
@@ -1104,7 +1100,6 @@ int help_txtDisp_shownPositionV(VObj* self, int newPosition)
  */
 long int helper_txtDisp_set(VObj* self, Packet* result, int argc, Packet argv[], long labelID)
 {
-    char* str;
 
     switch (labelID) {
     case STR_height: {

@@ -81,7 +81,6 @@ struct _HTStream {
 PRIVATE char* extract_charset ARGS1(char*, content_type) {
     char* semicolon;
     char* charset_param;
-    char* equals;
     char* end;
     static char charset_buf[64];
     

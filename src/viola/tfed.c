@@ -293,7 +293,6 @@ TFStruct* tfed_updateTFStruct(VObj* self, char* text)
     int fontID = (int)GET__font(self);
     int newWidth, newHeight;
     int geometryChanged = 0;
-    TFLineNode* currentp;
 
     if (!tf) {
         /*		printf("tfed_updateTFStruct: tf=NULL!\n");*/
@@ -421,7 +420,6 @@ TFStruct* tfed_clone(VObj * orig, VObj * clone, char* suffix)
     size_t sz;
     TFStruct* origtf = GET__TFStruct(orig);
     TagInfo *ti, *cti;
-    int suffixLen = suffix ? (int)strlen(suffix) : 0;
 
     if (!origtf)
         return 0;
@@ -510,7 +508,7 @@ int glyphWidth(TFStruct* tf, TFChar* tfcp)
 
     if ((c >= ' ') && (c != '\\')) {
         if (TFCFlags(tfcp) & MASK_PIC) {
-            TFPic *pic = NULL, *picp, *pics;
+            TFPic *pic = NULL, *picp;
             int picID;
 
             picID = TFCFontID(tfcp);
@@ -674,10 +672,9 @@ char* tfed_processMouseMove(VObj* self)
     TFStruct* tf = updateEStrUser(self);
     TFLineNode* ln;
     TFChar* tfcp;
-    int rootx, rooty, mx, my, px, py, cx, cy, scr_off_y;
+    int rootx, rooty, mx, my, px, py, cx, scr_off_y;
     int i;
     char* url;
-    TagInfo* ti;
 
     if (!tf)
         return 0;
@@ -741,7 +738,6 @@ int tfed_processMouseInput(VObj* self)
     XEvent e;
     int stat;
     int initColor = 1;
-    long doHighLighting;
 
     if (!tf)
         return 0;
@@ -758,7 +754,6 @@ int tfed_processMouseInput(VObj* self)
         return 1;
     XUngrabPointer(display, CurrentTime);
 
-    doHighLighting = GET_cursor(self);
 
     GLQueryMouse(TFWINDOW, &rootx, &rooty, &mx, &my);
     mapFromPixelToCharPosition(tf, mx, my, &init_cx, &init_cy, &px, &py);
@@ -854,7 +849,6 @@ int tfed_processMouseInput(VObj* self)
 char* tfed_getSelection(VObj* self)
 {
     TFStruct* tf = GET__TFStruct(self);
-    extern VObj* xselectionObj;
 
     if (tf)
         return rangeOperation(tf, tf->highLiteFrom_cx, tf->highLiteFrom_cy, tf->highLiteTo_cx,
@@ -879,7 +873,6 @@ int tfed_clearSelection(VObj* self)
 int tfed_placeCursor(VObj* self, int mx, int my)
 {
     TFStruct* tf = updateEStrUser(self);
-    TFChar* tfcp;
     long doDrawCursor = GET_cursor(self);
 
     if (!tf) {
@@ -1292,7 +1285,6 @@ long kbf_kill_line(TFStruct* tf)
 
     } else {
         TFChar* tfcp;
-        int yoffset;
 
         lnB_maxFontHeight = tf->currentp->maxFontHeight;
         lnB_breakc = 0;
@@ -1691,7 +1683,7 @@ long kbf_newline(TFStruct* tf)
     */
     if (delta == 0) {
         int diff_breakc = after1_breakc + after2_breakc - orig_breakc;
-        int offset, upper = 0, lower, shiftSpan, eraseSpan;
+        int upper = 0, lower, shiftSpan, eraseSpan;
         TFLineNode* currentp;
 
         /*		printf("******* diff_breakc = %d\n", diff_breakc);*/
@@ -2069,9 +2061,8 @@ TFLineNode* get_nth_line(TFStruct* tf, int n)
 int tfed_findString(TFStruct* tf, char* s, int patlen, int row, int col, int * row_ret, int * col_ret)
 {
     TFLineNode* lp;
-    int maxlen, i, j, k;
+    int i, j, k;
     char buf[BUFSIZ]; /* icky -- breaks if patlen > bufsiz */
-    char* t;
     TFChar* carray;
 
     i = 0;
@@ -2236,11 +2227,11 @@ int joinLine(TFStruct* tf)
 #define VERBOSE_INSERTSTR__
 int insertStr(TFStruct* tf, int split, TFLineNode* source)
 {
-    int i = 0, j = 0, multipleInserts = 0;
-    TFChar *tfcp, *tfcLocalBuff;
-    TFLineNode *beginp, *endp, *currentp, *newLN;
+    int i = 0, j = 0;
+    TFChar *tfcp;
+    TFLineNode *currentp, *newLN;
     int yoffset = tf->csr_py, offset;
-    int d, orig_breakc, after_breakc;
+    int d, orig_breakc;
     char c;
 
     orig_breakc = countBreaks(theEditLN->linep);
@@ -2335,7 +2326,6 @@ int insertStr(TFStruct* tf, int split, TFLineNode* source)
 #endif
         oldSpan = currentp->maxFontHeight * orig_breakc;
         newSpan = 0;
-        beginp = currentp;
         offset = tf->current_row - tf->screen_row_offset;
 
 #ifdef VERBOSE_INSERTSTR
@@ -2422,7 +2412,6 @@ int insertStr(TFStruct* tf, int split, TFLineNode* source)
                 }
                 i = ++j;
             }
-            endp = currentp;
 
             /* Make space for drawing
              */
@@ -3619,8 +3608,7 @@ int addCtrlChar(TFCBuildInfo* buildInfo)
         TFChar tfc, *tfcp;
         TFLineNode* newp;
         int size, i, j, k, n, patch = 0;
-        char* tagInfoBuff[TAGINFO_SIZE];
-        int tagInfoBuffi, tagID;
+        int tagID;
         int currentFontID, prevFontID = -1;
         TagInfo* ti;
         int newTagID;
@@ -4079,9 +4067,8 @@ int addCtrlChar(TFCBuildInfo* buildInfo)
 
     char* convertNodeLinesToStr(VObj* self, TFLineNode* headp)
     {
-        TFLineNode* savep;
         char *newStrp, *cp, c;
-        TFChar *tfcp, *tfcline;
+        TFChar *tfcp;
         int cci, flag;
         short oldState, state;
         char fontID = (char)GET__font(self);
@@ -4802,7 +4789,7 @@ int addCtrlChar(TFCBuildInfo* buildInfo)
 
     int moveLine(TFStruct* tf, int dir)
     {
-        int delta, actual_delta;
+        int delta;
         int cursorWasWithinField = cursorWithinField(tf);
 
         refreshMode = 0;
@@ -4943,7 +4930,7 @@ int addCtrlChar(TFCBuildInfo* buildInfo)
      */
     void drawLine(TFStruct* tf, TFLineNode* currentp, int* yoffset)
     {
-        int fontyoffset, length;
+        int fontyoffset;
 
         if (!TFWINDOW || !GET_visible(tf->self))
             return;
@@ -5286,13 +5273,11 @@ int addCtrlChar(TFCBuildInfo* buildInfo)
         TFChar* tfcp = currentp->linep;
         int segendpx, segpx = tf->xUL;
         int pwidthlimit = tf->xLR;
-        int stat, nosegdrawn = 0;
+        int stat;
         XTextItem item;
-        int x1, y1, x2, y2;
         short prevFontID, prevVideo;
         char* buffp;
         int flags;
-        GC usegc = gc_fg;
 
         item.delta = 0;
         item.chars = buff;
@@ -5504,7 +5489,6 @@ int addCtrlChar(TFCBuildInfo* buildInfo)
         TFLineNode* currentp;
         TFChar *linep, *tfcp;
         int yoffset, fontyoffset, maxFontHeight, maxFontDescent, pwidthlimit;
-        int yoffset_s, fontyoffset_s;
         int segpx;
         int fontID, lfontID = -1;
         FontInfo* fip;
@@ -6012,7 +5996,7 @@ int addCtrlChar(TFCBuildInfo* buildInfo)
 
     int tfed_scroll_delta(TFStruct* tf, int offsetdir)
     {
-        int i, h, linesToMove, span, limit, py, probepy, fonty;
+        int i, linesToMove, span, limit, py, probepy, fonty;
         TFLineNode* currentp;
 
         if (!TFWINDOW || !GET_visible(tf->self))
@@ -6611,7 +6595,7 @@ int addCtrlChar(TFCBuildInfo* buildInfo)
     {
         TFLineNode* currentp = tf->firstp;
         TFChar* tfcp;
-        int left, right, i;
+        int i;
 
         if (!currentp)
             return 0;
@@ -6957,7 +6941,6 @@ int addCtrlChar(TFCBuildInfo* buildInfo)
             /*		unlink(src);*/
         } else if (pic->type == TFPic_XBM || pic->type == TFPic_GIF || pic->type == TFPic_XPM) {
             XImage* theImage;
-            int width, height;
 
             if (GLGIFLoad(id, src, rootWindow, 0, 0, 0, 0, &(pic->width), &(pic->height),
                           &theImage)) {
@@ -6999,8 +6982,7 @@ int addCtrlChar(TFCBuildInfo* buildInfo)
     TFPic* tfed_addPic(TFPic** pics, TFPic* oldpic)
     {
         TFPic *pic, *picp;
-        int largestID = 0, len, span = 0;
-        char* ext;
+        int largestID = 0;
 
         pic = (TFPic*)malloc(sizeof(struct TFPic));
 

@@ -164,7 +164,6 @@ long meth_XPM_initialize(VObj* self, Packet* result, int argc, Packet argv[]) {
 long helper_XPM_set(VObj* self, Packet* result, int argc, Packet argv[], long labelID) {
     switch (labelID) {
     case STR_label: {
-        Window w = GET_window(self);
         unsigned int width = 0, height = 0;
         int hotx, hoty;
         Pixmap pixmap;
