@@ -131,6 +131,18 @@ VObj* reparented_obj = NULL;
 VObj* floatingObject = NULL;
 
 VObj* xselectionObj = NULL; /* object that has data for x clip buffer */
+
+/* Last editable text field (txtEdit) the user clicked or typed in.  The
+ * browser's Edit > Paste inserts here: when Paste is chosen from the menu
+ * the pointer is over the menu, so "the field under the pointer" won't do.
+ * May dangle after the field is destroyed; check validObjectP() first. */
+VObj* lastTextInputObj = NULL;
+
+static void noteTextInputObj(VObj* obj)
+{
+    if (obj && GET__classInfo(obj) == &class_txtEdit)
+        lastTextInputObj = obj;
+}
 char* sharedSelectionBuffer = NULL;
 
 int modalState = 0;
@@ -775,6 +787,7 @@ void handle_KeyPress(XKeyEvent* ep)
     char* keyInfo;
 
     keyInfo = eventChar(ep);
+    noteTextInputObj(obj);
 
     if (obj) {
         if ((uintptr_t)keyInfo <= (uintptr_t)1) {
@@ -844,6 +857,8 @@ long handle_LeaveNotify(XLeaveWindowEvent* ep, VObj** dragObjp, int tool, int* m
 long handle_ButtonPress(XButtonEvent* ep, VObj** dragObjp, int tool, int* resize_corner, int* mouseDown, int * from_x, int * from_y)
 {
     int root_x, root_y;
+
+    noteTextInputObj(findWindowObject(ep->window));
 
     if (validObjectP(VCurrentObj) == 0) {
         VCurrentObj = NULL;

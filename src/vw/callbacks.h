@@ -36,6 +36,8 @@ void oneMessageCB(Widget widget, XtPointer clientData, XtPointer callData);
 void clonePage(DocViewInfo* parentDocViewInfo); /* clone page for navigation */
 void clonePageMH(char* arg[], int argc, void* clientData);
 void clonePageCB(Widget widget, XtPointer clientData, XtPointer callData);
+void editCopyCB(Widget widget, XtPointer clientData, XtPointer callData);
+void editPasteCB(Widget widget, XtPointer clientData, XtPointer callData);
 void pageCloneMapped(Widget canvas, XtPointer clientData, XEvent* event, Boolean* continueDispatch);
 void showPageClone(char* arg[], int argc, void* clientData);
 void closePageCB(Widget button, XtPointer clientData, XtPointer callData);

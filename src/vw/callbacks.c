@@ -35,6 +35,7 @@
 
 #include "../viola/ast.h"
 #include "../viola/attr.h"
+#include "../viola/class.h"
 #include "../viola/discovery.h"
 #include "../viola/cexec.h"
 #include "../viola/glib.h"
@@ -1380,4 +1381,189 @@ void searchModeMH(char* arg[], int argc, void* clientData) {
         if (dvi->searchText)
             XtUnmanageChild(dvi->searchText);
     }
+}
+
+
+/* --- Edit menu: Copy / Paste through the X CLIPBOARD selection --------
+**
+** Copy takes the current Viola text selection (the same text the PRIMARY
+** selection / middle-click paste already offers) and makes this window the
+** owner of CLIPBOARD, so Ctrl-V works in other programs.  Paste requests
+** CLIPBOARD and inserts it into the last editable field the user clicked
+** or typed in.  Viola's text engine is Latin-1, so text is exchanged as
+** STRING (Latin-1), with UTF8_STRING offered/accepted for modern programs.
+*/
+extern VObj* lastTextInputObj; /* event_x.c */
+extern ClassInfo class_txtEdit;
+
+static char* clipboardText = NULL; /* Latin-1 text we serve while we own CLIPBOARD */
+
+static Atom clipboardAtom(Display* dpy) { return XInternAtom(dpy, "CLIPBOARD", False); }
+static Atom utf8Atom(Display* dpy) { return XInternAtom(dpy, "UTF8_STRING", False); }
+
+static Boolean clipboardConvertCB(Widget w, Atom* selection, Atom* target, Atom* type,
+                                  XtPointer* value, unsigned long* length, int* format)
+{
+    Display* dpy = XtDisplay(w);
+    Atom targets = XInternAtom(dpy, "TARGETS", False);
+
+    if (!clipboardText)
+        return False;
+
+    if (*target == targets) {
+        Atom* list = (Atom*)XtMalloc(3 * sizeof(Atom));
+        list[0] = targets;
+        list[1] = utf8Atom(dpy);
+        list[2] = XA_STRING;
+        *type = XA_ATOM;
+        *value = (XtPointer)list;
+        *length = 3;
+        *format = 32;
+        return True;
+    }
+    if (*target == XA_STRING) {
+        *type = XA_STRING;
+        *value = (XtPointer)XtNewString(clipboardText);
+        *length = strlen(clipboardText);
+        *format = 8;
+        return True;
+    }
+    if (*target == utf8Atom(dpy)) {
+        /* Latin-1 -> UTF-8: bytes >= 0x80 become two-byte sequences */
+        const unsigned char* s = (const unsigned char*)clipboardText;
+        unsigned char* out = (unsigned char*)XtMalloc(2 * strlen(clipboardText) + 1);
+        unsigned char* o = out;
+        for (; *s; s++) {
+            if (*s < 0x80) {
+                *o++ = *s;
+            } else {
+                *o++ = (unsigned char)(0xC0 | (*s >> 6));
+                *o++ = (unsigned char)(0x80 | (*s & 0x3F));
+            }
+        }
+        *o = '\0';
+        *type = utf8Atom(dpy);
+        *value = (XtPointer)out;
+        *length = (unsigned long)(o - out);
+        *format = 8;
+        return True;
+    }
+    return False; /* Xt frees *value with XtFree() since we pass no done proc */
+}
+
+static void clipboardLoseCB(Widget w, Atom* selection)
+{
+    free(clipboardText);
+    clipboardText = NULL;
+}
+
+void editCopyCB(Widget widget, XtPointer clientData, XtPointer callData)
+{
+    ClientData* cd = (ClientData*)clientData;
+    DocViewInfo* dvi = (DocViewInfo*)cd->shellInfo;
+    Display* dpy = XtDisplay(dvi->shell);
+    Packet pk;
+    char* text = NULL;
+
+    nullPacket(&pk);
+    if (GLGetSelection(&pk) && pk.type == PKT_STR && pk.info.s && pk.info.s[0])
+        text = strdup(pk.info.s);
+    if (pk.canFree & PK_CANFREE_STR)
+        free(pk.info.s);
+
+    if (!text) {
+        XBell(dpy, 0); /* nothing selected */
+        return;
+    }
+    free(clipboardText);
+    clipboardText = text;
+    if (!XtOwnSelection(dvi->shell, clipboardAtom(dpy), XtLastTimestampProcessed(dpy),
+                        clipboardConvertCB, clipboardLoseCB, NULL)) {
+        free(clipboardText);
+        clipboardText = NULL;
+        XBell(dpy, 0);
+    }
+}
+
+/* Insert pasted text into the remembered field.  Control characters other
+** than newline and tab are dropped: in Viola's editor many of them are
+** Emacs-style commands (Ctrl-A, Ctrl-K, ...) rather than text. */
+static void pasteInsert(Display* dpy, const char* latin1, unsigned long len)
+{
+    VObj* target = lastTextInputObj;
+    char* buf;
+    unsigned long i, n = 0;
+
+    if (!target || !validObjectP(target) || GET__classInfo(target) != &class_txtEdit) {
+        XBell(dpy, 0); /* no editable field to paste into */
+        return;
+    }
+    buf = (char*)malloc(len + 1);
+    if (!buf)
+        return;
+    for (i = 0; i < len; i++) {
+        unsigned char c = (unsigned char)latin1[i];
+        if (c >= 0x20 || c == '\n' || c == '\t')
+            buf[n++] = (char)c;
+    }
+    buf[n] = '\0';
+    if (n > 0)
+        sendMessage1N1str(target, "insert", buf);
+    free(buf);
+}
+
+static void pasteReceivedCB(Widget w, XtPointer clientData, Atom* selection, Atom* type,
+                            XtPointer value, unsigned long* length, int* format)
+{
+    Display* dpy = XtDisplay(w);
+    int triedUTF8 = (clientData != NULL);
+
+    if (value && *length > 0 && *format == 8 && *type == XA_STRING) {
+        pasteInsert(dpy, (const char*)value, *length);
+    } else if (value && *length > 0 && *format == 8 && *type == utf8Atom(dpy)) {
+        /* UTF-8 -> Latin-1; characters above U+00FF become '?' */
+        const unsigned char* s = (const unsigned char*)value;
+        const unsigned char* end = s + *length;
+        char* out = (char*)malloc(*length + 1);
+        unsigned long n = 0;
+        if (out) {
+            while (s < end) {
+                if (*s < 0x80) {
+                    out[n++] = (char)*s++;
+                } else if ((*s & 0xE0) == 0xC0 && s + 1 < end) {
+                    unsigned int cp = ((s[0] & 0x1Fu) << 6) | (s[1] & 0x3Fu);
+                    out[n++] = (char)(cp <= 0xFF ? cp : '?');
+                    s += 2;
+                } else {
+                    /* 3/4-byte sequence or stray byte: skip it whole */
+                    int skip = ((*s & 0xF0) == 0xE0) ? 3 : ((*s & 0xF8) == 0xF0) ? 4 : 1;
+                    out[n++] = '?';
+                    s += skip;
+                }
+            }
+            pasteInsert(dpy, out, n);
+            free(out);
+        }
+    } else if (!triedUTF8) {
+        /* Owner could not provide Latin-1 STRING; ask for UTF-8 instead */
+        if (value)
+            XtFree((char*)value);
+        XtGetSelectionValue(w, *selection, utf8Atom(dpy), pasteReceivedCB, (XtPointer)1,
+                            XtLastTimestampProcessed(dpy));
+        return;
+    } else {
+        XBell(dpy, 0); /* clipboard empty or not text */
+    }
+    if (value)
+        XtFree((char*)value);
+}
+
+void editPasteCB(Widget widget, XtPointer clientData, XtPointer callData)
+{
+    ClientData* cd = (ClientData*)clientData;
+    DocViewInfo* dvi = (DocViewInfo*)cd->shellInfo;
+    Display* dpy = XtDisplay(dvi->shell);
+
+    XtGetSelectionValue(dvi->shell, clipboardAtom(dpy), XA_STRING, pasteReceivedCB, NULL,
+                        XtLastTimestampProcessed(dpy));
 }

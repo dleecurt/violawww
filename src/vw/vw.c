@@ -211,7 +211,7 @@ static MenuItem fileMenuItems[] = {
     {"", &xmSeparatorGadgetClass, (char)0, NULL, NULL, NULL, NULL, NULL, TRUE, (MenuItem*)NULL},
     {"Reload", &xmPushButtonWidgetClass, 'R', "Ctrl<Key>R", "Ctrl-R", oneMessageCB, "reload",
      "Reload the current document.", TRUE, (MenuItem*)NULL},
-    {"Clone", &xmPushButtonWidgetClass, 'C', "Ctrl<Key>C", "Ctrl-C", clonePageCB, "clone",
+    {"Clone", &xmPushButtonWidgetClass, 'C', "Ctrl<Key>N", "Ctrl-N", clonePageCB, "clone",
      "Clone the current document.", TRUE, (MenuItem*)NULL},
     /*
     { "Print", &xmPushButtonWidgetClass, 'P', NULL, NULL,
@@ -230,15 +230,11 @@ static MenuItem fileMenuItems[] = {
     NULL,
 };
 
-/* Defined but not yet wired into any menu bar. */
-#ifdef __GNUC__
-__attribute__((unused))
-#endif
 static MenuItem editMenuItems[] = {
-    {"Copy", &xmPushButtonWidgetClass, 'C', "Ctrl<Key>C", "Ctrl-C", genericCallback, "Copy",
-     "Copy the selection to the clipboard.", TRUE, (MenuItem*)NULL},
-    {"Paste", &xmPushButtonWidgetClass, 'P', "Ctrl<Key>V", "Ctrl-V", genericCallback, "Paste",
-     "Paste the clipboard to the current selection.", TRUE, (MenuItem*)NULL},
+    {"Copy", &xmPushButtonWidgetClass, 'C', "Ctrl<Key>C", "Ctrl-C", editCopyCB, "Copy",
+     "Copy the selected text to the clipboard.", TRUE, (MenuItem*)NULL},
+    {"Paste", &xmPushButtonWidgetClass, 'P', "Ctrl<Key>V", "Ctrl-V", editPasteCB, "Paste",
+     "Paste the clipboard into the text field you last clicked.", TRUE, (MenuItem*)NULL},
     NULL,
 };
 
@@ -329,6 +325,7 @@ MenuItem serversMenuItems[] = {
 
 static Menu mainMenus[] = {
     {"File", 'F', fileMenuItems},
+    {"Edit", 'E', editMenuItems},
     {"Navigation", 'N', navigationMenuItems},
     {"Fonts", 'o', fontsMenuItems},
     {"Guides", 'S', serversMenuItems},
