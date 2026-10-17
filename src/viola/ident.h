@@ -436,6 +436,7 @@ enum {
     STR_objectListSend_children,
     STR_objectOrigin,
     STR_objectPosition,
+    STR_openExternal,
     STR_offset,
     STR_outDelimStr,
     STR_output,

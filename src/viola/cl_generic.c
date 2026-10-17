@@ -15,6 +15,10 @@
  * superClass	: cosmic
  */
 #include <time.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <fcntl.h>
+#include <unistd.h>
 #include "cl_generic.h"
 #include "ast.h"
 #include "attr.h"
@@ -396,6 +400,7 @@ MethodInfo meths_generic[] = {
     {STR_objectListSend, meth_generic_objectListSend},
     {STR_objectListSend_children, meth_generic_objectListSend_children},
     {STR_objectPosition, meth_generic_objectPosition},
+    {STR_openExternal, meth_generic_openExternal},
     {STR_parent, meth_generic_parent},
     {STR_pipe, meth_generic_pipe},
     {STR_prepend, meth_generic_prepend},
@@ -5446,6 +5451,206 @@ long meth_generic_strlen(VObj* self, Packet* result, int argc, Packet argv[]) {
     result->type = PKT_INT;
     result->info.i = (long)strlen(PkInfos2Str(argc, argv));
     return 1;
+}
+
+/*
+ * openExternal(url)
+ *
+ * Hands a mailto: or telnet: URL to a desktop program WITHOUT going through
+ * a shell.  These links used to be turned into shell command strings
+ * ("mail -s ... address < file", "xterm -e 'telnet host' &"), so a page
+ * could put shell syntax in a link and run any command when clicked.
+ *
+ *   mailto:...            -> xdg-open <url>   (the desktop's mail program)
+ *   telnet://[user@]host[:port]
+ *                         -> x-terminal-emulator (or xterm) -e telnet
+ *                            [-l user] host [port]
+ *
+ * Every argument is passed as its own argv[] entry, and host, port and
+ * user must be made of plain characters.
+ *
+ * Result: 1 if a program was started, 0 otherwise.
+ */
+static int openExt_inPath(const char* prog)
+{
+    const char* path = getenv("PATH");
+    char buf[1024];
+
+    if (!path)
+        path = "/usr/local/bin:/usr/bin:/bin";
+    while (*path) {
+        const char* end = strchr(path, ':');
+        size_t len = end ? (size_t)(end - path) : strlen(path);
+        if (len > 0 && len + strlen(prog) + 2 < sizeof(buf)) {
+            memcpy(buf, path, len);
+            buf[len] = '/';
+            strcpy(buf + len + 1, prog);
+            if (access(buf, X_OK) == 0)
+                return 1;
+        }
+        if (!end)
+            break;
+        path = end + 1;
+    }
+    return 0;
+}
+
+/* Start argv[0] detached from the browser (no shell, no zombie). */
+static int openExt_spawn(char* const argv[])
+{
+    pid_t pid = fork();
+
+    if (pid < 0)
+        return 0;
+    if (pid == 0) {
+        /* Intermediate child: start the real program in a grandchild
+         * and exit, so the browser never has to reap it. */
+        if (fork() == 0) {
+            int fd = open("/dev/null", O_RDWR);
+            if (fd >= 0) {
+                dup2(fd, 0);
+                if (fd > 2)
+                    close(fd);
+            }
+            setsid();
+            execvp(argv[0], argv);
+            _exit(127);
+        }
+        _exit(0);
+    }
+    waitpid(pid, NULL, 0);
+    return 1;
+}
+
+static int openExt_cleanToken(const char* s, const char* extra)
+{
+    if (!s || !*s || *s == '-')
+        return 0;
+    for (; *s; s++)
+        if (!isalnum((unsigned char)*s) && !strchr(extra, *s))
+            return 0;
+    return 1;
+}
+
+long meth_generic_openExternal(VObj* self, Packet* result, int argc, Packet argv[])
+{
+    char* url;
+    const char* p;
+    char msg[512];
+
+    clearPacket(result);
+    result->type = PKT_INT;
+    result->info.i = 0;
+    result->canFree = 0;
+
+    if (argc != 1)
+        return 0;
+    url = PkInfo2Str(&argv[0]);
+    if (!url)
+        return 0;
+    for (p = url; *p; p++) {
+        if ((unsigned char)*p < 0x20 || *p == 0x7f) {
+            user_alert("Link not opened: it contains control characters.");
+            return 0;
+        }
+    }
+
+    if (strncasecmp(url, "mailto:", 7) == 0) {
+        char* args[3];
+
+        if (!openExt_inPath("xdg-open")) {
+            user_alert("Can't open mail links: xdg-open is not installed "
+                       "(Debian package xdg-utils).");
+            return 0;
+        }
+        /* The browser's URL normalizer may leave "mailto:/addr" or a
+         * trailing '/', which mail programs would take as part of the
+         * address. */
+        {
+            static char clean[2048];
+            const char* addr = url + 7;
+            size_t len;
+
+            while (*addr == '/')
+                addr++;
+            snprintf(clean, sizeof(clean), "mailto:%s", addr);
+            len = strlen(clean);
+            if (len > 7 && clean[len - 1] == '/' && !strchr(clean, '?'))
+                clean[len - 1] = '\0';
+            url = clean;
+        }
+        if (notSecureWithPromptf(self, "open mail program for %s", url))
+            return 0;
+        args[0] = "xdg-open";
+        args[1] = url;
+        args[2] = NULL;
+        result->info.i = openExt_spawn(args);
+        return 1;
+    }
+
+    if (strncasecmp(url, "telnet:", 7) == 0) {
+        char buf[512], *host, *user = NULL, *port = NULL, *slash, *at, *colon;
+        char* args[10];
+        const char* term;
+        int n = 0;
+
+        p = url + 7;
+        if (p[0] == '/' && p[1] == '/')
+            p += 2;
+        snprintf(buf, sizeof(buf), "%s", p);
+        if ((slash = strchr(buf, '/')))
+            *slash = '\0';
+        host = buf;
+        if ((at = strrchr(host, '@'))) {
+            *at = '\0';
+            user = host;
+            host = at + 1;
+        }
+        if ((colon = strchr(host, ':'))) {
+            *colon = '\0';
+            port = colon + 1;
+            if (!*port)
+                port = NULL;
+        }
+        if (!openExt_cleanToken(host, ".-") || (port && !openExt_cleanToken(port, "")) ||
+            (user && !openExt_cleanToken(user, "._-"))) {
+            snprintf(msg, sizeof(msg), "Link not opened: unusual telnet address: %.200s", url);
+            user_alert(msg);
+            return 0;
+        }
+        if (openExt_inPath("x-terminal-emulator"))
+            term = "x-terminal-emulator";
+        else if (openExt_inPath("xterm"))
+            term = "xterm";
+        else {
+            user_alert("Can't open telnet links: no terminal program found (try installing xterm).");
+            return 0;
+        }
+        if (!openExt_inPath("telnet")) {
+            user_alert("Can't open telnet links: telnet is not installed "
+                       "(Debian package inetutils-telnet).");
+            return 0;
+        }
+        if (notSecureWithPromptf(self, "open a terminal for %s", url))
+            return 0;
+        args[n++] = (char*)term;
+        args[n++] = "-e";
+        args[n++] = "telnet";
+        if (user) {
+            args[n++] = "-l";
+            args[n++] = user;
+        }
+        args[n++] = host;
+        if (port)
+            args[n++] = port;
+        args[n] = NULL;
+        result->info.i = openExt_spawn(args);
+        return 1;
+    }
+
+    snprintf(msg, sizeof(msg), "Link not opened: openExternal handles only mailto: and telnet:");
+    user_alert(msg);
+    return 0;
 }
 
 /*

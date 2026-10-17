@@ -178,6 +178,7 @@ long meth_generic_sprintf(VObj* self, Packet* result, int argc, Packet argv[]);
 long meth_generic_str(VObj* self, Packet* result, int argc, Packet argv[]);
 long meth_generic_strlen(VObj* self, Packet* result, int argc, Packet argv[]);
 long meth_generic_system(VObj* self, Packet* result, int argc, Packet argv[]);
+long meth_generic_openExternal(VObj* self, Packet* result, int argc, Packet argv[]);
 long meth_generic_target(VObj* self, Packet* result, int argc, Packet argv[]);
 long meth_generic_textWidth(VObj* self, Packet* result, int argc, Packet argv[]);
 long meth_generic_trimEdge(VObj* self, Packet* result, int argc, Packet argv[]);
