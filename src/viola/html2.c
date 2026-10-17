@@ -250,7 +250,7 @@ static char* URLEncodeSeq[] = {
     "%0D", "%0E", "%0F", "%10", "%11", "%12", "%13", "%14", "%15", "%16", "%17", "%18", "%19",
     "%1A", "%1B", "%1C", "%1D", "%1E", "%1F", "+",   "%21", "%22", "%23", "%24", "%25", "%26",
     "%27", "%28", "%29", "*",   "%2B", "%2C", "-",   ".",   "%2F", "0",   "1",   "2",   "3",
-    "4",   "5",   "6",   "7",   "8",   "9",   "%3A", "%3B", "%3C", "%3D", "3E",  "%3F", "@",
+    "4",   "5",   "6",   "7",   "8",   "9",   "%3A", "%3B", "%3C", "%3D", "%3E", "%3F", "@",
     "A",   "B",   "C",   "D",   "E",   "F",   "G",   "H",   "I",   "J",   "K",   "L",   "M",
     "N",   "O",   "P",   "Q",   "R",   "S",   "T",   "U",   "V",   "W",   "X",   "Y",   "Z",
     "%5B", "%5C", "%5D", "%5E", "_",   "%60", "a",   "b",   "c",   "d",   "e",   "f",   "g",
@@ -267,7 +267,6 @@ static char* URLEncodeSeq[] = {
     "%EA", "%EB", "%EC", "%ED", "%EE", "%EF", "%F0", "%F1", "%F2", "%F3", "%F4", "%F5", "%F6",
     "%F7", "%F8", "%F9", "%FA", "%FB", "%FC", "%FD", "%FE", "%FF",
 };
-char URLEncodeBuff[1000];
 
 /***** hot list defs/decls *****/
 
@@ -1804,43 +1803,49 @@ VObj* HTMLBuildObj(SGMLBuildInfoState* bstate, int parentWidth, SGMLTagMappingIn
 
 char* encodeURL(char* str)
 {
-    char *s, *buffp = URLEncodeBuff, *encode;
+    /* Each byte becomes at most 3 characters ("%XX").  This used to go
+     * through a fixed 1000-byte buffer, which long form input overflowed. */
+    char *s, *buffp, *encode;
     unsigned char c;
 
+    if (!str)
+        str = "";
+    s = buffp = (char*)malloc(strlen(str) * 3 + 1);
+    if (!s)
+        return NULL;
     while ((c = (unsigned char)*str++) && (encode = URLEncodeSeq[c])) {
         do {
             *buffp++ = *encode++;
         } while (*encode);
     }
-    *buffp++ = '\0';
-
-    s = (char*)malloc(sizeof(char) * (buffp - URLEncodeBuff));
-    strcpy(s, URLEncodeBuff);
-
+    *buffp = '\0';
     return s;
 }
 
 char* decodeURL(char* str)
 {
-    char *s = str, *buffp = URLEncodeBuff, dd[3];
+    /* Decoding never makes the string longer.  (This also used to use a
+     * fixed 1000-byte buffer, and read past the end on a trailing '%'.) */
+    char *s = str, *out, *buffp, dd[3];
 
+    if (!str)
+        str = s = "";
+    out = buffp = (char*)malloc(strlen(str) + 1);
+    if (!out)
+        return NULL;
     while (*s) {
-        if (*s == '%') {
-            s++;
-            dd[0] = *s++;
-            dd[1] = *s++;
+        if (*s == '%' && isxdigit((unsigned char)s[1]) && isxdigit((unsigned char)s[2])) {
+            dd[0] = s[1];
+            dd[1] = s[2];
             dd[2] = '\0';
             *buffp++ = (char)strtol(dd, NULL, 16);
+            s += 3;
         } else {
             *buffp++ = *s++;
         }
     }
-    *buffp++ = '\0';
-
-    s = (char*)malloc(sizeof(char) * (buffp - URLEncodeBuff));
-    strcpy(s, URLEncodeBuff);
-
-    return s;
+    *buffp = '\0';
+    return out;
 }
 
 int http_progress_notify(int n)

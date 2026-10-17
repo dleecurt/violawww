@@ -189,9 +189,8 @@
 								 '&', val);
 					  }
 				}
-				content = concat(content, "\n");
-
 				if (method == "POST") {
+					content = concat(content, "\n");
 /*print("FORM POST HREF N DATA >>>>>>>", concat(action, '?', content), "<<<\n");
 */
 					send(send(parent(), "findTop"), 
