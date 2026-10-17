@@ -1,6 +1,13 @@
-# ViolaWWW Version 4.0 Beta
+# ViolaWWW Version 4.0 Beta — Linux fork
 
-**October 2025**
+**October 2025** (upstream) · **Linux fork, October 2026**
+
+> This is a fork of [bolknote/violawww](https://github.com/bolknote/violawww)
+> focused on **Linux**. It builds and runs on Debian 13 "trixie" (x86_64,
+> GCC 14) and fixes crashes, networking stalls, redraw problems and security
+> issues found while bringing it up there. See
+> [Changes in this fork](#changes-in-this-fork). The macOS support from
+> upstream is kept; see [Other platforms (macOS)](#other-platforms-macos).
 
 ---
 
@@ -35,6 +42,48 @@ This version brings ViolaWWW into the modern web era while preserving its unique
 
 ---
 
+## Changes in this fork
+
+All changes are separate, documented commits on top of upstream, so they can
+be reviewed or sent upstream individually.
+
+**Building on Linux**
+- Builds with GCC 14 on Debian 13 (missing headers, type fixes in the HTML DTD tables)
+- `make san` (AddressSanitizer + UndefinedBehaviorSanitizer) works with GCC
+- Test suite (`make test`) builds and passes on Linux
+- Compiler warnings cut to the meaningful ones; bugs they pointed to fixed
+
+**Crashes and memory**
+- HTML build-stack underflow ("stacki out of bounds") and buffer overrun in the page builder
+- Double `fclose` when loading pages; use-after-free when retrying an HTTPS connection
+- Crash on redirect loops (now stops at the loop)
+- Per-page memory leaks found with LeakSanitizer
+- `tmpnam()` replaced with `mkstemps()` for temporary files
+
+**Networking**
+- 60-second stall on every HTTPS page, and garbage at the top of pages on
+  kept-alive connections (body length was counted from the wrong place)
+- Well-formed `Accept` and `User-Agent` headers
+- Web Archive fallback now asks the Archive for its newest copy directly
+  (about 1 s instead of a ~20 s CDX search)
+- More useful HTTPS tracing under `-verbose`
+
+**Display and interface**
+- Pages left blank or half drawn until the mouse moved: Viola's redraw
+  events were being discarded or left waiting; the window now also repaints
+  while a page loads
+- Light theme, anti-aliased (Xft) fonts for menus, buttons and dialogs, larger
+  default page text
+- New **Edit** menu with Copy (Ctrl-C) and Paste (Ctrl-V) through the X
+  clipboard; Clone moved to Ctrl-N; Ctrl-C/X/V work in dialog text fields
+
+**Security**
+- `mailto:` and `telnet:` links are opened with `xdg-open` / a terminal
+  without going through a shell (they used to be passed to `sh`, so a page
+  could run commands through a crafted link)
+
+---
+
 ## Key Features
 
 ### Original ViolaWWW Features (v3.3)
@@ -64,7 +113,7 @@ This version brings ViolaWWW into the modern web era while preserving its unique
 - Full compatibility with modern 64-bit ARM64 systems (Apple Silicon)
 - Fixed pointer size issues (32-bit → 64-bit)
 - Updated integer types for proper memory addressing
-- Tested on macOS (Apple Silicon M3)
+- Tested on Debian 13 (x86_64, GCC 14) in this fork; upstream tests on macOS (Apple Silicon M3)
 - Maintained backward compatibility with build system
 
 #### Interface Restoration
@@ -237,7 +286,7 @@ ViolaWWW 4.0 includes native mathematical notation rendering, transforming HTML 
 #### Internet Archive Integration
 - Automatic fallback to Wayback Machine for unavailable domains
 - DNS failure detection triggers archive search
-- CDX API integration for earliest snapshots
+- Newest capture via the Wayback Machine's own redirect (this fork; upstream used the CDX API)
 - Transparent loading of archived sites with proper base URL handling
 - **Files**: `HTWayback.h`, `HTWayback.c`
 - **Tests**: `test/test_wayback.c`, `test/test_wayback_detection.c`
@@ -323,7 +372,7 @@ ViolaWWW 4.0 includes native mathematical notation rendering, transforming HTML 
 - **Files**: `examples/plot.v`, `examples/vplot.v`
 - **Documentation**: [VPLOT_REFERENCE.md](doc/VPLOT_REFERENCE.md)
 
-#### macOS Distribution
+#### macOS Distribution (upstream, macOS only)
 - Native macOS application bundle (ViolaWWW.app)
 - Standalone launcher with automatic XQuartz detection and startup
 - Dynamic library bundling (no Homebrew required at runtime)
@@ -355,54 +404,52 @@ ViolaWWW 4.0 includes native mathematical notation rendering, transforming HTML 
 
 ## Quick Start
 
-### Requirements
+### Requirements (Debian / Ubuntu)
 
-#### Required Dependencies
+#### Required
 
-- **X11**: XQuartz on macOS (`brew install --cask xquartz`)
-- **OpenMotif**: Motif toolkit (`brew install openmotif`)
-- **Byacc**: Berkeley Yacc parser generator (`brew install byacc`)
+```bash
+sudo apt install build-essential pkg-config byacc bsdextrautils \
+    libmotif-dev libx11-dev libxext-dev libxt-dev libxmu-dev \
+    libsm-dev libice-dev libxrender-dev \
+    xfonts-75dpi xfonts-100dpi
+```
 
-#### Optional Dependencies (Build Time)
+- **libmotif-dev**: Motif toolkit for the `vw` browser (without it only the plain X11 `viola` is built)
+- **byacc**: Berkeley Yacc, for the Viola script grammar
+- **bsdextrautils**: provides `hexdump`, used to embed the Viola scripts at build time
+- **xfonts-75dpi / xfonts-100dpi**: the bitmap Helvetica/Times fonts used for page text
 
-These are linked at build time and bundled into the app:
+#### Recommended (build time)
 
-- **OpenSSL 3.x**: For HTTPS support (`brew install openssl@3`)
-- **ICU4C**: For UTF-8 transliteration (`brew install icu4c`)
+```bash
+sudo apt install libssl-dev libicu-dev
+```
 
-#### Optional Dependencies (Runtime)
+- **libssl-dev**: HTTPS support
+- **libicu-dev**: UTF-8 and other character sets transliterated for display
 
-These external programs are called by ViolaWWW for specific features:
+#### Optional (run time)
 
-| Program | Installation | Purpose | Bundled in .app |
-|---------|--------------|---------|-----------------|
-| **Ghostscript** | `brew install ghostscript` | PostScript display and conversion | ✅ Yes |
-| **ImageMagick** | `brew install imagemagick` or `./scripts/build-imagemagick.sh` | PostScript-to-GIF conversion | ✅ Yes (if built) |
-| **OpenSP** | `brew install open-sp` | HMML document parsing (`onsgmls`) | ✅ Yes |
-| **telnet** | `brew install telnet` | `telnet://host` URL support | ✅ Yes |
-| **rlogin** | `brew install inetutils` | `rlogin://user@host` URLs (optional) | ✅ Yes (if available) |
-| **x3270** | `brew install x3270` | `tn3270://host` URLs (IBM mainframe) | ✅ Yes (if available) |
-
-**Note**: When building `ViolaWWW.app`, these programs are automatically bundled if available. The app bundle is self-contained and doesn't require Homebrew at runtime (only XQuartz is needed).
-
-**Note**: Without OpenMotif, only the pure X11 version (`viola`) will be built. The Motif version (`vw`) requires OpenMotif.
+| Program | Debian package | Purpose |
+|---------|----------------|---------|
+| **xdg-open** | `xdg-utils` | `mailto:` links open your mail program |
+| **telnet** + a terminal | `inetutils-telnet`, `xterm` | `telnet://host` links |
+| **Ghostscript** | `ghostscript` | PostScript display and conversion |
+| **ImageMagick** | `imagemagick` | PostScript-to-GIF conversion |
+| **OpenSP** | `opensp` | HMML document parsing (`onsgmls`) |
+| **x3270** | `x3270` | `tn3270://host` links (IBM mainframe) |
 
 ### Building
 
 ```bash
-# Clone the repository
-git clone https://github.com/bolknote/violawww.git
+# Clone this fork
+git clone https://github.com/dleecurt/violawww.git
 cd violawww
-
-# Install dependencies (macOS)
-brew install --cask xquartz    # X11 window system (required)
-brew install openmotif byacc   # Required for building
-brew install openssl@3 icu4c   # HTTPS, UTF-8 transliteration
-brew install ghostscript open-sp telnet x3270  # PostScript, HMML, telnet/tn3270 URLs
 
 # Compile (parallel build)
 make clean
-make -j8
+make -j"$(nproc)"
 
 # Run tests
 make test
@@ -412,28 +459,13 @@ Two binaries will be generated:
 - `src/viola/viola` - Pure XLib version (smaller, no Motif required)
 - `src/vw/vw` - Motif version (polished GUI)
 
-### macOS App Bundle & DMG
-
-Build a standalone macOS application bundle with bundled libraries:
+Debugging builds:
 
 ```bash
-# Build ViolaWWW.app bundle
-make app
-
-# Create distributable DMG with custom background
-make dmg
-
-# Or use custom DMG script with retro-style installer
-make dmg-custom
+make san        # AddressSanitizer + UndefinedBehaviorSanitizer
+ASAN_OPTIONS=detect_leaks=0 ./src/vw/vw    # silence the leak report at exit
+./src/vw/vw -verbose 2>&1 | tee vw.log     # protocol and event tracing
 ```
-
-The app bundle includes:
-- Native macOS launcher with automatic XQuartz startup
-- All required dynamic libraries bundled (no Homebrew needed at runtime)
-- XQuartz installer package for easy dependency installation
-- Retro-style DMG background with installation instructions
-
-**Note**: XQuartz is still required to run ViolaWWW, but it's included in the DMG for convenience.
 
 ### Running
 
@@ -466,17 +498,66 @@ Viola.background_doc:   grey90
 
 Then reload: `xrdb -load ~/.Xdefaults`
 
+The Motif parts of the window (menus, buttons, dialogs, title) use Xft
+fonts, set with render-table resources, for example:
+
+```xdefaults
+Viola*uiFont.fontSize:      11
+Viola*titleFont.fontSize:   16
+Viola*monoFont.fontName:    DejaVu Sans Mono
+```
+
+Page text size can be changed from the **Fonts** menu.
+
+---
+
+## Other platforms (macOS)
+
+Upstream develops ViolaWWW on macOS, and the Makefile still detects macOS and
+uses Homebrew paths there. This fork does not test macOS.
+
+```bash
+brew install --cask xquartz    # X11 window system (required)
+brew install openmotif byacc   # Required for building
+brew install openssl@3 icu4c   # HTTPS, UTF-8 transliteration
+brew install ghostscript open-sp telnet x3270  # optional helpers
+make clean && make -j8
+```
+
+### macOS App Bundle & DMG
+
+Build a standalone macOS application bundle with bundled libraries:
+
+```bash
+# Build ViolaWWW.app bundle
+make app
+
+# Create distributable DMG with custom background
+make dmg
+
+# Or use custom DMG script with retro-style installer
+make dmg-custom
+```
+
+The app bundle includes:
+- Native macOS launcher with automatic XQuartz startup
+- All required dynamic libraries bundled (no Homebrew needed at runtime)
+- XQuartz installer package for easy dependency installation
+- Retro-style DMG background with installation instructions
+
+**Note**: XQuartz is still required to run ViolaWWW, but it's included in the DMG for convenience.
+
 ---
 
 ## Web Archive Integration
 
 ### Automatic Fallback
 
-When a domain doesn't resolve (DNS error), ViolaWWW automatically:
-1. Detects DNS failure
-2. Queries Internet Archive CDX API
-3. Finds the **earliest available snapshot**
-4. Loads archived version transparently
+When a page can't be loaded (DNS failure, connection error, or an error
+status such as 403/404), ViolaWWW automatically:
+1. Requests `https://web.archive.org/web/<now>id_/<url>`
+2. Lets the Archive redirect to its **newest capture** (or answer 404 if it has none)
+3. Loads the archived version transparently
 
 ### Example Usage
 
@@ -484,16 +565,17 @@ When a domain doesn't resolve (DNS error), ViolaWWW automatically:
 # Try a defunct site - will automatically load from archive
 ./src/vw/vw http://www.hackzone.ru/
 
-# Browser will detect DNS failure and load:
-# https://web.archive.org/web/19970327140651id_/http://www.hackzone.ru:80/
+# Browser will detect the failure and load the newest capture, e.g.:
+# https://web.archive.org/web/<timestamp>id_/http://www.hackzone.ru/
 ```
 
 ### Technical Details
 
-- **API**: [CDX Search API](https://web.archive.org/cdx/search/cdx)
-- **Query**: `/cdx/search/cdx?url=<URL>&limit=1&sort=ascending`
-- **Format**: Plain text (space-separated fields)
-- **Timeout**: 5 seconds for archive.org queries
+- **No search request**: the Wayback Machine resolves a request for the
+  current time to its closest (newest) capture itself; this replaced the CDX
+  search, which often took 20 seconds or more
+- **`id_` mode**: pages are fetched as originally served, without the Archive toolbar
+- **Redirect loops** between captures are detected and stopped
 - **Base URL**: Automatically updates for proper relative link resolution
 - **Smart Detection**: Prevents infinite loops by detecting Web Archive URLs and skipping fallback
 
@@ -724,14 +806,14 @@ HMML was ViolaWWW's native document format with elements like:
 HMML support requires the **OpenSP** SGML parser:
 
 ```bash
+# Linux (Debian/Ubuntu)
+sudo apt install opensp
+
 # macOS
 brew install open-sp
-
-# Linux (Debian/Ubuntu)
-sudo apt-get install opensp
 ```
 
-The `onsgmls` utility from OpenSP is used to parse HMML documents. The path is configured in `src/viola/sgmlsA2B.c` via the `SGMLS_PATH` constant (default: `/opt/homebrew/bin/onsgmls`).
+The `onsgmls` utility from OpenSP is used to parse HMML documents. `src/viola/sgmlsA2B.c` looks for it next to the executable and then in `/opt/homebrew/bin`, `/usr/local/bin`, `/usr/bin` and `/opt/local/bin`.
 
 ### Note
 
@@ -747,7 +829,9 @@ HMML is essentially a historical curiosity. Modern web content uses HTML, which 
 4. **CSS**: Basic stylesheet support only
 5. **Modern HTML**: HTML 3.0 era support
 6. **Redirects**: No UI for redirect chains
-7. **Wayback**: No cache for API results
+7. **Blocked sites**: Wikipedia and some other sites refuse ViolaWWW (HTTP 403, bot policy); the archive fallback is used instead
+8. **Modern sites**: most pages built with JavaScript render empty or partially; text-oriented sites (text.npr.org, lite.cnn.com, wiby.me, sdf.org) work well
+9. **Page loading** blocks input: menus and title repaint, but clicks wait until the page is loaded
 
 ---
 
@@ -864,9 +948,12 @@ ViolaWWW is provided as-is for educational and research purposes. The original s
 - Original Author: Pei-Yuan Wei (`wei@ora.com`)
 - Mailing List: `viola@ora.com` (historical)
 
-### Current Maintainer
+### Current Maintainer (upstream)
 - Developer: Evgeny Stepanischev
 - Email: `imbolk@gmail.com`
+
+### Linux fork
+- [github.com/dleecurt/violawww](https://github.com/dleecurt/violawww): issues and pull requests for the Linux port go here
 
 ---
 
