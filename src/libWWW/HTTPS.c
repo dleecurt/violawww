@@ -90,6 +90,27 @@ PRIVATE int read_chunked_data ARGS3(
     return total_read;
 }
 
+/* Number of body bytes in buf[start..len) after the end of the HTTP
+ * headers (a blank line: CRLF CRLF or LF LF), or -1 if the headers do
+ * not end inside this buffer.  Used to know how much of the body the
+ * first read already delivered, so a Content-Length read neither stops
+ * short (leaving bytes on a kept-alive connection) nor waits for bytes
+ * that will never come.
+ */
+PRIVATE ptrdiff_t body_bytes_after_headers(const char* buf, ptrdiff_t start, ptrdiff_t len)
+{
+    ptrdiff_t i;
+    for (i = start; i < len; i++) {
+        if (buf[i] != '\n')
+            continue;
+        if (i + 1 < len && buf[i + 1] == '\n')
+            return len - (i + 2);
+        if (i + 2 < len && buf[i + 1] == '\r' && buf[i + 2] == '\n')
+            return len - (i + 3);
+    }
+    return -1;
+}
+
 #define HTTPS_VERSION "HTTP/1.0"
 #define HTTPS2 /* Version is greater than 0.9 */
 
@@ -186,6 +207,7 @@ PRIVATE int HTLoadHTTPS_impl(const char* arg, HTParentAnchor* anAnchor, HTFormat
     BOOL extensions = YES;
     int server_status = 0;
     ptrdiff_t offset = 0;
+    ptrdiff_t initial_body_bytes = -1; /* body bytes in the first read */
 
     char* hostname = NULL;
     static int redirect_count = 0;  /* Track redirect depth */
@@ -1165,6 +1187,13 @@ wheee:
         if (target && target->isa && target->isa->put_block) {
             (*target->isa->put_block)(target, ptr, initial_data);
         }
+        /* How much of the body did that include?  With offset > 0 the
+         * headers were already stripped; otherwise (normal display) the
+         * headers went to the MIME parser too, so find where they end. */
+        if (offset > 0)
+            initial_body_bytes = remaining_length;
+        else
+            initial_body_bytes = body_bytes_after_headers(binary_buffer, data_offset, length);
     }
     
     /* Copy remaining data - chunked, Content-Length, or EOF */
@@ -1189,13 +1218,11 @@ wheee:
             bytes_received += chunk_bytes;
             (*target->isa->put_block)(target, binary_buffer, chunk_bytes);
         }
-    } else if (content_length >= 0 && offset > 0) {
-        /* We know exact body length AND we found the end of headers.
-         * offset > 0 means we found \r\n\r\n so remaining_length is body data.
+    } else if (content_length >= 0 && initial_body_bytes >= 0) {
+        /* We know the exact body length and how much of the body the
+         * first read already delivered; read exactly the rest.
          */
-        ptrdiff_t data_offset = start_of_data - text_buffer;
-        ptrdiff_t remaining_length = length - data_offset - offset;
-        int bytes_to_read = content_length - (int)remaining_length;
+        int bytes_to_read = content_length - (int)initial_body_bytes;
         int bytes_read_so_far = 0;
         
         struct timeval timeout;
@@ -1217,8 +1244,8 @@ wheee:
             bytes_read_so_far += status;
             (*target->isa->put_block)(target, binary_buffer, status);
         }
-    } else if (content_length >= 0 && offset == 0) {
-        /* Headers didn't fit in first buffer (offset == 0).
+    } else if (content_length >= 0) {
+        /* Headers didn't fit in first buffer.
          * We need to continue reading until we find \r\n\r\n,
          * then read exactly content_length bytes of body.
          */

@@ -57,6 +57,27 @@ char* http_dataToPost = NULL;
 #include "tcp.h"
 #include <ctype.h>
 
+/* Number of body bytes in buf[start..len) after the end of the HTTP
+ * headers (a blank line: CRLF CRLF or LF LF), or -1 if the headers do
+ * not end inside this buffer.  Used to know how much of the body the
+ * first read already delivered, so a Content-Length read neither stops
+ * short (leaving bytes on a kept-alive connection) nor waits for bytes
+ * that will never come.
+ */
+PRIVATE ptrdiff_t body_bytes_after_headers(const char* buf, ptrdiff_t start, ptrdiff_t len)
+{
+    ptrdiff_t i;
+    for (i = start; i < len; i++) {
+        if (buf[i] != '\n')
+            continue;
+        if (i + 1 < len && buf[i + 1] == '\n')
+            return len - (i + 2);
+        if (i + 2 < len && buf[i + 1] == '\r' && buf[i + 2] == '\n')
+            return len - (i + 3);
+    }
+    return -1;
+}
+
 struct _HTStream {
     HTStreamClass* isa; /* all we need to know */
 };
@@ -148,6 +169,7 @@ PRIVATE int HTLoadHTTP_impl(const char* arg, HTParentAnchor* anAnchor, HTFormat 
     BOOL extensions = YES;              /* Assume good HTTP server */
     int server_status = 0;
     ptrdiff_t offset = 0;  /* Changed from int to ptrdiff_t for 64-bit safety */
+    ptrdiff_t initial_body_bytes = -1; /* body bytes in the first read */
 
     static int redirect_count = 0;  /* Track redirect depth */
     #define MAX_REDIRECTS 10
@@ -941,11 +963,17 @@ wheee:
     }
     
     /* Copy remaining data - use Content-Length if available */
-    if (content_length >= 0) {
-        /* We know exact length - read only what's needed */
+    {
         ptrdiff_t data_offset = start_of_data - text_buffer;
-        ptrdiff_t remaining_length = length - data_offset - offset;
-        int bytes_to_read = content_length - (int)remaining_length;
+        /* Body bytes the first read already delivered (see HTTPS.c). */
+        if (offset > 0)
+            initial_body_bytes = length - data_offset - offset;
+        else
+            initial_body_bytes = body_bytes_after_headers(binary_buffer, data_offset, length);
+    }
+    if (content_length >= 0 && initial_body_bytes >= 0) {
+        /* We know exact length - read only what's needed */
+        int bytes_to_read = content_length - (int)initial_body_bytes;
         int bytes_read_so_far = 0;
         
         /* Keep 60s timeout for Content-Length reads */
