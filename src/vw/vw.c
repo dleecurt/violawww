@@ -192,14 +192,16 @@ static String fallback_resources[] = {
      * Motif text widgets don't bind Ctrl-C/X/V to the clipboard by default,
      * so Ctrl-V inserted a literal ^V (shown as a box).  Bind them here, to
      * match the Edit menu, so dialogs such as Open URL can paste.
+     *
+     * These used to start with "None<Key>KDelete", but KDelete is not a
+     * keysym, and Xt throws away the whole table when one line is bad,
+     * so none of these bindings ever took effect.
      */
     "*XmText.translations: #override\n\
-                           None<Key>KDelete: delete-previous-character()\n\
                            Ctrl<Key>c: copy-clipboard()\n\
                            Ctrl<Key>x: cut-clipboard()\n\
                            Ctrl<Key>v: paste-clipboard()",
     "*XmTextField.translations: #override\n\
-                           None<Key>KDelete: delete-previous-character()\n\
                            Ctrl<Key>c: copy-clipboard()\n\
                            Ctrl<Key>x: cut-clipboard()\n\
                            Ctrl<Key>v: paste-clipboard()",
