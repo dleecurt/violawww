@@ -13,6 +13,10 @@
 #include "tcp.h" /* Defines SHORT_NAMES if necessary */
 #include <unistd.h>
 #include <stdint.h>
+#include <errno.h>
+#include <sys/select.h>
+#include <sys/socket.h>
+#include <sys/time.h>
 #ifdef SHORT_NAMES
 #define HTInetStatus HTInStat
 #define HTInetString HTInStri
@@ -355,4 +359,67 @@ PUBLIC char* HTHostName()
 {
     get_host_details();
     return hostname;
+}
+
+
+/*	Keeping the user interface alive during network waits
+**	------------------------------------------------------
+*/
+PUBLIC void (*HTIdle_hook)(void) = NULL;
+PUBLIC int HTIdle_fd = -1;
+
+PUBLIC int HTWaitSocket(int sock, int for_write)
+{
+    struct timeval limit, start, now;
+    socklen_t optlen = sizeof(limit);
+    long limit_ms, elapsed_ms;
+
+    if (!HTIdle_hook || HTIdle_fd < 0 || sock < 0 || sock >= FD_SETSIZE ||
+        HTIdle_fd >= FD_SETSIZE)
+        return 1; /* plain blocking behaviour */
+
+    if (getsockopt(sock, SOL_SOCKET, for_write ? SO_SNDTIMEO : SO_RCVTIMEO, &limit,
+                   &optlen) != 0 ||
+        (limit.tv_sec == 0 && limit.tv_usec == 0)) {
+        limit.tv_sec = 60;
+        limit.tv_usec = 0;
+    }
+    limit_ms = limit.tv_sec * 1000L + limit.tv_usec / 1000;
+    gettimeofday(&start, NULL);
+
+    for (;;) {
+        fd_set rfds, wfds;
+        struct timeval tick = {0, 100000}; /* 100 ms */
+        int maxfd = sock > HTIdle_fd ? sock : HTIdle_fd;
+        int n;
+
+        FD_ZERO(&rfds);
+        FD_ZERO(&wfds);
+        FD_SET(sock, for_write ? &wfds : &rfds);
+        FD_SET(HTIdle_fd, &rfds);
+        n = select(maxfd + 1, &rfds, &wfds, NULL, &tick);
+        if (n < 0) {
+            if (errno == EINTR)
+                continue;
+            return 1; /* let the read itself report the problem */
+        }
+        if (FD_ISSET(sock, for_write ? &wfds : &rfds))
+            return 1;
+
+        (*HTIdle_hook)();
+
+        gettimeofday(&now, NULL);
+        elapsed_ms = (now.tv_sec - start.tv_sec) * 1000L + (now.tv_usec - start.tv_usec) / 1000;
+        if (elapsed_ms >= limit_ms)
+            return 0;
+    }
+}
+
+PUBLIC int HTNetRead(int fd, char* buf, int len)
+{
+    if (HTWaitSocket(fd, 0) == 0) {
+        errno = EAGAIN;
+        return -1;
+    }
+    return (int)read(fd, buf, (size_t)len);
 }

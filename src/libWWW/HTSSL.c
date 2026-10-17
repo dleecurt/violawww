@@ -6,6 +6,7 @@
 */
 
 #include "HTSSL.h"
+#include "HTTCP.h"
 
 #ifdef USE_SSL
 
@@ -192,14 +193,27 @@ PUBLIC int HTSSL_read(HTSSLConnection* conn, char* buffer, int length) {
     }
 
     for (;;) {
-        int ret = SSL_read(conn->ssl, buffer, length);
+        int ret;
+
+        /* Wait for data without freezing the user interface.  Data already
+         * decrypted and buffered by OpenSSL needs no wait. */
+        if (SSL_pending(conn->ssl) == 0 && HTWaitSocket(conn->socket, 0) == 0) {
+            if (TRACE) fprintf(stderr, "HTSSL: Read timed out\n");
+            return -1;
+        }
+        ret = SSL_read(conn->ssl, buffer, length);
         if (ret >= 0) {
             return ret; /* 0 => EOF, >0 => bytes */
         }
         {
             int err = SSL_get_error(conn->ssl, ret);
-            if (err == SSL_ERROR_WANT_READ || err == SSL_ERROR_WANT_WRITE) {
-                continue; /* retry */
+            if (err == SSL_ERROR_WANT_READ) {
+                continue; /* retry (waits above) */
+            }
+            if (err == SSL_ERROR_WANT_WRITE) {
+                if (HTWaitSocket(conn->socket, 1) == 0)
+                    return -1;
+                continue;
             }
             fprintf(stderr, "HTSSL: Read error %d\n", err);
             return -1;

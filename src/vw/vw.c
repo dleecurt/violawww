@@ -158,6 +158,36 @@ void vw_start_wakeup_timer(void)
 }
 #endif
 
+/*
+ * Called by libWWW (HTIdle_hook) while it waits for network data, so the
+ * window does not look frozen during a page load.  Only Expose events for
+ * Motif widgets (menus, title, buttons, status line) are handled here.
+ * Clicks, keys, resizes, and anything for Viola's own drawing area wait
+ * until the load finishes, because Viola is in the middle of building
+ * the page and is not safe to re-enter.
+ */
+extern void (*HTIdle_hook)(void);
+extern int HTIdle_fd;
+
+static void vwRedrawWhileBusy(void)
+{
+    Display* dpy = XtDisplay(topWidget);
+    XEvent ev, held[256];
+    int nheld = 0;
+
+    while (nheld < 256 && XCheckMaskEvent(dpy, ExposureMask, &ev)) {
+        Widget w = XtWindowToWidget(dpy, ev.xany.window);
+        if (w && strcmp(XtName(w), "violaCanvas") != 0)
+            XtDispatchEvent(&ev);
+        else
+            held[nheld++] = ev;
+    }
+    /* Return the rest to the queue, in their original order. */
+    while (nheld > 0)
+        XPutBackEvent(dpy, &held[--nheld]);
+    XFlush(dpy);
+}
+
 static String fallback_resources[] = {
     /*
      * Fonts: anti-aliased Xft fonts through Motif 2.x render tables, in
@@ -728,6 +758,10 @@ DocViewInfo* makeBrowserInterface(Widget shell, char* shellName, DocViewInfo* pa
         if (status == 0) {
             exit(100);
         }
+
+        /* Keep the window repainting while pages load. */
+        HTIdle_fd = ConnectionNumber(XtDisplay(violaCanvas));
+        HTIdle_hook = vwRedrawWhileBusy;
 
         docViewInfo->violaDocViewName = makeString("mvw");
         docViewInfo->violaDocToolsName = makeString("mvwTools");

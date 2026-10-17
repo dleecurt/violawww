@@ -45,7 +45,10 @@ Default values
  */
 /* Default values of those: */
 #define NETCLOSE close /* Routine to close a TCP-IP socket         */
-#define NETREAD read   /* Routine to read from a TCP-IP socket     */
+/* HTNetRead (HTTCP.c) is read() that keeps the user interface redrawing
+** while it waits for data; see HTWaitSocket. */
+extern int HTNetRead(int fd, char* buf, int len);
+#define NETREAD HTNetRead /* Routine to read from a TCP-IP socket     */
 #define NETWRITE write /* Routine to write to a TCP-IP socket      */
 
 /* Unless stated otherwise, */

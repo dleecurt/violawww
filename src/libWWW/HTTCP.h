@@ -94,6 +94,29 @@ extern int HTParseInet();
 
 extern const char* HTHostName NOPARAMS;
 
+/*	Keeping the user interface alive during network waits
+**	----------------------------------------------------
+**	The application may set HTIdle_fd to a descriptor it wants watched
+**	(e.g. the X server connection) and HTIdle_hook to a function that
+**	handles activity on it.  While a read waits for data, the hook is
+**	called whenever HTIdle_fd is readable, and every 100 ms.  With no
+**	hook set, reads block exactly as before.
+*/
+extern void (*HTIdle_hook)(void);
+extern int HTIdle_fd;
+
+/*	Wait until sock can be read (or written if for_write), up to the
+**	socket's SO_RCVTIMEO/SO_SNDTIMEO (60 s if unset), calling the idle
+**	hook meanwhile.  Returns 1 when ready (or on error, so the caller's
+**	read reports it), 0 on timeout.
+*/
+extern int HTWaitSocket(int sock, int for_write);
+
+/*	read() that waits with HTWaitSocket first.  Returns -1 with errno
+**	EAGAIN on timeout, like a socket with SO_RCVTIMEO.
+*/
+extern int HTNetRead(int fd, char* buf, int len);
+
 #endif /* HTTCP_H */
 /*
 
