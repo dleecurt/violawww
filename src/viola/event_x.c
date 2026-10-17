@@ -125,6 +125,8 @@ char* eventChar(XKeyEvent* e);
 void processPeekKeys();
 int checkParam(VObj* self, int resize_corner);
 void process_event(XEvent* ep, int tool);
+static VObj* dragObj = NULL; /* button-drag state, see forgetButtonDrag */
+static int mouseDown = 0;
 static void forgetButtonDrag(void);
 void signalHandler(int sig);
 
@@ -275,8 +277,11 @@ void violaProcessEvent(XEvent* e)
     } else {
         /* A release in a window that no longer belongs to an object ends
          * any drag (see forgetButtonDrag). */
-        if (e->type == ButtonRelease)
+        if (e->type == ButtonRelease) {
+            if (verbose && mouseDown)
+                fprintf(stderr, "ButtonRelease in unknown window: clearing drag state\n");
             forgetButtonDrag();
+        }
         if (verbose)
             fprintf(stderr, "Can't find object associated with window.\n");
     }
@@ -570,9 +575,6 @@ int eventLoop() {
  * and toolbar went blank after minimizing or covering the window.
  * forgetButtonDrag() clears the state in those cases.
  */
-static VObj* dragObj = NULL;
-static int mouseDown = 0;
-
 static void forgetButtonDrag(void)
 {
     mouseDown = 0;
@@ -662,7 +664,14 @@ void process_event(XEvent* ep, int tool)
                                             SET_window(obj, (XMapEvent*)eep->window);
                                     }
             */
+            /* UnmapNotify clears the object's window; put it back, or the
+             * object can never draw again (see the Expose case). */
+            if (GET_window(obj) == 0)
+                SET_window(obj, eep->window);
             SET_visible(obj, 1);
+            if (verbose)
+                fprintf(stderr, "MapNotify: obj=%s win=0x%lx\n", GET_name(obj),
+                        (unsigned long)eep->window);
         }
         if (reparented_obj) {
             GLDrawRubberFrame(reparented_obj, GET_x(reparented_obj) + 1, GET_y(reparented_obj) + 1,
@@ -699,7 +708,16 @@ void process_event(XEvent* ep, int tool)
 
                                     }
             */
+            /* An object whose window was cleared by UnmapNotify would skip
+             * all drawing; the hash table says this window is its own. */
+            if (GET_window(obj) == 0)
+                SET_window(obj, eep->window);
             SET_visible(obj, 1);
+
+            if (verbose)
+                fprintf(stderr, "Expose: obj=%s win=0x%lx area=%d,%d %dx%d mouseDown=%d\n",
+                        GET_name(obj), (unsigned long)eep->window, eep->x, eep->y,
+                        eep->width, eep->height, mouseDown);
 
             /* supress drawing, if tool-draging is going on */
             if (!mouseDown) {
@@ -731,6 +749,9 @@ void process_event(XEvent* ep, int tool)
                          eep->window, GET_name(obj));
         */
         if (obj) {
+            if (verbose)
+                fprintf(stderr, "UnmapNotify: obj=%s win=0x%lx\n", GET_name(obj),
+                        (unsigned long)eep->window);
             SET_window(obj, 0);
             SET_visible(obj, 0);
         }
