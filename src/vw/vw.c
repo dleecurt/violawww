@@ -170,22 +170,28 @@ extern void (*HTIdle_hook)(void);
 extern int HTIdle_fd;
 extern int violaIdleNoWait;
 
+/* Matches Expose events for Motif widgets other than Viola's canvas. */
+static Bool isMotifExpose(Display* dpy, XEvent* ev, XPointer arg)
+{
+    Widget w;
+
+    if (ev->type != Expose)
+        return False;
+    w = XtWindowToWidget(dpy, ev->xexpose.window);
+    return w && strcmp(XtName(w), "violaCanvas") != 0;
+}
+
 static void vwRedrawWhileBusy(void)
 {
     Display* dpy = XtDisplay(topWidget);
-    XEvent ev, held[256];
-    int nheld = 0;
+    XEvent ev;
 
-    while (nheld < 256 && XCheckMaskEvent(dpy, ExposureMask, &ev)) {
-        Widget w = XtWindowToWidget(dpy, ev.xany.window);
-        if (w && strcmp(XtName(w), "violaCanvas") != 0)
-            XtDispatchEvent(&ev);
-        else
-            held[nheld++] = ev;
-    }
-    /* Return the rest to the queue, in their original order. */
-    while (nheld > 0)
-        XPutBackEvent(dpy, &held[--nheld]);
+    /* Take only the matching events out of the queue; everything else,
+     * including Viola's own Expose events, stays where it is and in order.
+     * (An earlier version removed all Expose events and pushed Viola's
+     * back, which reordered them ahead of the MapNotify events.) */
+    while (XCheckIfEvent(dpy, &ev, isMotifExpose, NULL))
+        XtDispatchEvent(&ev);
     XFlush(dpy);
 }
 

@@ -282,8 +282,13 @@ void violaProcessEvent(XEvent* e)
                 fprintf(stderr, "ButtonRelease in unknown window: clearing drag state\n");
             forgetButtonDrag();
         }
-        if (verbose)
-            fprintf(stderr, "Can't find object associated with window.\n");
+        if (verbose) {
+            if (e->type == Expose || e->type == MapNotify || e->type == UnmapNotify)
+                fprintf(stderr, "No object for window 0x%lx (event type %d)\n",
+                        (unsigned long)w, e->type);
+            else
+                fprintf(stderr, "Can't find object associated with window.\n");
+        }
     }
 }
 
