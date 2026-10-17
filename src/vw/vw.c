@@ -160,34 +160,52 @@ void vw_start_wakeup_timer(void)
 
 static String fallback_resources[] = {
     /*
-     * The following multiple font fontList doesn't work in Motif1.2.3
-     *   (but it works in Motif1.2 though!).
-     * Not sure how to fix the problem.  Could manually construct a font
-     *   list, but then that would override any resources the user might
-     *   have.
+     * Fonts: anti-aliased Xft fonts through Motif 2.x render tables, in
+     * place of the old fixed-size bitmap fontLists.  Each widget's
+     * renderTable lists rendition tags; the first one is used for text
+     * that names no tag.  The rendition resources are written as
+     * "*<tag>.<resource>" so they match however Motif nests them.
+     * Users can override any of these in ~/.Xresources (class "Viola").
      */
-    /*
-    "*XmLabel*fontList: -*times*medium*-r-*--14-*=plainFont, \
-                        -*times*bold*-r-*--14-*=boldFont, \
-                        -*times*bold*-r-*--18-*=largeFont, \
-                        -*times*bold*-r-*--24-*=titleFont, \
-                        -*helv*medium*-r-*--14-*=urlFont, \
-                        -*helv*medium*-r-*--12-*=smallFont",
-    */
-    "*XmLabel*fontList: -*times*medium*-r-*--14-*=plainFont",
-    "*XmText*fontList: 8x13=textFont",
-    "*XmList*fontList: *times*bold*-r-*-12-*=itemFont",
-    "*XmTextField*fontList: *helv*bold*-r-*-12-*=textFont",
-    "*XmPushButton*fontList: *times*bold*-r-*-14-*=buttonFont",
-    "*XmPushButtonGadget*fontList: *times*bold*-r-*-14-*=menuFont",
-    "*XmCascadeButton*fontList: *times*bold*-r-*-14-*=menuButtonFont",
-    "*XmCascadeButtonGadget*fontList: *times*bold*-r-*-14-*=menuButtonFont",
-    "*labelFontList: *times*medium*-r-*-14-*=plainFont",
-    "*messageText*fontList:  *helv*bold*-r-*-12-*=textFont",
+    "*renderTable: uiFont, boldFont, largeFont",
+    "*XmText.renderTable: monoFont",
+    "*title.renderTable: titleFont, subTitleFont, urlFont",
+    "*cloneTitle.renderTable: titleFont, subTitleFont, urlFont",
+    "*editorTitle.renderTable: titleFont, subTitleFont, urlFont",
+    "*mailTitle.renderTable: titleFont, subTitleFont, urlFont",
+    "*uiFont.fontType: FONT_IS_XFT",
+    "*uiFont.fontName: Sans",
+    "*uiFont.fontSize: 10",
+    "*boldFont.fontType: FONT_IS_XFT",
+    "*boldFont.fontName: Sans",
+    "*boldFont.fontStyle: Bold",
+    "*boldFont.fontSize: 10",
+    "*largeFont.fontType: FONT_IS_XFT",
+    "*largeFont.fontName: Sans",
+    "*largeFont.fontStyle: Bold",
+    "*largeFont.fontSize: 13",
+    "*monoFont.fontType: FONT_IS_XFT",
+    "*monoFont.fontName: Monospace",
+    "*monoFont.fontSize: 10",
+    "*titleFont.fontType: FONT_IS_XFT",
+    "*titleFont.fontName: Sans",
+    "*titleFont.fontStyle: Bold",
+    "*titleFont.fontSize: 15",
+    "*subTitleFont.fontType: FONT_IS_XFT",
+    "*subTitleFont.fontName: Sans",
+    "*subTitleFont.fontSize: 9",
+    "*urlFont.fontType: FONT_IS_XFT",
+    "*urlFont.fontName: Sans",
+    "*urlFont.fontStyle: Bold",
+    "*urlFont.fontSize: 12",
     "*XmScrollBar*width: 19",
+    /* Light theme (was antiqueWhite4 with yellow borders). */
     "*foreground: black",
-    "*background: antiqueWhite4",
-    "*borderColor: yellow",
+    "*background: gray85",
+    "*borderColor: gray55",
+    "*XmText.background: white",
+    "*XmTextField.background: white",
+    "*XmList.background: white",
     /*
      * Motif text widgets don't bind Ctrl-C/X/V to the clipboard by default,
      * so Ctrl-V inserted a literal ^V (shown as a box).  Bind them here, to
@@ -205,10 +223,6 @@ static String fallback_resources[] = {
                            Ctrl<Key>c: copy-clipboard()\n\
                            Ctrl<Key>x: cut-clipboard()\n\
                            Ctrl<Key>v: paste-clipboard()",
-    "*mailCommandText*fontList: -*courier*bold*-r-*--12-*=plainFont",
-    "*mailAddressText*fontList: -*courier*bold*-r-*--12-*=plainFont",
-    "*mailSubjectText*fontList: -*courier*bold*-r-*--12-*=plainFont",
-    "*helpLabel*fontList: -*helv*bold*-r-*--12-*=plainFont",
     NULL,
 };
 
@@ -527,15 +541,13 @@ DocViewInfo* makeBrowserInterface(Widget shell, char* shellName, DocViewInfo* pa
         titleIconFrame, XmNleftOffset, 4, XmNrightAttachment, XmATTACH_FORM, XmNmarginWidth, 4,
         XmNmarginHeight, 4, NULL);
 
-    titleFontList = loadFonts(XtDisplay(shell));
     xms = makeXMSTitle("Viola World Wide Web Browser", "Alpha Release");
     title = XtVaCreateManagedWidget("title", xmLabelWidgetClass, titleFrame, XmNlabelString, xms,
                                     /* Avoid X border during resize (causes artifacts on XQuartz).
                                      * Use label margins for padding instead.
                                      */
                                     XmNborderWidth, 0, XmNmarginWidth, 4, XmNmarginHeight, 4,
-                                    XmNrecomputeSize, FALSE, XmNfontList,
-                                    titleFontList, NULL);
+                                    XmNrecomputeSize, FALSE, NULL);
     XmStringFree(xms);
 
     /* URL selection mechanism. */

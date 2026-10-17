@@ -234,7 +234,7 @@ void showSourceEditor(DocViewInfo* parentDVI, char* data, int editable)
     title = XtVaCreateManagedWidget("editorTitle", xmLabelWidgetClass, titleFrame, XmNlabelString,
                                     /* Avoid X border during resize (causes artifacts on XQuartz). */
                                     xms, XmNborderWidth, 0, XmNmarginWidth, 4, XmNmarginHeight, 4,
-                                    XmNfontList, titleFontList, NULL);
+                                    NULL);
     XmStringFree(xms);
 
     /* URL selection mechanism. */

@@ -609,15 +609,20 @@ int GLInit(Display* dpy, Screen* scrn)
                 useDefault = 0;
             } else {
                 fprintf(stderr,
-                        "warning, can't get default widget color resource. Using grey70.\n");
+                        "warning, can't get default widget color resource. Using gray94.\n");
             }
         }
+        /* Default page/widget background.  This used to be grey70, which
+         * made pages hard to read; gray94 is a near-white light gray that
+         * still leaves room for the lighter/darker bevel shades.  Override
+         * with "Viola*background" in ~/.Xresources.
+         */
         if (useDefault) {
-            if (initDefaultColor("grey70", BGPixel, &DefaultBGPixel, &DefaultBGPixel_lighter,
+            if (initDefaultColor("gray94", BGPixel, &DefaultBGPixel, &DefaultBGPixel_lighter,
                                  &DefaultBGPixel_darker, &DefaultBGPixel_darkest)) {
                 useDefault = 0;
             } else {
-                fprintf(stderr, "warning, can't get default color grey70.\n");
+                fprintf(stderr, "warning, can't get default color gray94.\n");
             }
         }
 

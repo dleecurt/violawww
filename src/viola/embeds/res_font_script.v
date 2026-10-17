@@ -50,145 +50,145 @@
 	 * font fall-back lists
 	 */
 
-	fixed[0]	= "-misc-fixed-medium-r-*-*-14-*-*-*-*-*-*-*";
+	fixed[0]	= "-misc-fixed-medium-r-*-*-18-*-*-*-*-*-*-*";
 	fixed[1]	= "-misc-fixed-*-*-*-*-*-*-*-*-*-*-*-*";
 	fixed[3]	= "-misc-fixed-*";
 
-	normal[0]	= "-adobe-helvetica-medium-r-*-*-14-*-*-*-p-*-*-*";
-	normal[1]	= "-*-helvetica-medium-r-*-*-14-*-*-*-p-*-*-*";
-	normal[2]	= "-*-*-medium-r-*-*-14-*-*-*-p-*-*-*";
+	normal[0]	= "-adobe-helvetica-medium-r-*-*-17-*-*-*-p-*-*-*";
+	normal[1]	= "-*-helvetica-medium-r-*-*-17-*-*-*-p-*-*-*";
+	normal[2]	= "-*-*-medium-r-*-*-17-*-*-*-p-*-*-*";
 	normal[3]	= "-misc-fixed-*";
 
-	normal_large[0]	= "-adobe-helvetica-bold-r-*-*-17-*-*-*-p-*-*-*";
-	normal_large[1]	= "-*-helvetica-bold-r-*-*-17-*-*-*-p-*-*-*";
-	normal_large[2]	= "-*-*-medium-r-*-*-17-*-*-*-p-*-*-*";
+	normal_large[0]	= "-adobe-helvetica-bold-r-*-*-24-*-*-*-p-*-*-*";
+	normal_large[1]	= "-*-helvetica-bold-r-*-*-24-*-*-*-p-*-*-*";
+	normal_large[2]	= "-*-*-medium-r-*-*-24-*-*-*-p-*-*-*";
 	normal_large[3]	= "-misc-fixed-*";
 
-	normal_largest[0] ="-adobe-helvetica-medium-r-*-*-24-*-*-*-p-*-*-*";
-	normal_largest[1] = "-*-helvetica-medium-r-*-*-24-*-*-*-p-*-*-*";
-	normal_largest[2] = "-*-*-medium-r-*-*-24-*-*-*-p-*-*-*";
+	normal_largest[0] ="-adobe-helvetica-medium-r-*-*-34-*-*-*-p-*-*-*";
+	normal_largest[1] = "-*-helvetica-medium-r-*-*-34-*-*-*-p-*-*-*";
+	normal_largest[2] = "-*-*-medium-r-*-*-34-*-*-*-p-*-*-*";
 	normal_largest[3] = "-misc-fixed-*";
 
-	bold[0]		= "-adobe-helvetica-bold-r-*-*-14-*-*-*-p-*-*-*";
-	bold[1]		= "-*-helvetica-bold-r-*-*-14-*-*-*-p-*-*-*";
-	bold[2]		= "-*-*-bold-r-*-*-14-*-*-*-p-*-*-*";
+	bold[0]		= "-adobe-helvetica-bold-r-*-*-17-*-*-*-p-*-*-*";
+	bold[1]		= "-*-helvetica-bold-r-*-*-17-*-*-*-p-*-*-*";
+	bold[2]		= "-*-*-bold-r-*-*-17-*-*-*-p-*-*-*";
 	bold[3]		= "-misc-fixed-*";
 
-	bold_large[1]	= "-adobe-helvetica-bold-r-*-*-17-*-*-*-p-*-*-*";
-	bold_large[1]	= "-*-helvetica-bold-r-*-*-17-*-*-*-p-*-*-*";
+	bold_large[1]	= "-adobe-helvetica-bold-r-*-*-24-*-*-*-p-*-*-*";
+	bold_large[1]	= "-*-helvetica-bold-r-*-*-24-*-*-*-p-*-*-*";
 	bold_large[2]	= "-*-*-bold-r-*-*-27-*-*-*-p-*-*-*";
 	bold_large[3]	= "-misc-fixed-*";
 
-	bold_largest[0]	= "-adobe-helvetica-medium-r-*-*-24-*-*-*-p-*-*-*";
-	bold_largest[1]	= "-*-helvetica-bold-r-*-*-24-*-*-*-p-*-*-*";
-	bold_largest[2]	= "-*-*-bold-r-*-*-24-*-*-*-p-*-*-*";
+	bold_largest[0]	= "-adobe-helvetica-medium-r-*-*-34-*-*-*-p-*-*-*";
+	bold_largest[1]	= "-*-helvetica-bold-r-*-*-34-*-*-*-p-*-*-*";
+	bold_largest[2]	= "-*-*-bold-r-*-*-34-*-*-*-p-*-*-*";
 	bold_largest[3]	= "-misc-fixed-*";
 
-	banner[0]	= "-adobe-helvetica-medium-r-*-*-24-*-*-*-p-*-*-*";
-	banner[1]	= "-*-helvetica-medium-r-*-*-24-*-*-*-p-*-*-*";
-	banner[2]	= "-*-*-medium-r-*-*-24-*-*-*-p-*-*-*";
+	banner[0]	= "-adobe-helvetica-medium-r-*-*-34-*-*-*-p-*-*-*";
+	banner[1]	= "-*-helvetica-medium-r-*-*-34-*-*-*-p-*-*-*";
+	banner[2]	= "-*-*-medium-r-*-*-34-*-*-*-p-*-*-*";
 	banner[3]	= "-misc-fixed-*";
 
-	banner_large[0]	= "-adobe-helvetica-medium-r-*-*-24-*-*-*-p-*-*-*";
-	banner_large[1]	= "-*-helvetica-medium-r-*-*-24-*-*-*-p-*-*-*";
-	banner_large[2]	= "-*-*-medium-r-*-*-24-*-*-*-p-*-*-*";
+	banner_large[0]	= "-adobe-helvetica-medium-r-*-*-34-*-*-*-p-*-*-*";
+	banner_large[1]	= "-*-helvetica-medium-r-*-*-34-*-*-*-p-*-*-*";
+	banner_large[2]	= "-*-*-medium-r-*-*-34-*-*-*-p-*-*-*";
 	banner_large[3]	= "-misc-fixed-*-";
 
-	banner_largest[0] = "-adobe-helvetica-medium-r-*-*-24-*-*-*-p-*-*-*";
-	banner_largest[1] = "-*-helvetica-medium-r-*-*-24-*-*-*-p-*-*-*";
-	banner_largest[2] = "-*-*-medium-r-*-*-24-*-*-*-p-*-*-*";
+	banner_largest[0] = "-adobe-helvetica-medium-r-*-*-34-*-*-*-p-*-*-*";
+	banner_largest[1] = "-*-helvetica-medium-r-*-*-34-*-*-*-p-*-*-*";
+	banner_largest[2] = "-*-*-medium-r-*-*-34-*-*-*-p-*-*-*";
 	banner_largest[3] = "-misc-fixed-*";
 
-	italic[0]	= "-adobe-helvetica-medium-*-*-*-14-*-*-*-p-*-*-*";
-	italic[1]	= "-*-helvetica-medium-i-*-*-14-*-*-*-p-*-*-*";
-	italic[2]	= "-*-*-medium-i-*-*-14-*-*-*-p-*-*-*";
+	italic[0]	= "-adobe-helvetica-medium-*-*-*-17-*-*-*-p-*-*-*";
+	italic[1]	= "-*-helvetica-medium-i-*-*-17-*-*-*-p-*-*-*";
+	italic[2]	= "-*-*-medium-i-*-*-17-*-*-*-p-*-*-*";
 	italic[3]	= "-misc-fixed-*";
 
-	italic_large[0]	= "-adobe-helvetica-medium-i-*-*-17-*-*-*-p-*-*-*";
-	italic_large[1]	= "-*-helvetica-medium-i-*-*-17-*-*-*-p-*-*-*";
-	italic_large[2]	= "-*-*-medium-i-*-*-17-*-*-*-p-*-*-*";
+	italic_large[0]	= "-adobe-helvetica-medium-i-*-*-24-*-*-*-p-*-*-*";
+	italic_large[1]	= "-*-helvetica-medium-i-*-*-24-*-*-*-p-*-*-*";
+	italic_large[2]	= "-*-*-medium-i-*-*-24-*-*-*-p-*-*-*";
 	italic_large[3]	= "-misc-fixed-*";
 
-	italic_largest[0] = "-adobe-helvetica-medium-i-*-*-24-*-*-*-p-*-*-*";
-	italic_largest[1] = "-*-helvetica-medium-i-*-*-24-*-*-*-p-*-*-*";
-	italic_largest[2] = "-*-*-medium-i-*-*-24-*-*-*-p-*-*-*";
+	italic_largest[0] = "-adobe-helvetica-medium-i-*-*-34-*-*-*-p-*-*-*";
+	italic_largest[1] = "-*-helvetica-medium-i-*-*-34-*-*-*-p-*-*-*";
+	italic_largest[2] = "-*-*-medium-i-*-*-34-*-*-*-p-*-*-*";
 	italic_largest[3] = "-misc-fixed-*";
 
-	symbol[0] = "-*-symbol-medium-r-*-*-14-*-*-*-*-*-*-*";
+	symbol[0] = "-*-symbol-medium-r-*-*-17-*-*-*-*-*-*-*";
 	symbol[1] = "-misc-fixed-*";
 
-	any[0]		= "-misc-fixed-medium-r-*-*-14-*-*-*-*-*-*-*";
+	any[0]		= "-misc-fixed-medium-r-*-*-18-*-*-*-*-*-*-*";
 	any[1]		= "-*-*-medium-*-*-*-*-*-*-*-*-*-*-*";
 	any[2]		= "-misc-fixed-*";
 
 	/*
 	 * Serif (Times) font fall-back lists for IDs 14-27
 	 */
-	t_fixed[0]	= "-misc-fixed-medium-r-*-*-14-*-*-*-*-*-*-*";
+	t_fixed[0]	= "-misc-fixed-medium-r-*-*-18-*-*-*-*-*-*-*";
 	t_fixed[1]	= "-misc-fixed-*-*-*-*-*-*-*-*-*-*-*-*";
 	t_fixed[2]	= "-misc-fixed-*";
 
-	t_normal[0]	= "-adobe-times-medium-r-*-*-14-*-*-*-p-*-*-*";
-	t_normal[1]	= "-*-times-medium-r-*-*-14-*-*-*-p-*-*-*";
-	t_normal[2]	= "-*-*-medium-r-*-*-14-*-*-*-p-*-*-*";
+	t_normal[0]	= "-adobe-times-medium-r-*-*-17-*-*-*-p-*-*-*";
+	t_normal[1]	= "-*-times-medium-r-*-*-17-*-*-*-p-*-*-*";
+	t_normal[2]	= "-*-*-medium-r-*-*-17-*-*-*-p-*-*-*";
 	t_normal[3]	= "-misc-fixed-*";
 
-	t_normal_large[0] = "-adobe-times-medium-r-*-*-17-*-*-*-p-*-*-*";
-	t_normal_large[1] = "-*-times-medium-r-*-*-17-*-*-*-p-*-*-*";
-	t_normal_large[2] = "-*-*-medium-r-*-*-17-*-*-*-p-*-*-*";
+	t_normal_large[0] = "-adobe-times-medium-r-*-*-24-*-*-*-p-*-*-*";
+	t_normal_large[1] = "-*-times-medium-r-*-*-24-*-*-*-p-*-*-*";
+	t_normal_large[2] = "-*-*-medium-r-*-*-24-*-*-*-p-*-*-*";
 	t_normal_large[3] = "-misc-fixed-*";
 
-	t_normal_largest[0] = "-adobe-times-medium-r-*-*-24-*-*-*-p-*-*-*";
-	t_normal_largest[1] = "-*-times-medium-r-*-*-24-*-*-*-p-*-*-*";
-	t_normal_largest[2] = "-*-*-medium-r-*-*-24-*-*-*-p-*-*-*";
+	t_normal_largest[0] = "-adobe-times-medium-r-*-*-34-*-*-*-p-*-*-*";
+	t_normal_largest[1] = "-*-times-medium-r-*-*-34-*-*-*-p-*-*-*";
+	t_normal_largest[2] = "-*-*-medium-r-*-*-34-*-*-*-p-*-*-*";
 	t_normal_largest[3] = "-misc-fixed-*";
 
-	t_bold[0]	= "-adobe-times-bold-r-*-*-14-*-*-*-p-*-*-*";
-	t_bold[1]	= "-*-times-bold-r-*-*-14-*-*-*-p-*-*-*";
-	t_bold[2]	= "-*-*-bold-r-*-*-14-*-*-*-p-*-*-*";
+	t_bold[0]	= "-adobe-times-bold-r-*-*-17-*-*-*-p-*-*-*";
+	t_bold[1]	= "-*-times-bold-r-*-*-17-*-*-*-p-*-*-*";
+	t_bold[2]	= "-*-*-bold-r-*-*-17-*-*-*-p-*-*-*";
 	t_bold[3]	= "-misc-fixed-*";
 
-	t_bold_large[0]	= "-adobe-times-bold-r-*-*-17-*-*-*-p-*-*-*";
-	t_bold_large[1]	= "-*-times-bold-r-*-*-17-*-*-*-p-*-*-*";
-	t_bold_large[2]	= "-*-*-bold-r-*-*-17-*-*-*-p-*-*-*";
+	t_bold_large[0]	= "-adobe-times-bold-r-*-*-24-*-*-*-p-*-*-*";
+	t_bold_large[1]	= "-*-times-bold-r-*-*-24-*-*-*-p-*-*-*";
+	t_bold_large[2]	= "-*-*-bold-r-*-*-24-*-*-*-p-*-*-*";
 	t_bold_large[3]	= "-misc-fixed-*";
 
-	t_bold_largest[0] = "-adobe-times-bold-r-*-*-24-*-*-*-p-*-*-*";
-	t_bold_largest[1] = "-*-times-bold-r-*-*-24-*-*-*-p-*-*-*";
-	t_bold_largest[2] = "-*-*-bold-r-*-*-24-*-*-*-p-*-*-*";
+	t_bold_largest[0] = "-adobe-times-bold-r-*-*-34-*-*-*-p-*-*-*";
+	t_bold_largest[1] = "-*-times-bold-r-*-*-34-*-*-*-p-*-*-*";
+	t_bold_largest[2] = "-*-*-bold-r-*-*-34-*-*-*-p-*-*-*";
 	t_bold_largest[3] = "-misc-fixed-*";
 
-	t_italic[0]	= "-adobe-times-medium-i-*-*-14-*-*-*-p-*-*-*";
-	t_italic[1]	= "-*-times-medium-i-*-*-14-*-*-*-p-*-*-*";
-	t_italic[2]	= "-*-*-medium-i-*-*-14-*-*-*-p-*-*-*";
+	t_italic[0]	= "-adobe-times-medium-i-*-*-17-*-*-*-p-*-*-*";
+	t_italic[1]	= "-*-times-medium-i-*-*-17-*-*-*-p-*-*-*";
+	t_italic[2]	= "-*-*-medium-i-*-*-17-*-*-*-p-*-*-*";
 	t_italic[3]	= "-misc-fixed-*";
 
-	t_italic_large[0] = "-adobe-times-medium-i-*-*-17-*-*-*-p-*-*-*";
-	t_italic_large[1] = "-*-times-medium-i-*-*-17-*-*-*-p-*-*-*";
-	t_italic_large[2] = "-*-*-medium-i-*-*-17-*-*-*-p-*-*-*";
+	t_italic_large[0] = "-adobe-times-medium-i-*-*-24-*-*-*-p-*-*-*";
+	t_italic_large[1] = "-*-times-medium-i-*-*-24-*-*-*-p-*-*-*";
+	t_italic_large[2] = "-*-*-medium-i-*-*-24-*-*-*-p-*-*-*";
 	t_italic_large[3] = "-misc-fixed-*";
 
-	t_italic_largest[0] = "-adobe-times-medium-i-*-*-24-*-*-*-p-*-*-*";
-	t_italic_largest[1] = "-*-times-medium-i-*-*-24-*-*-*-p-*-*-*";
-	t_italic_largest[2] = "-*-*-medium-i-*-*-24-*-*-*-p-*-*-*";
+	t_italic_largest[0] = "-adobe-times-medium-i-*-*-34-*-*-*-p-*-*-*";
+	t_italic_largest[1] = "-*-times-medium-i-*-*-34-*-*-*-p-*-*-*";
+	t_italic_largest[2] = "-*-*-medium-i-*-*-34-*-*-*-p-*-*-*";
 	t_italic_largest[3] = "-misc-fixed-*";
 
-	t_banner[0]	= "-adobe-times-medium-r-*-*-24-*-*-*-p-*-*-*";
-	t_banner[1]	= "-*-times-medium-r-*-*-24-*-*-*-p-*-*-*";
-	t_banner[2]	= "-*-*-medium-r-*-*-24-*-*-*-p-*-*-*";
+	t_banner[0]	= "-adobe-times-medium-r-*-*-34-*-*-*-p-*-*-*";
+	t_banner[1]	= "-*-times-medium-r-*-*-34-*-*-*-p-*-*-*";
+	t_banner[2]	= "-*-*-medium-r-*-*-34-*-*-*-p-*-*-*";
 	t_banner[3]	= "-misc-fixed-*";
 
-	t_banner_large[0] = "-adobe-times-medium-r-*-*-24-*-*-*-p-*-*-*";
-	t_banner_large[1] = "-*-times-medium-r-*-*-24-*-*-*-p-*-*-*";
-	t_banner_large[2] = "-*-*-medium-r-*-*-24-*-*-*-p-*-*-*";
+	t_banner_large[0] = "-adobe-times-medium-r-*-*-34-*-*-*-p-*-*-*";
+	t_banner_large[1] = "-*-times-medium-r-*-*-34-*-*-*-p-*-*-*";
+	t_banner_large[2] = "-*-*-medium-r-*-*-34-*-*-*-p-*-*-*";
 	t_banner_large[3] = "-misc-fixed-*";
 
-	t_banner_largest[0] = "-adobe-times-medium-r-*-*-24-*-*-*-p-*-*-*";
-	t_banner_largest[1] = "-*-times-medium-r-*-*-24-*-*-*-p-*-*-*";
-	t_banner_largest[2] = "-*-*-medium-r-*-*-24-*-*-*-p-*-*-*";
+	t_banner_largest[0] = "-adobe-times-medium-r-*-*-34-*-*-*-p-*-*-*";
+	t_banner_largest[1] = "-*-times-medium-r-*-*-34-*-*-*-p-*-*-*";
+	t_banner_largest[2] = "-*-*-medium-r-*-*-34-*-*-*-p-*-*-*";
 	t_banner_largest[3] = "-misc-fixed-*";
 
-	t_any[0]	= "-misc-fixed-medium-r-*-*-14-*-*-*-*-*-*-*";
+	t_any[0]	= "-misc-fixed-medium-r-*-*-18-*-*-*-*-*-*-*";
 	t_any[1]	= "-*-*-medium-*-*-*-*-*-*-*-*-*-*-*";
 	t_any[2]	= "-misc-fixed-*";
 
