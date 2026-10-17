@@ -14,15 +14,18 @@
 */
 #define WAYBACK_API_HOST "web.archive.org"
 
-/*	Check if URL is available in Wayback Machine
-**	---------------------------------------------
+/*	Wayback Machine URL for the newest capture of a URL
+**	----------------------------------------------------
 **
 **  On entry:
-**	url		The URL to check (e.g., "http://example.com/page")
+**	url		The original URL (e.g., "http://example.com/page")
 **
 **  On exit:
-**	returns		Wayback URL if available (must be freed by caller)
-**			NULL if not found or error
+**	returns		https://web.archive.org/web/<now>id_/<url>, which the
+**			Archive redirects to its newest capture (or answers 404
+**			if it has none); must be freed by caller.
+**			NULL if url is empty, already an Archive URL, or on error.
+**	No network access happens here.
 */
 PUBLIC char* HTWaybackCheck PARAMS((const char* url));
 
