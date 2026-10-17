@@ -2754,6 +2754,12 @@ long sendMessage1(VObj* self, char* messg)
     return 1;
 }
 
+/* XCheckIfEvent predicate: an Expose event for an Xt widget's window. */
+static Bool isWidgetExpose(Display* dpy, XEvent* ev, XPointer arg)
+{
+    return ev->type == Expose && XtWindowToWidget(dpy, ev->xexpose.window) != NULL;
+}
+
 long sendMessage1N1str(VObj* self, char* messg, char* s1)
 {
     long save_stackExecIdx = stackExecIdx;
@@ -2777,8 +2783,13 @@ long sendMessage1N1str(VObj* self, char* messg, char* s1)
         if (display) {
             XEvent event;
             XFlush(display);
-            /* Process pending expose events to actually show the message */
-            while (XCheckMaskEvent(display, ExposureMask, &event)) {
+            /* Process pending expose events to actually show the message.
+             * Only those for Xt widgets: XtDispatchEvent ignores Viola's own
+             * windows, so taking their Expose events off the queue here
+             * threw them away, and a freshly displayed page (e.g. one that
+             * showed "loading image" messages) was left blank until
+             * something else made it redraw. */
+            while (XCheckIfEvent(display, &event, isWidgetExpose, NULL)) {
                 XtDispatchEvent(&event);
             }
             XSync(display, False);
