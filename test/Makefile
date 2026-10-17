@@ -7,13 +7,26 @@ BUILD_DIR := build
 
 # Compiler settings from main project
 CC := cc
+UNAME_S := $(shell uname -s)
+
+ifeq ($(UNAME_S),Darwin)
 CFLAGS := -Os -arch arm64 -std=gnu17 -Wno-everything -funsigned-char
 CFLAGS_LIBS := $(CFLAGS) -D__DARWIN__ -DUSE_ICU -DUSE_SSL -funsigned-char
 
-# Include paths
+# Include paths (Homebrew)
 ICU_INCLUDES := -I/opt/homebrew/opt/icu4c@77/include
 SSL_INCLUDES := -I/opt/homebrew/opt/openssl@3/include
 ICU_LIBS := -L/opt/homebrew/opt/icu4c@77/lib -licui18n -licuuc -licudata -liconv
+else
+# Linux and other systems: system compiler flags, libraries via pkg-config
+# (Debian: libicu-dev, libssl-dev).  -w: these tests build legacy sources.
+CFLAGS := -Os -std=gnu17 -w -funsigned-char
+CFLAGS_LIBS := $(CFLAGS) -DUSE_ICU -DUSE_SSL
+
+ICU_INCLUDES := $(shell pkg-config --cflags icu-i18n icu-uc 2>/dev/null)
+SSL_INCLUDES := $(shell pkg-config --cflags openssl 2>/dev/null)
+ICU_LIBS := $(shell pkg-config --libs icu-i18n icu-uc 2>/dev/null)
+endif
 
 # Check if ICU is available
 ICU_AVAILABLE := $(shell pkg-config --exists icu-uc 2>/dev/null && echo yes || echo no)
