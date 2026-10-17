@@ -1507,8 +1507,20 @@ static void pasteInsert(Display* dpy, const char* latin1, unsigned long len)
             buf[n++] = (char)c;
     }
     buf[n] = '\0';
-    if (n > 0)
-        sendMessage1N1str(target, "insert", buf);
+    if (n > 0) {
+        /* Call the txtDisp 'insert' method directly (inherited by txtEdit).
+         * Sending an "insert" *message* does not work: class scripts only
+         * route the messages they list, and txtEdit's has no "insert". */
+        Packet arg, result;
+        arg.type = PKT_STR;
+        arg.info.s = buf;
+        arg.canFree = 0;
+        nullPacket(&result);
+        if (!callMeth(target, &result, 1, &arg, STR_insert))
+            XBell(dpy, 0);
+        if (result.canFree & PK_CANFREE_STR)
+            free(result.info.s);
+    }
     free(buf);
 }
 
