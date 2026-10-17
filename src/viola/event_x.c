@@ -125,6 +125,7 @@ char* eventChar(XKeyEvent* e);
 void processPeekKeys();
 int checkParam(VObj* self, int resize_corner);
 void process_event(XEvent* ep, int tool);
+static void forgetButtonDrag(void);
 void signalHandler(int sig);
 
 VObj* reparented_obj = NULL;
@@ -272,6 +273,10 @@ void violaProcessEvent(XEvent* e)
                 fprintf(stderr, "can't find object!\n");
         }
     } else {
+        /* A release in a window that no longer belongs to an object ends
+         * any drag (see forgetButtonDrag). */
+        if (e->type == ButtonRelease)
+            forgetButtonDrag();
         if (verbose)
             fprintf(stderr, "Can't find object associated with window.\n");
     }
@@ -555,10 +560,28 @@ int eventLoop() {
     return 0;
 }
 
+/*
+ * Button-drag state.  While mouseDown is set, Expose and resize events
+ * are ignored (to avoid redrawing under a drag).  It used to be possible
+ * for it to stay set forever: clicking a link or the Home button loads a
+ * new page, which destroys the window that was clicked, so the matching
+ * ButtonRelease arrives for an unknown window (or a dead object) and was
+ * dropped.  After that, nothing Viola draws was repainted, so the page
+ * and toolbar went blank after minimizing or covering the window.
+ * forgetButtonDrag() clears the state in those cases.
+ */
+static VObj* dragObj = NULL;
+static int mouseDown = 0;
+
+static void forgetButtonDrag(void)
+{
+    mouseDown = 0;
+    dragObj = NULL;
+}
+
 void process_event(XEvent* ep, int tool)
 {
-    static VObj* dragObj = NULL;
-    static int resize_corner, mouseDown = 0, from_x, from_y;
+    static int resize_corner, from_x, from_y;
     /*	Window w = GET_window(VCurrentObj);
      */
 
@@ -1060,7 +1083,11 @@ long handle_ButtonRelease(XButtonEvent* ep, VObj** dragObjp, int tool, int* resi
     Window w;
 
     if (validObjectP(VCurrentObj) == 0) {
+        /* The pressed object is gone (e.g. a new page replaced it). */
         VCurrentObj = NULL;
+        *dragObjp = NULL;
+        *mouseDown = 0;
+        mouseButtonPressedState &= ~(1 << (ep->button));
         return 0;
     }
     w = GET_window(VCurrentObj);
