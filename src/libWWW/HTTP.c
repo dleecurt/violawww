@@ -671,6 +671,25 @@ retry:
                                 if (text_buffer) free(text_buffer);
                                 NETCLOSE(s);
                                 
+                                /* Stop at once on a redirect loop (A -> B -> A ...), e.g. two
+                                 * Wayback captures that redirect to each other, instead of
+                                 * making MAX_REDIRECTS round trips.  Leaves through the same
+                                 * "too many redirects" failure path. */
+                                {
+                                    static char loop_prev1[2048], loop_prev2[2048];
+                                    if (redirect_count == 0)
+                                        loop_prev1[0] = loop_prev2[0] = '\0';
+                                    if (strcmp(location, loop_prev1) == 0 ||
+                                        strcmp(location, loop_prev2) == 0) {
+                                        if (TRACE)
+                                            fprintf(stderr, "%s: redirect loop at %s\n", "HTTP", location);
+                                        free(location);
+                                        redirect_count = MAX_REDIRECTS;
+                                        goto retry;
+                                    }
+                                    strcpy(loop_prev2, loop_prev1);
+                                    snprintf(loop_prev1, sizeof(loop_prev1), "%s", location);
+                                }
                                 redirect_count++;
                                 free(*owned_location); /* previous redirect target, now unused */
                                 *owned_location = location;
