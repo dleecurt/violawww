@@ -188,10 +188,21 @@ static String fallback_resources[] = {
     "*foreground: black",
     "*background: antiqueWhite4",
     "*borderColor: yellow",
+    /*
+     * Motif text widgets don't bind Ctrl-C/X/V to the clipboard by default,
+     * so Ctrl-V inserted a literal ^V (shown as a box).  Bind them here, to
+     * match the Edit menu, so dialogs such as Open URL can paste.
+     */
     "*XmText.translations: #override\n\
-                           None<Key>KDelete: delete-previous-character()",
+                           None<Key>KDelete: delete-previous-character()\n\
+                           Ctrl<Key>c: copy-clipboard()\n\
+                           Ctrl<Key>x: cut-clipboard()\n\
+                           Ctrl<Key>v: paste-clipboard()",
     "*XmTextField.translations: #override\n\
-                           None<Key>KDelete: delete-previous-character()",
+                           None<Key>KDelete: delete-previous-character()\n\
+                           Ctrl<Key>c: copy-clipboard()\n\
+                           Ctrl<Key>x: cut-clipboard()\n\
+                           Ctrl<Key>v: paste-clipboard()",
     "*mailCommandText*fontList: -*courier*bold*-r-*--12-*=plainFont",
     "*mailAddressText*fontList: -*courier*bold*-r-*--12-*=plainFont",
     "*mailSubjectText*fontList: -*courier*bold*-r-*--12-*=plainFont",
