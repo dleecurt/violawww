@@ -168,6 +168,7 @@ void vw_start_wakeup_timer(void)
  */
 extern void (*HTIdle_hook)(void);
 extern int HTIdle_fd;
+extern int violaIdleNoWait;
 
 static void vwRedrawWhileBusy(void)
 {
@@ -762,6 +763,9 @@ DocViewInfo* makeBrowserInterface(Widget shell, char* shellName, DocViewInfo* pa
         /* Keep the window repainting while pages load. */
         HTIdle_fd = ConnectionNumber(XtDisplay(violaCanvas));
         HTIdle_hook = vwRedrawWhileBusy;
+
+        /* Our event loop does the waiting; Viola's idle step must not. */
+        violaIdleNoWait = 1;
 
         docViewInfo->violaDocViewName = makeString("mvw");
         docViewInfo->violaDocToolsName = makeString("mvwTools");

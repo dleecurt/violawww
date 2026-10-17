@@ -297,11 +297,18 @@ void violaProcessEvent(XEvent* e)
  * Derived from eventLoop().
  *
  */
+/*
+ * When set, violaIdleEvent() waits at most 10 ms.  The Motif front end
+ * (vw) sets it because it runs its own event loop and waits there.
+ */
+int violaIdleNoWait = 0;
+
 void violaIdleEvent() {
     int i, bits;
     fd_set cur_read_mask;
     TimeInfo* tip;
     struct timeval timeout, timenow, *timeval = NULL;
+    struct timeval no_wait = {0, 0};
     VObj *obj;
 
     FD_SET(ConnectionNumber(display), &read_mask);
@@ -322,6 +329,25 @@ void violaIdleEvent() {
         if (timeout.tv_usec < 0)
             timeout.tv_usec = 0;
         timeval = &timeout;
+    }
+
+    /*
+     * Don't sleep if X events are already waiting in Xlib's queue.  Xlib
+     * often reads them off the connection while drawing, so the socket
+     * is no longer readable and select() (with no timer, an infinite
+     * wait) slept until the next mouse movement or click, leaving pages
+     * half drawn and the window blank after it was uncovered.
+     */
+    if (XEventsQueued(display, QueuedAlready) > 0) {
+        timeval = &no_wait;
+    } else if (violaIdleNoWait) {
+        /* Short nap at most: this also runs as an Xt work procedure
+         * inside dialog loops, where a zero wait would spin the CPU. */
+        static struct timeval nap;
+        nap.tv_sec = 0;
+        nap.tv_usec = 10000;
+        if (!timeval || timeval->tv_sec > 0 || timeval->tv_usec > nap.tv_usec)
+            timeval = &nap;
     }
 
     bcopy(&read_mask, &cur_read_mask, sizeof(cur_read_mask));
