@@ -64,6 +64,19 @@ ifeq ($(UNAME_S),Darwin)
   OPENSSL_AVAILABLE := $(shell test -n "$(OPENSSL_PREFIX)" && test -d "$(OPENSSL_PREFIX)/include" && echo yes || echo no)
 endif
 
+# Package install hints shown in build messages
+ifeq ($(UNAME_S),Darwin)
+  HINT_SSL    = brew install openssl@3
+  HINT_OPENSP = brew install open-sp
+  HINT_BYACC  = brew install byacc
+  HINT_IWYU   = brew install include-what-you-use
+else
+  HINT_SSL    = sudo apt install libssl-dev
+  HINT_OPENSP = sudo apt install opensp
+  HINT_BYACC  = sudo apt install byacc
+  HINT_IWYU   = sudo apt install iwyu
+endif
+
 # Auto-detect OpenSP (onsgmls) for HMML support
 SGMLS_PATH := $(shell command -v onsgmls 2>/dev/null || echo "$(OPENSP_PREFIX)/bin/onsgmls")
 SGMLS_AVAILABLE := $(shell test -x "$(SGMLS_PATH)" && echo yes || echo no)
@@ -222,12 +235,12 @@ ifeq ($(ICU_AVAILABLE),no)
 endif
 ifeq ($(OPENSSL_AVAILABLE),no)
 	@echo "⚠ Building without OpenSSL (HTTPS will not be supported)"
-	@echo "  Install with: brew install openssl@3"
+	@echo "  Install with: $(HINT_SSL)"
 	@echo ""
 endif
 ifeq ($(SGMLS_AVAILABLE),no)
 	@echo "⚠ Building without OpenSP (HMML format will not be supported)"
-	@echo "  Install with: brew install open-sp"
+	@echo "  Install with: $(HINT_OPENSP)"
 	@echo ""
 endif
 
@@ -250,11 +263,13 @@ help:
 	@echo "  check-64bit - Check for 64-bit migration issues (long->int truncation)"
 	@echo "  check-help - Show code analysis tools (includes, libs, unused code)"
 	@echo "  help       - Show this help message"
+ifeq ($(UNAME_S),Darwin)
 	@echo ""
 	@echo "macOS targets:"
 	@echo "  app        - Build ViolaWWW.app bundle"
 	@echo "  dmg        - Create ViolaWWW.dmg for distribution"
 	@echo "  clean-app  - Remove app bundle and DMG"
+endif
 
 # ============================================================================
 # Library targets
@@ -421,7 +436,7 @@ $(VIOLA_DIR)/objs.o: $(VIOLA_DIR)/objs.c $(patsubst %.v,%.v.h,$(wildcard $(VIOLA
 $(VIOLA_DIR)/gram.c: $(VIOLA_DIR)/gram.y
 	@echo "=== Generating gram.c from gram.y with byacc ==="
 	@if ! command -v byacc >/dev/null 2>&1; then \
-		echo "ERROR: byacc not found. Install with: brew install byacc"; \
+		echo "ERROR: byacc not found. Install with: $(HINT_BYACC)"; \
 		exit 1; \
 	fi
 	cd $(VIOLA_DIR) && byacc gram.y && mv y.tab.c gram.c
@@ -674,7 +689,7 @@ check-includes:
 	@echo "=== Checking for unused includes with include-what-you-use ==="
 	@if ! command -v include-what-you-use >/dev/null 2>&1; then \
 		echo "ERROR: include-what-you-use not found."; \
-		echo "Install with: brew install include-what-you-use"; \
+		echo "Install with: $(HINT_IWYU)"; \
 		echo ""; \
 		echo "Alternative: use 'make check-includes-manual' for manual analysis"; \
 		exit 1; \
@@ -692,7 +707,7 @@ check-includes-all:
 	@echo "=== Checking all Viola sources for unused includes ==="
 	@if ! command -v include-what-you-use >/dev/null 2>&1; then \
 		echo "ERROR: include-what-you-use not found."; \
-		echo "Install with: brew install include-what-you-use"; \
+		echo "Install with: $(HINT_IWYU)"; \
 		exit 1; \
 	fi
 	@for src in $(VIOLA_SRCS); do \
@@ -789,7 +804,7 @@ check-help:
 	@echo "Quick start:"
 	@echo "  1. make check-includes-manual  (no extra tools needed)"
 	@echo "  2. make check-unused           (checks for unused variables/functions)"
-	@echo "  3. brew install include-what-you-use && make check-includes"
+	@echo "  3. $(HINT_IWYU) && make check-includes"
 
 # ============================================================================
 # macOS App Bundle
