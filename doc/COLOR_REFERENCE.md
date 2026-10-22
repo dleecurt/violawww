@@ -183,8 +183,7 @@ Many X11 colors have numbered variants (1-4, where 1 is lightest and 4 is darkes
 
 ViolaWWW supports **all valid X11 color names** (over 600 colors). The complete list is available in the X11 color database file:
 
-- **Unix/Linux**: `/usr/share/X11/rgb.txt`
-- **macOS**: `/opt/X11/share/X11/rgb.txt` (if X11 is installed)
+- **Debian/Linux**: `/usr/share/X11/rgb.txt` (package `x11-common`)
 - **Online**: Various X11 color reference websites
 
 To see all available colors on your system, you can run:

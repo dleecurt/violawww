@@ -6,8 +6,9 @@
 > focused on **Linux**. It builds and runs on Debian 13 "trixie" (x86_64,
 > GCC 14) and fixes crashes, networking stalls, redraw problems and security
 > issues found while bringing it up there. See
-> [Changes in this fork](#changes-in-this-fork). The macOS support from
-> upstream is kept; see [Other platforms (macOS)](#other-platforms-macos).
+> [Changes in this fork](#changes-in-this-fork), and
+> [doc/DEBIAN.md](doc/DEBIAN.md) for the full Debian guide. For macOS, use
+> [upstream](https://github.com/bolknote/violawww).
 
 ---
 
@@ -110,10 +111,10 @@ be reviewed or sent upstream individually.
 ### Modern Enhancements (v4.0 - 2025)
 
 #### 64-bit Architecture Port
-- Full compatibility with modern 64-bit ARM64 systems (Apple Silicon)
+- Full compatibility with modern 64-bit systems
 - Fixed pointer size issues (32-bit → 64-bit)
 - Updated integer types for proper memory addressing
-- Tested on Debian 13 (x86_64, GCC 14) in this fork; upstream tests on macOS (Apple Silicon M3)
+- Tested on Debian 13 "trixie" (x86_64, GCC 14)
 - Maintained backward compatibility with build system
 
 #### Interface Restoration
@@ -368,17 +369,9 @@ ViolaWWW 4.0 includes native mathematical notation rendering, transforming HTML 
 - Mathematical expression parser (sin, cos, exp, sqrt, abs, etc.)
 - Real-time rotation via sliders or mouse drag
 - Support for OFF file format (3D models)
-- HiDPI/Retina display support
+- HiDPI display support
 - **Files**: `examples/plot.v`, `examples/vplot.v`
 - **Documentation**: [VPLOT_REFERENCE.md](doc/VPLOT_REFERENCE.md)
-
-#### macOS Distribution (upstream, macOS only)
-- Native macOS application bundle (ViolaWWW.app)
-- Standalone launcher with automatic XQuartz detection and startup
-- Dynamic library bundling (no Homebrew required at runtime)
-- DMG installer with retro-style background and XQuartz package
-- Universal support for Finder launch and terminal execution
-- **Files**: `src/launcher/launcher.c`, `scripts/bundle-dylibs.sh`, `scripts/create-dmg.sh`
 
 #### Infrastructure Improvements
 - 64-bit architecture support (from 32-bit original)
@@ -395,14 +388,20 @@ ViolaWWW 4.0 includes native mathematical notation rendering, transforming HTML 
 
 ### ViolaWWW Motif Frontend (vw)
 
-*Modern web browsing with the classic Motif interface*
+*Modern web browsing with the classic Motif interface, on Debian 13*
 
-<img src=https://github.com/user-attachments/assets/74be8482-9a0c-43a2-b415-d6f9a317bd73 width=636 height=785>
+![text.npr.org in ViolaWWW on Debian](doc/screenshots/vw-text-npr.png)
+
+![The CERN World Wide Web project page in ViolaWWW](doc/screenshots/vw-cern-project.png)
+
+![wiby.me, with its search form and inline image, in ViolaWWW](doc/screenshots/vw-wiby.png)
 
 ---
 
 
 ## Quick Start
+
+For a step-by-step guide, including troubleshooting, see **[doc/DEBIAN.md](doc/DEBIAN.md)**.
 
 ### Requirements (Debian / Ubuntu)
 
@@ -508,44 +507,6 @@ Viola*monoFont.fontName:    DejaVu Sans Mono
 ```
 
 Page text size can be changed from the **Fonts** menu.
-
----
-
-## Other platforms (macOS)
-
-Upstream develops ViolaWWW on macOS, and the Makefile still detects macOS and
-uses Homebrew paths there. This fork does not test macOS.
-
-```bash
-brew install --cask xquartz    # X11 window system (required)
-brew install openmotif byacc   # Required for building
-brew install openssl@3 icu4c   # HTTPS, UTF-8 transliteration
-brew install ghostscript open-sp telnet x3270  # optional helpers
-make clean && make -j8
-```
-
-### macOS App Bundle & DMG
-
-Build a standalone macOS application bundle with bundled libraries:
-
-```bash
-# Build ViolaWWW.app bundle
-make app
-
-# Create distributable DMG with custom background
-make dmg
-
-# Or use custom DMG script with retro-style installer
-make dmg-custom
-```
-
-The app bundle includes:
-- Native macOS launcher with automatic XQuartz startup
-- All required dynamic libraries bundled (no Homebrew needed at runtime)
-- XQuartz installer package for easy dependency installation
-- Retro-style DMG background with installation instructions
-
-**Note**: XQuartz is still required to run ViolaWWW, but it's included in the DMG for convenience.
 
 ---
 
@@ -806,14 +767,10 @@ HMML was ViolaWWW's native document format with elements like:
 HMML support requires the **OpenSP** SGML parser:
 
 ```bash
-# Linux (Debian/Ubuntu)
 sudo apt install opensp
-
-# macOS
-brew install open-sp
 ```
 
-The `onsgmls` utility from OpenSP is used to parse HMML documents. `src/viola/sgmlsA2B.c` looks for it next to the executable and then in `/opt/homebrew/bin`, `/usr/local/bin`, `/usr/bin` and `/opt/local/bin`.
+The `onsgmls` utility from OpenSP is used to parse HMML documents. `src/viola/sgmlsA2B.c` looks for it next to the executable and then in the standard locations, including `/usr/bin` (where Debian installs it) and `/usr/local/bin`.
 
 ### Note
 
@@ -868,7 +825,7 @@ make check-symbols           # Show used symbols from libraries
 make check-unused            # Build with unused code warnings
 
 # Advanced analysis (requires include-what-you-use)
-brew install include-what-you-use
+sudo apt install iwyu
 make check-includes          # Analyze glib_x.c
 make check-includes-all      # Analyze all sources
 ```

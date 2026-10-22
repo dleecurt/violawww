@@ -306,11 +306,10 @@ send(TTYObj, "output", "expose");
 
 ## HiDPI Support
 
-VPlot automatically detects HiDPI/Retina displays and scales rendering:
+VPlot automatically detects HiDPI displays and scales rendering:
 
-1. **macOS**: Defaults to 2x scale for Retina displays
-2. **Xft.dpi**: Reads X11 DPI setting if available
-3. **Environment**: Override with `VPLOT_SCALE` environment variable
+1. **Xft.dpi**: Reads the X11 DPI setting if available (set by most Linux desktops)
+2. **Environment**: Override with the `VPLOT_SCALE` environment variable
 
 ```bash
 export VPLOT_SCALE=1.5

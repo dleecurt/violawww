@@ -1,8 +1,8 @@
 # Sound Reference
 
 > **ViolaWWW 4.0 Additions:**  
-> - macOS Audio Queue Services implementation for `bell()` function (pure C, no ObjC)
-> - Audio file playback using `afplay` on macOS
+> - `bell()` rings the X11 bell (`XBell()`) on Linux
+> - Audio file playback (see the Linux note under Supported Audio Formats)
 
 This document describes sound capabilities in ViolaWWW.
 
@@ -27,9 +27,8 @@ Plays a system alert sound.
 bell();
 ```
 
-**macOS Implementation:** Uses Audio Queue Services (AudioToolbox framework) to play the system sound "Tink.aiff". This is a pure C implementation without Objective-C dependencies. Supports volume control via `bellVolume()`.
-
-**Other platforms:** Falls back to X11 `XBell()`.
+**Linux:** Rings the X11 bell with `XBell()`. Whether you hear anything
+depends on your desktop's bell setting (`xset b on` enables it).
 
 ---
 
@@ -86,151 +85,19 @@ This plays `sound.au` immediately, then repeats every 1000ms (1 second).
 
 ## Supported Audio Formats
 
-On macOS, audio playback uses the built-in `afplay` utility, which supports all formats handled by Core Audio:
-
-| Format | Extensions | Description |
-|--------|------------|-------------|
-| AIFF | `.aiff`, `.aif` | Audio Interchange File Format |
-| AIFC | `.aifc`, `.aiff`, `.aif` | AIFF Compressed |
-| WAV | `.wav` | Waveform Audio |
-| MP3 | `.mp3` | MPEG Layer 3 |
-| AAC | `.aac`, `.m4a` | Advanced Audio Coding |
-| ALAC | `.m4a` | Apple Lossless |
-| FLAC | `.flac` | Free Lossless Audio Codec |
-| CAF | `.caf` | Core Audio Format |
-| AU | `.au` | Sun/NeXT audio |
-| AC3 | `.ac3` | Dolby Digital |
-| 3GP | `.3gp`, `.3gpp` | 3GPP audio |
-| AMR | `.amr` | Adaptive Multi-Rate |
-
-**Note:** While ViolaWWW historically recognized `.au` files by extension, the `afplay` backend can play any format listed above. The browser uses format detection based on file extension, so `.au` is the most reliably supported extension for embedded audio.
-
-### Testing Audio Playback
-
-To verify `afplay` works on your system:
-
-```bash
-afplay /System/Library/Sounds/Tink.aiff
-```
-
-To check supported formats:
-
-```bash
-afconvert -hf
-```
-
----
-
-## Examples
-
-### Simple Bell Button
-
-Create a file `bell_button.v`:
-
-```
-\class {txtButton}
-\name {bell_button}
-\label {Ring Bell!}
-\width {120}
-\height {30}
-\script {
-  switch (arg[0]) {
-  case "buttonRelease":
-    bell();
-  break;
-  case "init":
-    usual();
-  break;
-  }
-  usual();
-}
-\
-```
-
-Then embed it in HTML using `<VOBJF>`:
-
-```html
-<html>
-<body>
-<p>Click the button:</p>
-<VOBJF HREF="bell_button.v"></VOBJF>
-</body>
-</html>
-```
-
-### Volume Control Example
-
-Create a file `volume_button.v`:
-
-```
-\class {txtButton}
-\name {volume_button}
-\label {Click Me!}
-\width {150}
-\height {30}
-\script {
-  switch (arg[0]) {
-  case "buttonRelease":
-    count = count + 10;
-    if (count > 100) count = 10;
-    set("label", concat("Volume: ", count, "%"));
-    bellVolume(count);
-    bell();
-    render();
-  break;
-  case "init":
-    count = 0;
-    usual();
-  break;
-  }
-  usual();
-}
-\
-```
-
-Each click increases volume by 10% and plays the bell.
-
-### HTML Page with Background Sound
-
-```html
-<html>
-<head><title>Welcome</title></head>
-<body>
-<h1>Welcome!</h1>
-
-<!-- Play welcome sound once on page load -->
-<INSERT HREF="welcome.au"></INSERT>
-
-<p>Click below to play again:</p>
-<a href="welcome.au">Play welcome sound</a>
-
-</body>
-</html>
-```
-
-### Looping Background Music
-
-```html
-<html>
-<head><title>Game</title></head>
-<body>
-
-<!-- Loop background music every 30 seconds -->
-<INSERT HREF="music.au" AFTER="30000"></INSERT>
-
-<h1>Game Page</h1>
-
-</body>
-</html>
-```
+**Linux status:** audio file playback does not work on Linux yet. The
+player command is hard-coded to macOS's `/usr/bin/afplay`
+(`src/viola/embeds/wwwHandlerDispatch_script.v`), which Debian does not
+have. A Linux player such as `aplay` (package `alsa-utils`, WAV/AU) or
+`paplay` (package `pulseaudio-utils`) could take its place.
 
 ---
 
 ## Technical Notes
 
-1. **macOS Sound Implementation:** The `bell()` function uses Audio Queue Services from AudioToolbox framework, providing reliable audio playback without depending on X11 or Objective-C runtime.
+1. **Bell:** `bell()` uses the X11 bell (`XBell()`).
 
-2. **File Playback:** Audio files are first downloaded via HTTP to a temporary file, then played using `afplay` in the background.
+2. **File Playback:** Audio files are first downloaded via HTTP to a temporary file, then handed to an external player in the background (currently `afplay`, which is not available on Linux; see above).
 
 3. **Limitations:**
    - `sleep()` and `delay()` only accept whole seconds, making precise rhythm timing difficult in Viola scripts

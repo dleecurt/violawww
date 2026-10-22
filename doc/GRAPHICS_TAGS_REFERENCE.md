@@ -702,7 +702,6 @@ When a page contains `SC` attributes on transformation tags (`<ROT>`, `<SCALE>`,
 
 ### Platform Support
 
-- **macOS**: Full support
 - **Linux**: Full support (UDP broadcast)
 - **Other Unix**: Should work (standard BSD sockets)
 

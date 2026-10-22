@@ -386,12 +386,17 @@ telnet://mud.example.com:4000
 
 ### External Dependency
 
-Requires the `telnet` command-line utility:
+Requires the `telnet` command-line utility and a terminal program:
 
 ```bash
-# macOS
-brew install telnet
+sudo apt install inetutils-telnet xterm
 ```
+
+In the Motif browser (`vw`), `telnet://` links open a new terminal window
+(`x-terminal-emulator`, or `xterm` if that is not set up) running `telnet`.
+The link is passed as separate arguments, never through a shell, and host,
+port and user name must be plain characters (see `openExternal` in
+`src/viola/cl_generic.c`).
 
 ### Implementation
 
@@ -431,12 +436,12 @@ rlogin://admin@unix-host.local
 
 ### External Dependency
 
-Requires the `rlogin` command-line utility:
+Requires the `rlogin` command-line utility. Current Debian releases no
+longer ship an `rlogin` client (the protocol is obsolete and insecure), so
+`rlogin://` links will not work unless you install one yourself.
 
-```bash
-# macOS
-brew install inetutils
-```
+`rlogin://` and `tn3270://` links are still started by `HTTelnet.c` with
+`system()`, in the terminal ViolaWWW was launched from.
 
 ### Implementation
 

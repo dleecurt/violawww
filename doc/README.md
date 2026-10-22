@@ -292,8 +292,7 @@ Topics covered:
 - Viola script functions: `bell()`, `bellVolume()`
 - Playing audio files in HTML (hyperlinks, `<INSERT>` tag)
 - Auto-play and looping with `AFTER` attribute
-- Supported audio formats (AU, AIFF, MP3, AAC, FLAC, etc.)
-- macOS implementation using `afplay`
+- Audio file playback (not yet working on Linux; see the Linux note)
 
 ### [VPLOT_REFERENCE.md](VPLOT_REFERENCE.md)
 3D surface plotter and wireframe model viewer.
@@ -303,7 +302,7 @@ Topics covered:
 - Mathematical expression parser (sin, cos, exp, sqrt, abs)
 - OFF file format specification for 3D models
 - Viola TTY integration and slider controls
-- HiDPI/Retina display support
+- HiDPI display support
 
 ---
 
@@ -341,19 +340,28 @@ Topics covered:
 - Required external programs (onsgmls, gs, magick, telnet)
 - Program search paths and lookup order
 - Environment variables (VIOLA_PATH, DISPLAY, GS_LIB, etc.)
-- Platform-specific notes (macOS, Homebrew)
+- Debian packages for each program
 - Installation requirements
 
-### [BUILD_PROCESS.md](BUILD_PROCESS.md)
-macOS app bundle and DMG creation internals.
+### [DEBIAN.md](DEBIAN.md)
+**Installing, building and running ViolaWWW on Debian 13.**
 
 Topics covered:
-- App bundle structure (`ViolaWWW.app`)
-- Build stages (`make app`, `make dmg`)
-- Dynamic library bundling (`bundle-dylibs.sh`)
-- DMG creation with custom background
-- ImageMagick custom build process
-- Path resolution and troubleshooting
+- Required, recommended and optional packages
+- Building, running and customizing (fonts, colors)
+- Sites that work well
+- Troubleshooting and debugging (`-verbose`, sanitizer builds)
+- Known limitations on Linux
+
+### [BUILD_PROCESS.md](BUILD_PROCESS.md)
+How the Linux build works.
+
+Topics covered:
+- Configuration detection (pkg-config, Motif, OpenSP)
+- Build stages: libraries, grammar, embedded scripts, binaries
+- Make targets (`all`, `test`, `san`, `install`, `check-*`)
+- When a clean rebuild is needed
+- Fixing common build errors
 
 ---
 

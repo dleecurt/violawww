@@ -379,7 +379,7 @@ LISTING   HTML_listing        0 0 0 1 0  10  10 20 20
 
 To process `.hmml` files, you need:
 
-- **OpenSP** (provides `onsgmls`): `brew install open-sp`
+- **OpenSP** (provides `onsgmls`): `sudo apt install opensp`
 - **sgmlsA2B** utility (built with ViolaWWW)
 
 Pre-compiled `.hmmlb` files can be loaded without these dependencies.

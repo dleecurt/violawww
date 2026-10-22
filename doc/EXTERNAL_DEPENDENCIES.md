@@ -1,76 +1,68 @@
 # External Dependencies Reference
 
-> **ViolaWWW 4.0 Additions:**  
-> - ImageMagick for PostScript-to-GIF conversion
-> - `c3270` for `tn3270://` URL support
-> - `telnet` bundling in app package
-> - Custom program search in app bundle (`Contents/MacOS/`)
-> - `MAGICK_HOME` and related environment variables
+This document lists the external programs and environment variables
+ViolaWWW uses on Linux, with the Debian package that provides each program.
 
-This document describes the external programs and environment variables used by ViolaWWW.
+All of these are optional: the browser itself only needs X11 and, for `vw`,
+Motif. For building, see [BUILD_PROCESS.md](BUILD_PROCESS.md) and
+[DEBIAN.md](DEBIAN.md).
 
 ---
 
 ## External Programs
 
-ViolaWWW invokes external programs via `system()`, `popen()`, and `execv()` calls for various functionality.
+### Links and Network Protocols
 
-### Required for Core Features
+| Program | Debian package | Purpose | How it is started |
+|---------|----------------|---------|-------------------|
+| `xdg-open` | `xdg-utils` | Opens `mailto:` links in your desktop's mail program | `openExternal()` in `cl_generic.c`, without a shell |
+| `telnet` | `inetutils-telnet` | `telnet://host[:port]` and `telnet://user@host` links | `openExternal()`, in a new terminal window |
+| `x-terminal-emulator` or `xterm` | your desktop's terminal, or `xterm` | Terminal window for `telnet://` links | `openExternal()` |
+| `c3270` | `c3270` (Debian contrib section) | `tn3270://host` links (IBM mainframes) | `HTTelnet.c`, with `system()`, in the terminal ViolaWWW was started from |
+| `rlogin` | none (no longer packaged) | `rlogin://` links | `HTTelnet.c`, with `system()` |
 
-| Program | Purpose | Invoked From | Search Path |
-|---------|---------|--------------|-------------|
-| `onsgmls` | SGML parser for HMML documents | `sgmlsA2B.c` | Executable directory, `/opt/homebrew/bin`, `/usr/local/bin`, `/usr/bin`, `PATH` |
-| `gs` (Ghostscript) | PostScript rendering and display | `cl_PS.c` | Executable directory, `/opt/homebrew/bin`, `/usr/local/bin`, `/usr/bin`, `PATH` |
+`mailto:` and `telnet:` links are handed to these programs as separate
+arguments, never through a shell, and telnet host, port and user names must
+be plain characters. If a program is missing, the status line says which
+package to install.
 
-### Image Processing
+### Documents and Images
 
-| Program | Purpose | Invoked From | Search Path |
-|---------|---------|--------------|-------------|
-| `magick` (ImageMagick) | Convert PostScript to GIF for inline display | `HTML_psf_script.v` | `PATH` |
-
-### Network Protocols
-
-| Program | Purpose | Invoked From | Search Path |
-|---------|---------|--------------|-------------|
-| `telnet` | Handle `telnet://host` URLs | `WWWTelnetHandler_script.v` | `PATH` |
-| `rlogin` | Handle `telnet://user@host` URLs (optional, legacy) | `WWWTelnetHandler_script.v` | `PATH` |
-| `c3270` | Handle `tn3270://host` URLs (IBM mainframe terminal) | `HTTelnet.c` | `PATH` |
-| `xterm` | Terminal emulator for telnet/rlogin sessions | `WWWTelnetHandler_script.v` | `PATH` (typically `/opt/X11/bin`) |
-
-**Note**: `rlogin` is optional. It's only used for `telnet://user@host` URLs (with username). Without it, such URLs will fail but regular `telnet://host` URLs will work. Install via `brew install inetutils`.
-
-**Note**: `c3270` is provided by the x3270 package. Install via `brew install x3270`.
+| Program | Debian package | Purpose | Search order |
+|---------|----------------|---------|--------------|
+| `onsgmls` | `opensp` | Parse HMML documents (via `sgmlsA2B`) | The program's own directory, then `/usr/local/bin`, `/usr/bin` and a few other standard locations |
+| `gs` (Ghostscript) | `ghostscript` | Display PostScript | Same as `onsgmls`, then `PATH` |
+| `magick` (ImageMagick) | `imagemagick` | Convert PostScript to GIF for inline display | `PATH` |
 
 ### Mail and Printing
 
-| Program | Purpose | Invoked From | Default Path |
-|---------|---------|--------------|--------------|
-| `/usr/bin/mail` | Send email (developer feedback, mailto: URLs) | `mail.c`, Viola scripts | Hardcoded |
-| `/usr/bin/lpr` | Print documents | `vw.h`, Viola scripts | Hardcoded |
+| Program | Debian package | Purpose | Path |
+|---------|----------------|---------|------|
+| `mail` | `mailutils` (or `bsd-mailx`) | "Send comments" window (File menu) | `/usr/bin/mail` (fixed) |
+| `lpr` | `cups-bsd` | Printing documents | `/usr/bin/lpr` (fixed; override with `WWW_LPR`) |
+
+Sending mail with `mail` also needs a working local mail setup (for example
+`exim4` or `msmtp-mta`); without one, messages are not delivered.
 
 ### Audio
 
-| Program | Purpose | Invoked From | Default Path |
-|---------|---------|--------------|--------------|
-| `/usr/bin/afplay` | Play audio files (AU, AIFF, MP3, etc.) | `wwwHandlerDispatch_script.v` | Hardcoded |
+Audio file playback does **not** work on Linux yet: the player is hard-coded
+to macOS's `/usr/bin/afplay` in
+`src/viola/embeds/wwwHandlerDispatch_script.v`. The script `bell()` function
+works; it uses the X11 bell. See [SOUND_REFERENCE.md](SOUND_REFERENCE.md).
 
-### Image Editors (Optional)
+### Image Editors and Viewers (Optional)
 
-| Program | Purpose | Invoked From | Search Path |
-|---------|---------|--------------|-------------|
-| `bitmap` | Edit XBM images (X11 bitmap editor) | `VWHandler_xbm_script6.v` | `PATH` |
-| `pixmap` | Edit XPM images | `VWHandler_xpm_script6.v` | `PATH` |
-| `xv` | External image viewer | `wwwHandlerDispatch_script.v` | `PATH` |
+| Program | Debian package | Purpose |
+|---------|----------------|---------|
+| `bitmap` | `x11-apps` | Edit XBM images |
+| `pixmap` | not packaged | Edit XPM images |
+| `xv` | not packaged | External image viewer |
 
 ### System Utilities
 
-These standard Unix utilities are used by Viola scripts:
-
-| Program | Purpose |
-|---------|---------|
-| `rm` | Remove temporary files |
-| `mv` | Move/rename files |
-| `finger` | Query user information |
+Viola scripts also call standard tools that every Debian system has (`rm`,
+`mv`), plus `finger` (package `finger`) for one legacy feature.
 
 ---
 
@@ -78,135 +70,78 @@ These standard Unix utilities are used by Viola scripts:
 
 ### Core Configuration
 
-| Variable | Purpose | Default | Used By |
-|----------|---------|---------|---------|
-| `VIOLA_PATH` | Path to Viola resource files (`res/` directory) | None (required) | `viola.c` |
-| `PLOT_PATH` | Path to VPLOT resources (`vplot_dir/`) | None | `launcher.c` |
-| `VIOLA_SGMLSA2B` | Path to sgmlsA2B executable for HMML processing | None | `VWHandler_hmml_script.v` |
-| `WWW_HOME` | Home page URL loaded at startup | None | `vw.c` |
-| `WWW_LPR` | Custom print command | `/usr/bin/lpr` | `VWHandler_html_script6.v` |
-| `HOME` | User home directory for config files (`~/.viola_history`) | System default | `vw_stubs.c` |
-| `TMPDIR` | Temporary directory for file operations | `/tmp` | `wwwSecurity_script.v` |
+| Variable | Purpose | Default |
+|----------|---------|---------|
+| `VIOLA_PATH` | Directory with Viola's application files | Detected automatically when run from the build directory |
+| `VIOLA_SGMLSA2B` | Path to the `sgmlsA2B` HMML converter | `sgmlsA2B` in `PATH` |
+| `WWW_HOME` | Home page loaded at startup | `http://info.cern.ch/hypertext/WWW/TheProject.html` |
+| `WWW_LPR` | Print command | `/usr/bin/lpr` |
+| `HOME` | Location of `~/.viola_history` and other per-user files | System default |
+| `TMPDIR` | Directory for temporary files | `/tmp` |
 
 ### Display
 
-| Variable | Purpose | Default | Used By |
-|----------|---------|---------|---------|
-| `DISPLAY` | X11 display server connection | `:0` (XQuartz) | `launcher.c`, X11 libraries |
+| Variable | Purpose | Default |
+|----------|---------|---------|
+| `DISPLAY` | X server to connect to | Set by your desktop session (also works under Xwayland) |
 
 ### Network Protocols
 
-| Variable | Purpose | Default | Used By |
-|----------|---------|---------|---------|
-| `NNTPSERVER` | NNTP server hostname for `news:` URLs | None | `HTNews.c` |
-| `USER` | Username for anonymous FTP password | None | `HTFTP.c` |
+| Variable | Purpose |
+|----------|---------|
+| `NNTPSERVER` | News server for `news:` and `nntp:` URLs |
+| `USER` | User name sent as the anonymous FTP password |
 
 ### Ghostscript
 
-| Variable | Purpose | Default | Used By |
-|----------|---------|---------|---------|
-| `GS_LIB` | Ghostscript library/resource paths | None | Ghostscript (`gs`) |
-| `GS_FONTPATH` | Additional font search paths | None | Ghostscript (`gs`) |
-| `GHOSTVIEW` | Ghostscript viewer preference | None | Legacy |
+| Variable | Purpose |
+|----------|---------|
+| `GS_LIB` | Ghostscript library and resource paths |
+| `GS_FONTPATH` | Additional Ghostscript font paths |
 
 ### VPLOT
 
-| Variable | Purpose | Default | Used By |
-|----------|---------|---------|---------|
-| `VPLOT_SCALE` | Scale factor for 3D rendering (e.g., `2.0`) | `1.0` | `vplot.c` |
+| Variable | Purpose | Default |
+|----------|---------|---------|
+| `VPLOT_SCALE` | Scale factor for 3D rendering, e.g. `2.0` on HiDPI screens | From `Xft.dpi`, else `1.0` |
 
 ### System
 
-| Variable | Purpose | Default | Used By |
-|----------|---------|---------|---------|
-| `PATH` | Search path for external programs | System default | All `system()` calls |
-| `PRINTER` | Default printer name | System default | Print functionality |
+| Variable | Purpose |
+|----------|---------|
+| `PATH` | Search path for external programs |
+| `PRINTER` | Default printer for `lpr` |
 
 ### Debugging (Development)
 
-| Variable | Purpose | Used By |
-|----------|---------|---------|
-| `YYDEBUG` | Enable parser debugging output | `viola.c` |
-| `MallocGuardEdges` | macOS memory debugging | Development |
-| `MallocScribble` | macOS memory debugging | Development |
-| `MallocStackLogging` | macOS memory debugging | Development |
+| Variable | Purpose |
+|----------|---------|
+| `ASAN_OPTIONS` | Options for `make san` builds, e.g. `detect_leaks=0` or `halt_on_error=1` |
+| `UBSAN_OPTIONS` | Options for UndefinedBehaviorSanitizer, e.g. `print_stacktrace=1` |
+| `YYDEBUG` | Script parser debugging output |
 
 ---
 
-## Program Search Logic
+## Installing Everything
 
-### onsgmls and gs
+```bash
+# Links
+sudo apt install xdg-utils inetutils-telnet xterm
 
-These programs use a custom search function that checks paths in order:
+# Documents and images
+sudo apt install opensp ghostscript imagemagick
 
-```c
-static const char* find_program(void) {
-    // 1. Same directory as the ViolaWWW executable
-    // 2. /opt/homebrew/bin/<program>
-    // 3. /usr/local/bin/<program>
-    // 4. /usr/bin/<program>
-    // 5. Fallback to PATH lookup
-}
+# Mail and printing (optional)
+sudo apt install mailutils cups-bsd
 ```
-
-This allows bundled executables (in `.app/Contents/MacOS/`) to be found first.
-
-### Other Programs
-
-All other external programs are found via the standard `PATH` environment variable. The launcher prepends the application's `MacOS/` directory to `PATH`, so bundled executables take precedence.
-
----
-
-## Platform-Specific Notes
-
-### macOS
-
-- XQuartz is required for X11 support (`DISPLAY` environment)
-- `telnet` is not included in macOS by default; install via `brew install telnet`
-- `rlogin` has been removed from modern macOS (deprecated protocol)
-- Audio playback uses native `afplay` command
-
-### Homebrew Paths
-
-ViolaWWW checks both Intel (`/usr/local/bin`) and Apple Silicon (`/opt/homebrew/bin`) Homebrew paths.
-
-### App Bundle
-
-When running from `ViolaWWW.app`, the launcher:
-1. Sets `VIOLA_PATH` to `Contents/Resources/res`
-2. Sets `PLOT_PATH` to `Contents/Resources/vplot_dir`
-3. Sets `GS_LIB` and `GS_FONTPATH` for bundled Ghostscript
-4. Prepends `Contents/MacOS` to `PATH`
-
----
-
-## Installation Requirements
-
-### Required
-
-| Dependency | Installation | Purpose |
-|------------|--------------|---------|
-| XQuartz | [xquartz.org](https://www.xquartz.org/) | X11 display server |
-
-### Optional (for full functionality)
-
-| Dependency | Installation | Purpose |
-|------------|--------------|---------|
-| Ghostscript | `brew install ghostscript` | PostScript support |
-| ImageMagick | `brew install imagemagick` | PS-to-GIF conversion |
-| OpenSP | `brew install open-sp` | HMML document support |
-| telnet | `brew install telnet` | `telnet://host` URL support |
-| inetutils | `brew install inetutils` | `telnet://user@host` URLs (provides `rlogin`) |
-| x3270 | `brew install x3270` | `tn3270://host` URL support (provides `c3270`) |
-
-**Note**: `telnet` and `inetutils` conflict (both provide telnet binary). Use `brew install --force inetutils` to install alongside telnet, or choose one. The `rlogin` program from inetutils is optional — only needed for telnet URLs with username.
 
 ---
 
 ## See Also
 
-- [TTY_REFERENCE.md](TTY_REFERENCE.md) — Running external programs from Viola scripts
+- [DEBIAN.md](DEBIAN.md) — Installing, building and running on Debian
+- [PROTOCOLS_REFERENCE.md](PROTOCOLS_REFERENCE.md) — Supported URL schemes
 - [HMML_REFERENCE.md](HMML_REFERENCE.md) — HMML processing pipeline
-- [SOUND_REFERENCE.md](SOUND_REFERENCE.md) — Audio playback
+- [SOUND_REFERENCE.md](SOUND_REFERENCE.md) — Audio
 - [VPLOT_REFERENCE.md](VPLOT_REFERENCE.md) — 3D visualization
-
+- [TTY_REFERENCE.md](TTY_REFERENCE.md) — Running external programs from Viola scripts

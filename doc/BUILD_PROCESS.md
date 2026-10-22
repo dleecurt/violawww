@@ -1,432 +1,158 @@
-# macOS Build Process Reference
+# Linux Build Process Reference
 
-> **Added in: ViolaWWW 4.0**  
-> macOS app bundle and DMG distribution support was added in 2025.
+This document describes how ViolaWWW is built on Linux (tested on Debian 13
+"trixie", x86_64, GCC 14): what the Makefile detects, the order things are
+built in, the available targets, and how to fix common build errors.
 
-This document describes the internal build process for creating `ViolaWWW.app` bundle and `ViolaWWW.dmg` installer.
+For installing the packages and a first build, start with
+[DEBIAN.md](DEBIAN.md).
 
 ---
 
 ## Overview
 
-The build process consists of several stages:
-
 ```
-make app          →  ViolaWWW.app (self-contained bundle)
-make dmg          →  ViolaWWW.dmg (distributable installer with XQuartz)
+make          →  src/vw/vw          Motif browser (the one you normally run)
+                 src/viola/viola    plain X11 browser (no Motif)
+                 src/viola/sgmlsA2B HMML converter (only if OpenSP is installed)
+                 vplot_dir/vplot    3D surface plotter
 ```
 
-ImageMagick is built automatically from source during `make app` if not already built.
+Everything is built in place; there is no separate build directory.
 
 ---
 
-## App Bundle Structure
+## Configuration Detection
 
-The final `ViolaWWW.app` has this structure:
+The top-level `Makefile` checks `uname -s` and, on Linux, detects libraries
+as follows:
 
-```
-ViolaWWW.app/
-├── Contents/
-│   ├── Info.plist              # App metadata
-│   ├── PkgInfo                 # Package type (APPL????)
-│   ├── MacOS/                  # Executables
-│   │   ├── vw                  # Launcher (starts XQuartz, sets env)
-│   │   ├── vw.bin              # Main ViolaWWW binary
-│   │   ├── sgmlsA2B            # HMML binary converter
-│   │   ├── onsgmls             # SGML parser (from OpenSP)
-│   │   ├── gs                  # Ghostscript
-│   │   ├── magick              # ImageMagick
-│   │   ├── telnet              # Telnet client
-│   │   ├── rlogin              # Remote login (optional)
-│   │   └── c3270               # TN3270 client (IBM mainframe)
-│   ├── Frameworks/             # Dynamic libraries
-│   │   ├── libssl.3.dylib
-│   │   ├── libcrypto.3.dylib
-│   │   ├── libMagickCore-7.*.dylib
-│   │   └── ... (60+ libraries)
-│   └── Resources/
-│       ├── ViolaWWW.icns       # App icon
-│       ├── LICENSE.md
-│       ├── res/                # Viola resources
-│       ├── ghostscript/        # GS fonts and resources
-│       │   ├── lib/
-│       │   ├── Resource/
-│       │   ├── fonts/
-│       │   └── iccprofiles/
-│       ├── ImageMagick/        # IM config
-│       │   ├── etc/
-│       │   └── config-Q16HDRI/
-│       └── vplot_dir/          # VPLOT resources
-│           └── vplot           # VPLOT binary
-```
+| What | How it is found | If missing |
+|------|-----------------|------------|
+| X11 libraries | `pkg-config x11 xext xmu xt sm ice xrender xp`, falling back to `-lXext -lXmu -lXt -lSM -lICE -lX11 -lXrender` | Build fails |
+| Motif | Headers and library under `/usr` (`libmotif-dev`) | Only `viola` can be built |
+| OpenSSL | `pkg-config openssl` | Built without HTTPS (warning printed) |
+| ICU | `pkg-config icu-i18n` | Built without UTF-8 transliteration (warning printed) |
+| OpenSP | `onsgmls` in `PATH` | `sgmlsA2B` not built; HMML unsupported (warning printed) |
+
+`xp` (the X print extension) no longer exists on Debian, so the `pkg-config`
+check fails and the fallback library list is used. This is expected.
+
+Run `make info` to see the compiler, flags and detected paths.
+
+### Compiler flags
+
+Libraries and the browser are compiled with `-O2 -std=gnu17
+-funsigned-char -fno-common -DVIOLA_LINUX`, plus `-DUSE_SSL` / `-DUSE_ICU`
+when those are available. Warnings use `-Wall -Wextra
+-Wno-unused-parameter -Wno-missing-field-initializers`; a few hundred
+harmless warnings (mostly sign comparisons and missing braces in old tables)
+remain and are expected.
+
+`-funsigned-char` matters: much of the original 1990s code assumes `char`
+is unsigned.
 
 ---
 
 ## Build Stages
 
-### Stage 1: Compile Binaries (`make`)
+`make` runs these stages; `make -j"$(nproc)"` runs them in parallel.
 
-Standard compilation of all source files:
+### 1. Libraries
 
-```bash
-make -j8
-```
+| Library | Output | Contents |
+|---------|--------|----------|
+| libWWW | `src/libWWW/libwww.a` | CERN WWW library: HTTP, HTTPS (OpenSSL), FTP, Gopher, News, Web Archive fallback, keep-alive pool, charset conversion |
+| libXPM | `src/libXPM/libXpm.a` | Bundled X Pixmap library |
+| libXPA | `src/libXPA/src/libXpa.a` | X Pixmap Applets |
+| libIMG | `src/libIMG/libIMG.a` | GIF, XBM, XPM and other image decoders |
+| libStyle | `src/libStyle/libstg.o` | STG stylesheet parser |
 
-Produces:
-- `src/vw/vw` — Motif frontend
-- `src/viola/viola` — Pure X11 version
-- `src/viola/sgmlsA2B` — HMML converter
+### 2. Script grammar
 
-### Stage 2: Build Launcher (`make launcher`)
+`src/viola/gram.y` is turned into `src/viola/gram.c` by **byacc** (Berkeley
+Yacc). GNU Bison is not used, for compatibility with the original SunOS
+yacc grammar.
 
-Compiles the native macOS launcher:
+### 3. Embedded Viola scripts
 
-```bash
-cc -arch arm64 -O2 -o src/launcher/launcher src/launcher/launcher.c
-```
+Much of the browser's behavior is written in Viola script. Each script in
+`src/viola/embeds/*.v` is converted to a C string literal in a matching
+`*.v.h` file using `hexdump` (package `bsdextrautils`), and
+`src/viola/objs.c` includes them all.
 
-The launcher (`src/launcher/launcher.c`):
-1. Detects XQuartz and starts it if needed
-2. Sets environment variables (`VIOLA_PATH`, `PLOT_PATH`, `GS_LIB`, `PATH`)
-3. Adds `Contents/MacOS/` to `PATH` for bundled tools
-4. Executes `vw.bin` with proper environment
+If `hexdump` is missing, the `.v.h` files come out empty and the browser
+will not work properly, so make sure `bsdextrautils` is installed.
 
-### Stage 3: Create App Bundle (`make app`)
+### 4. Viola core and front ends
 
-#### 3.1 Create Directory Structure
+- `src/viola/*.c` — the Viola object system, script interpreter, HTML
+  builder and X11 drawing code
+- `src/vw/*.c` — the Motif front end (menus, dialogs, title bar)
+- `vw` links the Motif front end with the Viola core (without its `main`);
+  `viola` links the core with its own plain X11 `main`
 
-```bash
-mkdir -p ViolaWWW.app/Contents/{MacOS,Frameworks,Resources}
-```
+### 5. Helpers
 
-#### 3.2 Copy Binaries
-
-| Source | Destination | Notes |
-|--------|-------------|-------|
-| `src/launcher/launcher` | `MacOS/vw` | Launcher becomes main executable |
-| `src/vw/vw` | `MacOS/vw.bin` | Actual browser binary |
-| `src/viola/sgmlsA2B` | `MacOS/sgmlsA2B` | HMML converter |
-
-#### 3.3 Bundle External Tools
-
-Each tool is copied if available:
-
-| Tool | Source | Condition |
-|------|--------|-----------|
-| `onsgmls` | `/opt/homebrew/bin/onsgmls` | If OpenSP installed |
-| `gs` | `$(which gs)` | If Ghostscript installed |
-| `magick` | `build/imagemagick/bin/magick` | If custom build exists |
-| `telnet` | Homebrew telnet | If installed |
-| `rlogin` | inetutils | If installed |
-| `c3270` | x3270 | If installed (for tn3270:// URLs) |
-
-#### 3.4 Bundle Resources
-
-```bash
-# Ghostscript resources
-cp -r $GS_SHARE/{lib,Resource,iccprofiles,fonts} Resources/ghostscript/
-
-# ImageMagick config (if custom build)
-cp -r build/imagemagick/{etc,config-*} Resources/ImageMagick/
-
-# Viola resources
-cp -r res Resources/
-cp -r vplot_dir Resources/
-```
-
-#### 3.5 Create Info.plist
-
-Generated dynamically with:
-- `CFBundleExecutable`: `vw`
-- `CFBundleIdentifier`: `org.violawww.vw`
-- `CFBundleIconFile`: `ViolaWWW`
-- Version, copyright, etc.
-
-#### 3.6 Bundle Dynamic Libraries (`scripts/bundle-dylibs.sh`)
-
-This is the most complex step. The script:
-
-**Phase 1: Collect Dependencies**
-
-```bash
-# For each binary in MacOS/
-otool -L $binary | grep -E '/opt/homebrew|/usr/local' > deps.txt
-```
-
-Recursively collects all non-system dynamic libraries.
-
-**Phase 2: Copy Libraries**
-
-```bash
-# Copy each unique library to Frameworks/
-cp $lib Frameworks/$(basename $lib)
-```
-
-**Phase 3: Fix Library Paths**
-
-For each binary and library, rewrite paths:
-
-```bash
-# Change absolute paths to relative
-install_name_tool -change \
-    "/opt/homebrew/lib/libssl.3.dylib" \
-    "@executable_path/../Frameworks/libssl.3.dylib" \
-    $binary
-```
-
-**Phase 4: Fix Library IDs**
-
-```bash
-# Set library ID to use @executable_path
-install_name_tool -id \
-    "@executable_path/../Frameworks/libfoo.dylib" \
-    Frameworks/libfoo.dylib
-```
-
-**Phase 5: Handle @rpath References**
-
-Some libraries use `@rpath` which must be converted:
-
-```bash
-# Replace @rpath with @executable_path/../Frameworks
-install_name_tool -change \
-    "@rpath/libbar.dylib" \
-    "@executable_path/../Frameworks/libbar.dylib" \
-    $lib
-```
-
-**Phase 6: Code Sign**
-
-```bash
-# Ad-hoc sign all binaries and libraries
-codesign --force --sign - $binary
-codesign --force --sign - Frameworks/*.dylib
-```
-
-#### 3.7 Strip Debug Symbols
-
-```bash
-strip -x MacOS/*
-strip -x Frameworks/*.dylib
-```
-
-Reduces bundle size by ~6MB.
-
-#### 3.8 Re-sign After Strip
-
-```bash
-codesign --force --sign - MacOS/*
-codesign --force --sign - Frameworks/*.dylib
-```
+- `src/viola/sgmlsA2B` — converts HMML documents using `onsgmls`; the path
+  found at build time is compiled in
+- `vplot_dir/vplot` — the 3D plotter, built from `src/vplot/vplot.c`
 
 ---
 
-## DMG Creation
+## Make Targets
 
-### Method 1: Simple (`make dmg`)
+| Target | What it does |
+|--------|--------------|
+| `make` / `make all` | Build everything |
+| `make vw`, `make viola`, `make libs` | Build only that part |
+| `make test` | Build and run the unit tests (21 tests) |
+| `make san` | Clean, then build with AddressSanitizer + UndefinedBehaviorSanitizer |
+| `make asan`, `make ubsan` | One sanitizer only |
+| `make clean` | Remove object files, dependency files and generated `.v.h` files |
+| `make distclean` | `clean` plus libraries and binaries |
+| `make rebuild` | `distclean` then `all` |
+| `make install` / `make uninstall` | Copy to / remove from `$(PREFIX)` (default `/usr/local`) |
+| `make info` | Show compiler, flags and detected paths |
+| `make check-help` | List code-analysis targets (`check-includes`, `check-libs`, `check-symbols`, `check-unused`) |
+| `make help` | List targets |
 
-Calls `scripts/create-dmg.sh` which uses the `create-dmg` tool.
+Notes:
 
-### Method 2: Custom (`scripts/create-dmg.sh`)
-
-#### Step 1: Download XQuartz
-
-```bash
-curl -L --progress-bar --retry 5 --retry-delay 5 --retry-all-errors -C - \
-    -o res/dmg/XQuartz-2.8.5.pkg \
-    "https://github.com/XQuartz/XQuartz/releases/download/..."
-```
-
-Cached in `res/dmg/` directory.
-
-#### Step 2: Create Background Image
-
-The script creates a retro-style background:
-
-1. Convert `res/dmg/background.svg` to PNG
-2. Add pixel-art globe from `src/vw/globes.xpm`
-3. Add Pei-Yuan Wei photo (if `res/dmg/pei_sm.gif` exists)
-
-```bash
-# Create background
-rsvg-convert -w 640 -h 520 background.svg > bg.png
-magick bg.png -extent 4096x3072 background.png
-
-# Add globe (pixel-perfect scaling)
-magick globe.xpm -filter point -resize 48x48 globe.png
-magick background.png globe.png -composite background.png
-```
-
-#### Step 3: Create DMG
-
-```bash
-create-dmg \
-    --volname "ViolaWWW" \
-    --volicon "res/ViolaWWW.icns" \
-    --format ULMO \                    # LZMA compression
-    --background "background.png" \
-    --window-size 640 580 \
-    --icon "XQuartz-2.8.5.pkg" 130 190 \
-    --icon "ViolaWWW.app" 320 190 \
-    --app-drop-link 510 190 \
-    ViolaWWW.dmg \
-    build/
-```
-
-#### Step 4: Set DMG Icon
-
-```bash
-# Embed icon resource in DMG file
-sips -i res/ViolaWWW.icns
-DeRez -only icns ViolaWWW.icns > icns.rsrc
-Rez -append icns.rsrc -o ViolaWWW.dmg
-SetFile -a C ViolaWWW.dmg
-```
+- Run `make` before `make test`. The tests reuse some of the browser's
+  object files and will compile missing ones with their own flags.
+- `make san` cleans first. To return to a normal build afterwards, run
+  `make clean && make`.
+- `make install` is not tested on Linux in this fork; running the browser
+  from the build directory is the supported way.
 
 ---
 
-## ImageMagick Custom Build
+## When a Clean Rebuild Is Needed
 
-ImageMagick is built automatically from source during `make app` if `build/imagemagick/` doesn't exist.
+Dependencies are tracked automatically (`-MMD -MP`), so a plain `make` is
+usually enough. Use `make clean && make` when:
 
-### Why Custom Build?
-
-Homebrew's ImageMagick has hardcoded paths that don't work in app bundles. The custom build creates a relocatable ImageMagick that works from any location.
-
-### Build Process (`scripts/build-imagemagick.sh`)
-
-```bash
-# Configure with temporary prefix and relocatable options
-./configure \
-    --prefix=/tmp/imagemagick-install \
-    --disable-installed \    # Use MAGICK_HOME at runtime
-    --without-modules \      # Static coders (no .so loading)
-    --disable-openmp \       # Avoid libomp conflicts
-    --without-x \            # No X11 dependency
-    ...
-
-# Build and install
-make -j8
-make DESTDIR=/tmp/install install
-
-# Fix library paths for relocatable build using @rpath
-install_name_tool -id "@rpath/libMagickCore-7.Q16HDRI.10.dylib" lib/...
-install_name_tool -add_rpath "@executable_path/../lib" bin/magick
-install_name_tool -add_rpath "@executable_path/../Frameworks" bin/magick
-
-# Copy to build/imagemagick
-cp -r /tmp/install/... build/imagemagick/
-```
-
-### Key Options
-
-| Option | Purpose |
-|--------|---------|
-| `--without-modules` | Compile all coders into libMagickCore (no dynamic loading) |
-| `--disable-installed` | Use MAGICK_HOME environment variable at runtime |
-| `--disable-openmp` | Avoid conflicts with system OpenMP |
-| `@rpath` | Allow library lookup in both `lib/` (testing) and `Frameworks/` (bundle) |
-
-### Result
-
-- 300 image formats built-in
-- No module loading at runtime
-- **Works from any location** (MAGICK_HOME set by launcher)
+- a change touches `src/viola/ident.h` (the table of script identifiers;
+  everything depends on its numbering)
+- you switch between a sanitizer build and a normal build
+- page fonts or other embedded scripts don't seem to change after an update
 
 ---
 
-## Path Resolution
+## Common Build Errors
 
-### How Bundled Tools Are Found
-
-The launcher modifies `PATH`:
-
-```c
-// launcher.c
-snprintf(new_path, sizeof(new_path), "%s:/opt/homebrew/bin:/usr/local/bin:%s",
-         exe_dir,    // Contents/MacOS/
-         old_path);
-setenv("PATH", new_path, 1);
-```
-
-When Viola scripts call `system("magick ...")`, the shell finds `Contents/MacOS/magick` first.
-
-### Environment Variables Set by Launcher
-
-The launcher sets these variables for bundled tools:
-
-```c
-// launcher.c setup_environment()
-
-// Ghostscript resources
-setenv("GS_LIB", ".../Resources/ghostscript/lib:...", 1);
-setenv("GS_FONTPATH", ".../Resources/ghostscript", 1);
-
-// ImageMagick (relocatable build with --disable-installed)
-setenv("MAGICK_HOME", ".../Resources/ImageMagick", 1);
-setenv("MAGICK_CONFIGURE_PATH", ".../etc/ImageMagick-7:...", 1);
-```
-
-### How onsgmls and gs Are Found
-
-These have custom search functions in C code:
-
-```c
-// sgmlsA2B.c, cl_PS.c
-static const char* find_program(void) {
-    // 1. Check executable directory (for app bundle)
-    snprintf(path, sizeof(path), "%s/program", exe_dir);
-    if (access(path, X_OK) == 0) return path;
-    
-    // 2. Fallback to common paths
-    const char* paths[] = {
-        "/opt/homebrew/bin/program",
-        "/usr/local/bin/program",
-        NULL
-    };
-    ...
-}
-```
-
----
-
-## Troubleshooting
-
-### Library Not Found at Runtime
-
-```
-dyld: Library not loaded: @executable_path/../Frameworks/libfoo.dylib
-```
-
-**Fix**: Check that `bundle-dylibs.sh` processed the library:
-```bash
-otool -L ViolaWWW.app/Contents/MacOS/vw.bin | grep libfoo
-```
-
-### Code Signature Invalid
-
-```
-killed: 9
-```
-
-**Fix**: Re-sign after any modification:
-```bash
-codesign --force --sign - ViolaWWW.app/Contents/MacOS/*
-```
-
-### ImageMagick "No Decode Delegate"
-
-**Cause**: Using Homebrew ImageMagick instead of custom build.
-
-**Fix**: Run `./scripts/build-imagemagick.sh` and rebuild app.
-
-### Icon Not Showing
-
-**Fix**: Clear icon cache:
-```bash
-sudo rm -rf /Library/Caches/com.apple.iconservices.store
-killall Finder
-```
+| Error | Fix |
+|-------|-----|
+| `Xm/Xm.h: No such file or directory` | `sudo apt install libmotif-dev` |
+| `X11/Intrinsic.h: No such file or directory` | `sudo apt install libxt-dev` |
+| `X11/Xlib.h: No such file or directory` | `sudo apt install libx11-dev` |
+| `byacc not found` | `sudo apt install byacc` |
+| `hexdump: not found` | `sudo apt install bsdextrautils` |
+| `openssl/ssl.h: No such file or directory` | `sudo apt install libssl-dev` (or build without HTTPS) |
+| `unicode/utrans.h: No such file or directory` | `sudo apt install libicu-dev` |
+| `cannot find -lXmu` (or another `-lX…`) | Install the matching `libx…-dev` package, e.g. `libxmu-dev` |
+| `make san` uses the wrong compiler | Override with `make san SAN_CC=clang` |
 
 ---
 
@@ -434,17 +160,16 @@ killall Finder
 
 | File | Purpose |
 |------|---------|
-| `Makefile` | Main build orchestration |
-| `src/launcher/launcher.c` | Native macOS launcher |
-| `scripts/bundle-dylibs.sh` | Dynamic library bundling |
-| `scripts/create-dmg.sh` | DMG creation with custom background |
-| `scripts/build-imagemagick.sh` | ImageMagick custom build |
-| `res/dmg/background.svg` | DMG background template |
+| `Makefile` | Main build |
+| `test/Makefile` | Unit test build (platform-aware) |
+| `src/viola/gram.y` | Viola script grammar (byacc input) |
+| `src/viola/embeds/*.v` | Viola scripts compiled into the browser |
+| `src/viola/objs.c` | Built-in object definitions; includes the embedded scripts |
 
 ---
 
 ## See Also
 
+- [DEBIAN.md](DEBIAN.md) — Installing, building and running on Debian
 - [EXTERNAL_DEPENDENCIES.md](EXTERNAL_DEPENDENCIES.md) — External programs and environment variables
-- [Main README](../README.md) — Build instructions
-
+- [Main README](../README.md)
