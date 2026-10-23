@@ -77,6 +77,9 @@ be reviewed or sent upstream individually.
   default page text
 - New **Edit** menu with Copy (Ctrl-C) and Paste (Ctrl-V) through the X
   clipboard; Clone moved to Ctrl-N; Ctrl-C/X/V work in dialog text fields
+- Links containing a line break or paragraph (such as FrogFind search
+  results) showed their text but couldn't be clicked; all of their text is
+  now clickable (test page: `test/res/test_anchor_block_content.html`)
 
 **Security**
 - `mailto:` and `telnet:` links are opened with `xdg-open` / a terminal

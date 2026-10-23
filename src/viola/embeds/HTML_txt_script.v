@@ -225,7 +225,15 @@ print("TXT: height=", get("height"), "................................\n");
 				set("_font", 0);
 				set("content", get("label"));
 			} else {
-				set("content", trimEdgeQ(get("label")));
+				/* Inside a link (e.g. <A>title<BR>text</A>, where BR
+				 * holds "text"), make the text clickable. Only ask
+				 * anchors: other parents don't answer "linkText".
+				 */
+				if (findPattern(str(parent()), "HTML_txtAnchor") != -1)
+					set("content", send(parent(), "linkText",
+						trimEdgeQ(get("label"))));
+				else
+					set("content", trimEdgeQ(get("label")));
 			}
 			set("label", "");
 			isHTML = 1;

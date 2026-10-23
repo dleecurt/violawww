@@ -1,0 +1,56 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 2.0//EN">
+<html>
+<head>
+<title>Anchor block content test</title>
+</head>
+<body>
+<h1>Links containing other tags</h1>
+
+<p>Manual test for links whose content includes a line break or other block
+tag. Every underlined piece of text on this page should be clickable, and
+each case says where it should go. Before the fix, cases 1 to 4 showed their
+text but could not be clicked.</p>
+
+<hr>
+<h2>1. FrogFind search result (bold title, line break, address)</h2>
+<a href="http://info.cern.ch/"><font size="4"><b>The first website - CERN</b></font><br><font color="#008000" size="2">info.cern.ch</font></a><br>
+Both the bold title and the address line should open info.cern.ch.
+
+<hr>
+<h2>2. Plain text with a line break</h2>
+<a href="http://info.cern.ch/hypertext/WWW/TheProject.html">The WorldWideWeb project<br>second line of the same link</a>
+<p>Both lines should open TheProject.html.</p>
+
+<hr>
+<h2>3. Bold text, then a line break</h2>
+<a href="http://info.cern.ch/"><b>Bold first line</b><br>Plain second line</a>
+<p>Both lines should open info.cern.ch.</p>
+
+<hr>
+<h2>4. Paragraph inside a link</h2>
+<a href="http://info.cern.ch/"><p>A paragraph that is all one link.</p></a>
+<p>The paragraph should open info.cern.ch.</p>
+
+<hr>
+<h2>5. Must still work: simple links</h2>
+<p>A <a href="http://info.cern.ch/">plain link</a> in the middle of a sentence,
+and a <a href="http://info.cern.ch/"><b>bold link</b></a> with no line break.
+Both should open info.cern.ch and flow inline with the sentence, as before.</p>
+
+<hr>
+<h2>6. Must still work: heading inside a link</h2>
+<a href="http://info.cern.ch/"><h3>A heading that is a link</h3></a>
+<p>The heading should open info.cern.ch, as before.</p>
+
+<hr>
+<h2>7. Must not become a link: named anchor with no HREF</h2>
+<a name="target">Named anchor text<br>with a line break</a>
+<p>This text must not be underlined or clickable.</p>
+
+<hr>
+<h2>8. Must not become a link: ordinary text after a link</h2>
+<a href="http://info.cern.ch/">Link<br>still link</a>
+<p>This paragraph comes after the link and must not be clickable.</p>
+
+</body>
+</html>

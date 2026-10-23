@@ -6,34 +6,46 @@
 			tagID = 0;
 		}
 		if (nthChild(0)) {
+			/* The anchor holds block content (e.g. <A>title<BR>text</A>),
+			 * so it is embedded as a box. Its text pieces were made
+			 * clickable as they were laid out ("F", "D", and child
+			 * paragraphs asking "linkText"), so nothing is lost here.
+			 */
 			return concat("\\o(", self(), ")");
 		} else {
 			if (send(get("parent"), "inPreP")) tt = get("label");
 			else tt = compressSpaces(get("label"));
 
-			if (url) {
-				/* Use \v( for visited links, \b( for unvisited */
-				visited = isURLVisited(url);
-				/* Don't encode URLs that already have a protocol (contain :// near start) */
-				protoPos = findPattern(url, "://");
-				if (protoPos > 0 && protoPos <= 10) {
-					encoded = url;
-				} else {
-					encoded = HTTPEncodeURL(url);
-				}
+			t = send(self(), "linkText", tt);
+			url = 0;
+			return t;
+		}
+	break;
+	case "linkText":
+		/* arg[1]	text
+		 * Returns the text marked up as a link to this anchor's URL,
+		 * or the text unchanged if the anchor has no HREF. Used for the
+		 * anchor's own text and by block children (P, BR) inside it.
+		 */
+		if (url) {
+			/* Use \v( for visited links, \b( for unvisited */
+			visited = isURLVisited(url);
+			/* Don't encode URLs that already have a protocol (contain :// near start) */
+			protoPos = findPattern(url, "://");
+			if (protoPos > 0 && protoPos <= 10) {
+				encoded = url;
+			} else {
+				encoded = HTTPEncodeURL(url);
+			}
 			if (visited == 1) {
-				t = concat("\\v(", tt,
+				return concat("\\v(", arg[1],
 					"\\v)\\e(", encoded, ") ");
 			} else {
-				t = concat("\\b(", tt,
+				return concat("\\b(", arg[1],
 					"\\b)\\e(", encoded, ") ");
 			}
-				url = 0;
-				return t;
-			} else {
-				return tt;
-			}
 		}
+		return arg[1];
 	break;
 	case "AA":
 		switch (arg[1]) {
@@ -55,6 +67,8 @@
 
 			if (send(get("parent"), "inPreP")) tt = get("label");
 			else tt = compressSpaces(get("label"));
+			/* text before a block tag inside the link stays clickable */
+			tt = send(self(), "linkText", tt);
 
 			h = send(txtObj, "make", self(),
 				tt, style_p[3], 
@@ -76,6 +90,7 @@
 
 			if (send(get("parent"), "inPreP")) tt = get("label");
 			else tt = compressSpaces(get("label"));
+			tt = send(self(), "linkText", tt);
 
 			h += send(txtObj, "make", self(),
 				tt, style_p[3], 
